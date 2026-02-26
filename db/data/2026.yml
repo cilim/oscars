@@ -1,276 +1,371 @@
 ---
 season:
-  name: "98th Academy Awards (2026)"
+  name: 98th Academy Awards (2026)
   year: 2026
-
 categories:
-  - name: Best Picture
-    has_person: false
-    nominees:
-      - movie: Bugonia
-      - movie: F1
-      - movie: Frankenstein
-      - movie: Hamnet
-      - movie: Marty Supreme
-      - movie: One Battle After Another
-      - movie: The Secret Agent
-      - movie: Sentimental Value
-      - movie: Sinners
-      - movie: Train Dreams
-
-  - name: Best Director
-    has_person: true
-    nominees:
-      - person: Chloé Zhao
-        movie: Hamnet
-      - person: Josh Safdie
-        movie: Marty Supreme
-      - person: Paul Thomas Anderson
-        movie: One Battle After Another
-      - person: Joachim Trier
-        movie: Sentimental Value
-      - person: Ryan Coogler
-        movie: Sinners
-
-  - name: Best Actor
-    has_person: true
-    nominees:
-      - person: Timothée Chalamet
-        movie: Marty Supreme
-      - person: Leonardo DiCaprio
-        movie: One Battle After Another
-      - person: Ethan Hawke
-        movie: Blue Moon
-      - person: Michael B. Jordan
-        movie: Sinners
-      - person: Wagner Moura
-        movie: The Secret Agent
-
-  - name: Best Actress
-    has_person: true
-    nominees:
-      - person: Jessie Buckley
-        movie: Hamnet
-      - person: Rose Byrne
-        movie: If I Had Legs I'd Kick You
-      - person: Kate Hudson
-        movie: Song Sung Blue
-      - person: Renate Reinsve
-        movie: Sentimental Value
-      - person: Emma Stone
-        movie: Bugonia
-
-  - name: Best Supporting Actor
-    has_person: true
-    nominees:
-      - person: Benicio del Toro
-        movie: One Battle After Another
-      - person: Jacob Elordi
-        movie: Frankenstein
-      - person: Delroy Lindo
-        movie: Sinners
-      - person: Sean Penn
-        movie: One Battle After Another
-      - person: Stellan Skarsgård
-        movie: Sentimental Value
-
-  - name: Best Supporting Actress
-    has_person: true
-    nominees:
-      - person: Elle Fanning
-        movie: Sentimental Value
-      - person: Inga Ibsdotter Lilleaas
-        movie: Sentimental Value
-      - person: Amy Madigan
-        movie: Weapons
-      - person: Wunmi Mosaku
-        movie: Sinners
-      - person: Teyana Taylor
-        movie: One Battle After Another
-
-  - name: Best Animated Feature Film
-    has_person: false
-    nominees:
-      - movie: Arco
-      - movie: Elio
-      - movie: KPop Demon Hunters
-      - movie: "Little Amélie or the Character of Rain"
-      - movie: Zootopia 2
-
-  - name: Best Animated Short Film
-    has_person: false
-    nominees:
-      - movie: Butterfly
-      - movie: Forevergreen
-      - movie: The Girl Who Cried Pearls
-      - movie: Retirement Plan
-      - movie: The Three Sisters
-
-  - name: Best Cinematography
-    has_person: false
-    nominees:
-      - movie: Frankenstein
-      - movie: Marty Supreme
-      - movie: One Battle After Another
-      - movie: Sinners
-      - movie: Train Dreams
-
-  - name: Best Costume Design
-    has_person: false
-    nominees:
-      - movie: "Avatar: Fire and Ash"
-      - movie: Frankenstein
-      - movie: Hamnet
-      - movie: Marty Supreme
-      - movie: Sinners
-
-  - name: Best Documentary Feature Film
-    has_person: false
-    nominees:
-      - movie: The Alabama Solution
-      - movie: Come See Me in the Good Light
-      - movie: Cutting Through Rocks
-      - movie: Mr. Nobody Against Putin
-      - movie: The Perfect Neighbor
-
-  - name: Best Documentary Short Film
-    has_person: false
-    nominees:
-      - movie: All the Empty Rooms
-      - movie: "Armed Only With a Camera: The Life and Death of Brent Renaud"
-      - movie: "Children No More: Were and Are Gone"
-      - movie: The Devil Is Busy
-      - movie: Perfectly a Strangeness
-
-  - name: Best Film Editing
-    has_person: false
-    nominees:
-      - movie: F1
-      - movie: Marty Supreme
-      - movie: One Battle After Another
-      - movie: Sentimental Value
-      - movie: Sinners
-
-  - name: Best International Feature Film
-    has_person: false
-    nominees:
-      - movie: "The Secret Agent (Brazil)"
-      - movie: "It Was Just an Accident (France)"
-      - movie: "Sentimental Value (Norway)"
-      - movie: "Sirāt (Spain)"
-      - movie: "The Voice of Hind Rajab (Tunisia)"
-
-  - name: Best Casting
-    has_person: true
-    nominees:
-      - person: Nina Gold
-        movie: Hamnet
-      - person: Jennifer Venditti
-        movie: Marty Supreme
-      - person: Cassandra Kulukundis
-        movie: One Battle After Another
-      - person: Gabriel Domingues
-        movie: The Secret Agent
-      - person: Francine Maisler
-        movie: Sinners
-
-  - name: Best Makeup and Hairstyling
-    has_person: false
-    nominees:
-      - movie: Frankenstein
-      - movie: Kokuho
-      - movie: Sinners
-      - movie: The Smashing Machine
-      - movie: The Ugly Stepsister
-
-  - name: Best Original Score
-    has_person: true
-    nominees:
-      - person: Jerskin Fendrix
-        movie: Bugonia
-      - person: Alexandre Desplat
-        movie: Frankenstein
-      - person: Max Richter
-        movie: Hamnet
-      - person: Jonny Greenwood
-        movie: One Battle After Another
-      - person: Ludwig Göransson
-        movie: Sinners
-
-  - name: Best Original Song
-    has_person: true
-    nominees:
-      - person: Diane Warren
-        movie: "Diane Warren: Relentless"
-      - person: EJAE, Mark Sonnenblick et al.
-        movie: KPop Demon Hunters
-      - person: Raphael Saadiq, Ludwig Göransson
-        movie: Sinners
-      - person: Nicholas Pike
-        movie: "Viva Verdi!"
-      - person: Nick Cave, Bryce Dessner
-        movie: Train Dreams
-
-  - name: Best Production Design
-    has_person: false
-    nominees:
-      - movie: Frankenstein
-      - movie: Hamnet
-      - movie: Marty Supreme
-      - movie: One Battle After Another
-      - movie: Sinners
-
-  - name: Best Live Action Short Film
-    has_person: false
-    nominees:
-      - movie: "Butcher's Stain"
-      - movie: A Friend of Dorothy
-      - movie: "Jane Austen's Period Drama"
-      - movie: The Singers
-      - movie: Two People Exchanging Saliva
-
-  - name: Best Sound
-    has_person: false
-    nominees:
-      - movie: F1
-      - movie: Frankenstein
-      - movie: One Battle After Another
-      - movie: Sinners
-      - movie: Sirāt
-
-  - name: Best Visual Effects
-    has_person: false
-    nominees:
-      - movie: "Avatar: Fire and Ash"
-      - movie: F1
-      - movie: Jurassic World Rebirth
-      - movie: The Lost Bus
-      - movie: Sinners
-
-  - name: Best Adapted Screenplay
-    has_person: true
-    nominees:
-      - person: Will Tracy
-        movie: Bugonia
-      - person: Guillermo del Toro
-        movie: Frankenstein
-      - person: Chloé Zhao, Maggie O'Farrell
-        movie: Hamnet
-      - person: Paul Thomas Anderson
-        movie: One Battle After Another
-      - person: Clint Bentley, Greg Kwedar
-        movie: Train Dreams
-
-  - name: Best Original Screenplay
-    has_person: true
-    nominees:
-      - person: Robert Kaplow
-        movie: Blue Moon
-      - person: Jafar Panahi et al.
-        movie: It Was Just an Accident
-      - person: Ronald Bronstein, Josh Safdie
-        movie: Marty Supreme
-      - person: Eskil Vogt, Joachim Trier
-        movie: Sentimental Value
-      - person: Ryan Coogler
-        movie: Sinners
+- name: Best Picture
+  has_person: false
+  nominees:
+  - movie: Bugonia
+    poster_url: https://image.tmdb.org/t/p/w500/rSdOua3wKMEaFWDcKAYWRjXQWOt.jpg
+  - movie: F1
+    poster_url: https://image.tmdb.org/t/p/w500/vqBmyAj0Xm9LnS1xe1MSlMAJyHq.jpg
+  - movie: Frankenstein
+    poster_url: https://image.tmdb.org/t/p/w500/g4JtvGlQO7DByTI6frUobqvSL3R.jpg
+  - movie: Hamnet
+    poster_url: https://image.tmdb.org/t/p/w500/vbeyOZm2bvBXcbgPD3v6o94epPX.jpg
+  - movie: Marty Supreme
+    poster_url: https://image.tmdb.org/t/p/w500/lYWEXbQgRTR4ZQleSXAgRbxAjvq.jpg
+  - movie: One Battle After Another
+    poster_url: https://image.tmdb.org/t/p/w500/lbBWwxBht4JFP5PsuJ5onpMqugW.jpg
+  - movie: The Secret Agent
+    poster_url: https://image.tmdb.org/t/p/w500/iLE2YOmeboeTDC7GlOp1dzh1VFo.jpg
+  - movie: Sentimental Value
+    poster_url: https://image.tmdb.org/t/p/w500/pz9NCWxxOk3o0W3v1Zkhawrwb4i.jpg
+  - movie: Sinners
+    poster_url: https://image.tmdb.org/t/p/w500/qTvFWCGeGXgBRaINLY1zqgTPSpn.jpg
+  - movie: Train Dreams
+    poster_url: https://image.tmdb.org/t/p/w500/wfzYOVdafdbD1d3SxNqiBtV2Yhx.jpg
+- name: Best Director
+  has_person: true
+  nominees:
+  - person: Chloé Zhao
+    movie: Hamnet
+    poster_url: https://image.tmdb.org/t/p/w500/vbeyOZm2bvBXcbgPD3v6o94epPX.jpg
+  - person: Josh Safdie
+    movie: Marty Supreme
+    poster_url: https://image.tmdb.org/t/p/w500/lYWEXbQgRTR4ZQleSXAgRbxAjvq.jpg
+  - person: Paul Thomas Anderson
+    movie: One Battle After Another
+    poster_url: https://image.tmdb.org/t/p/w500/lbBWwxBht4JFP5PsuJ5onpMqugW.jpg
+  - person: Joachim Trier
+    movie: Sentimental Value
+    poster_url: https://image.tmdb.org/t/p/w500/pz9NCWxxOk3o0W3v1Zkhawrwb4i.jpg
+  - person: Ryan Coogler
+    movie: Sinners
+    poster_url: https://image.tmdb.org/t/p/w500/qTvFWCGeGXgBRaINLY1zqgTPSpn.jpg
+- name: Best Actor
+  has_person: true
+  nominees:
+  - person: Timothée Chalamet
+    movie: Marty Supreme
+    poster_url: https://image.tmdb.org/t/p/w500/lYWEXbQgRTR4ZQleSXAgRbxAjvq.jpg
+  - person: Leonardo DiCaprio
+    movie: One Battle After Another
+    poster_url: https://image.tmdb.org/t/p/w500/lbBWwxBht4JFP5PsuJ5onpMqugW.jpg
+  - person: Ethan Hawke
+    movie: Blue Moon
+    poster_url: https://image.tmdb.org/t/p/w500/nij3i5ziQdqfiK29gb4rX1bkmVy.jpg
+  - person: Michael B. Jordan
+    movie: Sinners
+    poster_url: https://image.tmdb.org/t/p/w500/qTvFWCGeGXgBRaINLY1zqgTPSpn.jpg
+  - person: Wagner Moura
+    movie: The Secret Agent
+    poster_url: https://image.tmdb.org/t/p/w500/iLE2YOmeboeTDC7GlOp1dzh1VFo.jpg
+- name: Best Actress
+  has_person: true
+  nominees:
+  - person: Jessie Buckley
+    movie: Hamnet
+    poster_url: https://image.tmdb.org/t/p/w500/vbeyOZm2bvBXcbgPD3v6o94epPX.jpg
+  - person: Rose Byrne
+    movie: If I Had Legs I'd Kick You
+    poster_url: https://image.tmdb.org/t/p/w500/va0TQ9WprMXRqQAzY56vyqY0Yd5.jpg
+  - person: Kate Hudson
+    movie: Song Sung Blue
+    poster_url: https://image.tmdb.org/t/p/w500/kQzDdxI0F5z16qo2vzDoqdVMl4O.jpg
+  - person: Renate Reinsve
+    movie: Sentimental Value
+    poster_url: https://image.tmdb.org/t/p/w500/pz9NCWxxOk3o0W3v1Zkhawrwb4i.jpg
+  - person: Emma Stone
+    movie: Bugonia
+    poster_url: https://image.tmdb.org/t/p/w500/rSdOua3wKMEaFWDcKAYWRjXQWOt.jpg
+- name: Best Supporting Actor
+  has_person: true
+  nominees:
+  - person: Benicio del Toro
+    movie: One Battle After Another
+    poster_url: https://image.tmdb.org/t/p/w500/lbBWwxBht4JFP5PsuJ5onpMqugW.jpg
+  - person: Jacob Elordi
+    movie: Frankenstein
+    poster_url: https://image.tmdb.org/t/p/w500/g4JtvGlQO7DByTI6frUobqvSL3R.jpg
+  - person: Delroy Lindo
+    movie: Sinners
+    poster_url: https://image.tmdb.org/t/p/w500/qTvFWCGeGXgBRaINLY1zqgTPSpn.jpg
+  - person: Sean Penn
+    movie: One Battle After Another
+    poster_url: https://image.tmdb.org/t/p/w500/lbBWwxBht4JFP5PsuJ5onpMqugW.jpg
+  - person: Stellan Skarsgård
+    movie: Sentimental Value
+    poster_url: https://image.tmdb.org/t/p/w500/pz9NCWxxOk3o0W3v1Zkhawrwb4i.jpg
+- name: Best Supporting Actress
+  has_person: true
+  nominees:
+  - person: Elle Fanning
+    movie: Sentimental Value
+    poster_url: https://image.tmdb.org/t/p/w500/pz9NCWxxOk3o0W3v1Zkhawrwb4i.jpg
+  - person: Inga Ibsdotter Lilleaas
+    movie: Sentimental Value
+    poster_url: https://image.tmdb.org/t/p/w500/pz9NCWxxOk3o0W3v1Zkhawrwb4i.jpg
+  - person: Amy Madigan
+    movie: Weapons
+    poster_url: https://image.tmdb.org/t/p/w500/cpf7vsRZ0MYRQcnLWteD5jK9ymT.jpg
+  - person: Wunmi Mosaku
+    movie: Sinners
+    poster_url: https://image.tmdb.org/t/p/w500/qTvFWCGeGXgBRaINLY1zqgTPSpn.jpg
+  - person: Teyana Taylor
+    movie: One Battle After Another
+    poster_url: https://image.tmdb.org/t/p/w500/lbBWwxBht4JFP5PsuJ5onpMqugW.jpg
+- name: Best Animated Feature Film
+  has_person: false
+  nominees:
+  - movie: Arco
+    poster_url: https://image.tmdb.org/t/p/w500/ipE3XiHqbSQm3HS0tJ09CDaJ2Fs.jpg
+  - movie: Elio
+    poster_url: https://image.tmdb.org/t/p/w500/7z8jDiTZZco9moIKpTUImFtTy7o.jpg
+  - movie: KPop Demon Hunters
+    poster_url: https://image.tmdb.org/t/p/w500/zT7Lhw3BhJbMkRqm9Zlx2YGMsY0.jpg
+  - movie: Little Amélie or the Character of Rain
+    poster_url: https://image.tmdb.org/t/p/w500/qoqDvTUVPoZJWw24AjGDt3J4tZN.jpg
+  - movie: Zootopia 2
+    poster_url: https://image.tmdb.org/t/p/w500/oJ7g2CifqpStmoYQyaLQgEU32qO.jpg
+- name: Best Animated Short Film
+  has_person: false
+  nominees:
+  - movie: Butterfly
+  - movie: Forevergreen
+    poster_url: https://image.tmdb.org/t/p/w500/bYmb2SzWZjQvyuBItB3wcO8RAWy.jpg
+  - movie: The Girl Who Cried Pearls
+    poster_url: https://image.tmdb.org/t/p/w500/sqdqvstmM2vOBnb5beVT8lOQ4Oi.jpg
+  - movie: Retirement Plan
+    poster_url: https://image.tmdb.org/t/p/w500/lRkotrMJJNyOXBZE4i4s8vfXPTh.jpg
+  - movie: The Three Sisters
+    poster_url: https://image.tmdb.org/t/p/w500/86D5GyOvbnpCGDyzP3ls1Et8Bdu.jpg
+- name: Best Cinematography
+  has_person: false
+  nominees:
+  - movie: Frankenstein
+    poster_url: https://image.tmdb.org/t/p/w500/g4JtvGlQO7DByTI6frUobqvSL3R.jpg
+  - movie: Marty Supreme
+    poster_url: https://image.tmdb.org/t/p/w500/lYWEXbQgRTR4ZQleSXAgRbxAjvq.jpg
+  - movie: One Battle After Another
+    poster_url: https://image.tmdb.org/t/p/w500/lbBWwxBht4JFP5PsuJ5onpMqugW.jpg
+  - movie: Sinners
+    poster_url: https://image.tmdb.org/t/p/w500/qTvFWCGeGXgBRaINLY1zqgTPSpn.jpg
+  - movie: Train Dreams
+    poster_url: https://image.tmdb.org/t/p/w500/wfzYOVdafdbD1d3SxNqiBtV2Yhx.jpg
+- name: Best Costume Design
+  has_person: false
+  nominees:
+  - movie: 'Avatar: Fire and Ash'
+    poster_url: https://image.tmdb.org/t/p/w500/bRBeSHfGHwkEpImlhxPmOcUsaeg.jpg
+  - movie: Frankenstein
+    poster_url: https://image.tmdb.org/t/p/w500/g4JtvGlQO7DByTI6frUobqvSL3R.jpg
+  - movie: Hamnet
+    poster_url: https://image.tmdb.org/t/p/w500/vbeyOZm2bvBXcbgPD3v6o94epPX.jpg
+  - movie: Marty Supreme
+    poster_url: https://image.tmdb.org/t/p/w500/lYWEXbQgRTR4ZQleSXAgRbxAjvq.jpg
+  - movie: Sinners
+    poster_url: https://image.tmdb.org/t/p/w500/qTvFWCGeGXgBRaINLY1zqgTPSpn.jpg
+- name: Best Documentary Feature Film
+  has_person: false
+  nominees:
+  - movie: The Alabama Solution
+    poster_url: https://image.tmdb.org/t/p/w500/gultnK0rYs4xLLYhxQ9ZnvPfVAn.jpg
+  - movie: Come See Me in the Good Light
+    poster_url: https://image.tmdb.org/t/p/w500/5AFbcDGT78cLZTyHTSDBohczjuO.jpg
+  - movie: Cutting Through Rocks
+    poster_url: https://image.tmdb.org/t/p/w500/qefjf5TeM0uRzrFU2c4xYt6ew9z.jpg
+  - movie: Mr. Nobody Against Putin
+    poster_url: https://image.tmdb.org/t/p/w500/aXCEnrqecvPXohuptN0JRgIvkDj.jpg
+  - movie: The Perfect Neighbor
+    poster_url: https://image.tmdb.org/t/p/w500/2NE7yN45zo19o4LJr6JFxDWmh2b.jpg
+- name: Best Documentary Short Film
+  has_person: false
+  nominees:
+  - movie: All the Empty Rooms
+    poster_url: https://image.tmdb.org/t/p/w500/38odJEJiluUBLI58tO6oTmv5wZl.jpg
+  - movie: 'Armed Only With a Camera: The Life and Death of Brent Renaud'
+    poster_url: https://image.tmdb.org/t/p/w500/1vG68YrQGAEnCQooXrEvJ2eparK.jpg
+  - movie: 'Children No More: Were and Are Gone'
+    poster_url: https://image.tmdb.org/t/p/w500/e5FPUMkTd2aHXtpSd5UZR3jAHHk.jpg
+  - movie: The Devil Is Busy
+    poster_url: https://image.tmdb.org/t/p/w500/75GH49xL5kEzyYeXGiOPy2FIZGe.jpg
+  - movie: Perfectly a Strangeness
+    poster_url: https://image.tmdb.org/t/p/w500/biPnnMyECGRhtUj5zGg7T7XSCk7.jpg
+- name: Best Film Editing
+  has_person: false
+  nominees:
+  - movie: F1
+    poster_url: https://image.tmdb.org/t/p/w500/vqBmyAj0Xm9LnS1xe1MSlMAJyHq.jpg
+  - movie: Marty Supreme
+    poster_url: https://image.tmdb.org/t/p/w500/lYWEXbQgRTR4ZQleSXAgRbxAjvq.jpg
+  - movie: One Battle After Another
+    poster_url: https://image.tmdb.org/t/p/w500/lbBWwxBht4JFP5PsuJ5onpMqugW.jpg
+  - movie: Sentimental Value
+    poster_url: https://image.tmdb.org/t/p/w500/pz9NCWxxOk3o0W3v1Zkhawrwb4i.jpg
+  - movie: Sinners
+    poster_url: https://image.tmdb.org/t/p/w500/qTvFWCGeGXgBRaINLY1zqgTPSpn.jpg
+- name: Best International Feature Film
+  has_person: false
+  nominees:
+  - movie: The Secret Agent (Brazil)
+  - movie: It Was Just an Accident (France)
+  - movie: Sentimental Value (Norway)
+  - movie: Sirāt (Spain)
+  - movie: The Voice of Hind Rajab (Tunisia)
+- name: Best Casting
+  has_person: true
+  nominees:
+  - person: Nina Gold
+    movie: Hamnet
+    poster_url: https://image.tmdb.org/t/p/w500/vbeyOZm2bvBXcbgPD3v6o94epPX.jpg
+  - person: Jennifer Venditti
+    movie: Marty Supreme
+    poster_url: https://image.tmdb.org/t/p/w500/lYWEXbQgRTR4ZQleSXAgRbxAjvq.jpg
+  - person: Cassandra Kulukundis
+    movie: One Battle After Another
+    poster_url: https://image.tmdb.org/t/p/w500/lbBWwxBht4JFP5PsuJ5onpMqugW.jpg
+  - person: Gabriel Domingues
+    movie: The Secret Agent
+    poster_url: https://image.tmdb.org/t/p/w500/iLE2YOmeboeTDC7GlOp1dzh1VFo.jpg
+  - person: Francine Maisler
+    movie: Sinners
+    poster_url: https://image.tmdb.org/t/p/w500/qTvFWCGeGXgBRaINLY1zqgTPSpn.jpg
+- name: Best Makeup and Hairstyling
+  has_person: false
+  nominees:
+  - movie: Frankenstein
+    poster_url: https://image.tmdb.org/t/p/w500/g4JtvGlQO7DByTI6frUobqvSL3R.jpg
+  - movie: Kokuho
+    poster_url: https://image.tmdb.org/t/p/w500/egDmNUBcSvu6aqQPCfyd1UneCYr.jpg
+  - movie: Sinners
+    poster_url: https://image.tmdb.org/t/p/w500/qTvFWCGeGXgBRaINLY1zqgTPSpn.jpg
+  - movie: The Smashing Machine
+    poster_url: https://image.tmdb.org/t/p/w500/mPuBDGrVIBGOymBxR6rO3iIvBSe.jpg
+  - movie: The Ugly Stepsister
+    poster_url: https://image.tmdb.org/t/p/w500/rayAREIKtSinuov10GvrZHyXfXH.jpg
+- name: Best Original Score
+  has_person: true
+  nominees:
+  - person: Jerskin Fendrix
+    movie: Bugonia
+    poster_url: https://image.tmdb.org/t/p/w500/rSdOua3wKMEaFWDcKAYWRjXQWOt.jpg
+  - person: Alexandre Desplat
+    movie: Frankenstein
+    poster_url: https://image.tmdb.org/t/p/w500/g4JtvGlQO7DByTI6frUobqvSL3R.jpg
+  - person: Max Richter
+    movie: Hamnet
+    poster_url: https://image.tmdb.org/t/p/w500/vbeyOZm2bvBXcbgPD3v6o94epPX.jpg
+  - person: Jonny Greenwood
+    movie: One Battle After Another
+    poster_url: https://image.tmdb.org/t/p/w500/lbBWwxBht4JFP5PsuJ5onpMqugW.jpg
+  - person: Ludwig Göransson
+    movie: Sinners
+    poster_url: https://image.tmdb.org/t/p/w500/qTvFWCGeGXgBRaINLY1zqgTPSpn.jpg
+- name: Best Original Song
+  has_person: true
+  nominees:
+  - person: Diane Warren
+    movie: 'Diane Warren: Relentless'
+    poster_url: https://image.tmdb.org/t/p/w500/uhfvnmtq6cgpI038YrRsgmThb2D.jpg
+  - person: EJAE, Mark Sonnenblick et al.
+    movie: KPop Demon Hunters
+    poster_url: https://image.tmdb.org/t/p/w500/zT7Lhw3BhJbMkRqm9Zlx2YGMsY0.jpg
+  - person: Raphael Saadiq, Ludwig Göransson
+    movie: Sinners
+    poster_url: https://image.tmdb.org/t/p/w500/qTvFWCGeGXgBRaINLY1zqgTPSpn.jpg
+  - person: Nicholas Pike
+    movie: Viva Verdi!
+    poster_url: https://image.tmdb.org/t/p/w500/l2IIanbP4HVxL9yginZzT73kE9j.jpg
+  - person: Nick Cave, Bryce Dessner
+    movie: Train Dreams
+    poster_url: https://image.tmdb.org/t/p/w500/wfzYOVdafdbD1d3SxNqiBtV2Yhx.jpg
+- name: Best Production Design
+  has_person: false
+  nominees:
+  - movie: Frankenstein
+    poster_url: https://image.tmdb.org/t/p/w500/g4JtvGlQO7DByTI6frUobqvSL3R.jpg
+  - movie: Hamnet
+    poster_url: https://image.tmdb.org/t/p/w500/vbeyOZm2bvBXcbgPD3v6o94epPX.jpg
+  - movie: Marty Supreme
+    poster_url: https://image.tmdb.org/t/p/w500/lYWEXbQgRTR4ZQleSXAgRbxAjvq.jpg
+  - movie: One Battle After Another
+    poster_url: https://image.tmdb.org/t/p/w500/lbBWwxBht4JFP5PsuJ5onpMqugW.jpg
+  - movie: Sinners
+    poster_url: https://image.tmdb.org/t/p/w500/qTvFWCGeGXgBRaINLY1zqgTPSpn.jpg
+- name: Best Live Action Short Film
+  has_person: false
+  nominees:
+  - movie: Butcher's Stain
+    poster_url: https://image.tmdb.org/t/p/w500/lAcOUxQUFP6lruP8e8nZSFBFjZ1.jpg
+  - movie: A Friend of Dorothy
+    poster_url: https://image.tmdb.org/t/p/w500/5YjFZoCfBJ2G40SHPa5CFy60jdC.jpg
+  - movie: Jane Austen's Period Drama
+    poster_url: https://image.tmdb.org/t/p/w500/tlQfsrxKLdrpQBlWUrUlpTamOBy.jpg
+  - movie: The Singers
+    poster_url: https://image.tmdb.org/t/p/w500/tJ3gevIkQWDXtYj6FvfFilnCfmv.jpg
+  - movie: Two People Exchanging Saliva
+    poster_url: https://image.tmdb.org/t/p/w500/1Hi01LzZFpopWzNRlPBGsAdmoBI.jpg
+- name: Best Sound
+  has_person: false
+  nominees:
+  - movie: F1
+    poster_url: https://image.tmdb.org/t/p/w500/vqBmyAj0Xm9LnS1xe1MSlMAJyHq.jpg
+  - movie: Frankenstein
+    poster_url: https://image.tmdb.org/t/p/w500/g4JtvGlQO7DByTI6frUobqvSL3R.jpg
+  - movie: One Battle After Another
+    poster_url: https://image.tmdb.org/t/p/w500/lbBWwxBht4JFP5PsuJ5onpMqugW.jpg
+  - movie: Sinners
+    poster_url: https://image.tmdb.org/t/p/w500/qTvFWCGeGXgBRaINLY1zqgTPSpn.jpg
+  - movie: Sirāt
+    poster_url: https://image.tmdb.org/t/p/w500/bzBtsLi17rK4G6kDvOXfUZfAhca.jpg
+- name: Best Visual Effects
+  has_person: false
+  nominees:
+  - movie: 'Avatar: Fire and Ash'
+    poster_url: https://image.tmdb.org/t/p/w500/bRBeSHfGHwkEpImlhxPmOcUsaeg.jpg
+  - movie: F1
+    poster_url: https://image.tmdb.org/t/p/w500/vqBmyAj0Xm9LnS1xe1MSlMAJyHq.jpg
+  - movie: Jurassic World Rebirth
+    poster_url: https://image.tmdb.org/t/p/w500/1RICxzeoNCAO5NpcRMIgg1XT6fm.jpg
+  - movie: The Lost Bus
+    poster_url: https://image.tmdb.org/t/p/w500/zpygCOYY1DPBkeUsrrznLRN5js5.jpg
+  - movie: Sinners
+    poster_url: https://image.tmdb.org/t/p/w500/qTvFWCGeGXgBRaINLY1zqgTPSpn.jpg
+- name: Best Adapted Screenplay
+  has_person: true
+  nominees:
+  - person: Will Tracy
+    movie: Bugonia
+    poster_url: https://image.tmdb.org/t/p/w500/rSdOua3wKMEaFWDcKAYWRjXQWOt.jpg
+  - person: Guillermo del Toro
+    movie: Frankenstein
+    poster_url: https://image.tmdb.org/t/p/w500/g4JtvGlQO7DByTI6frUobqvSL3R.jpg
+  - person: Chloé Zhao, Maggie O'Farrell
+    movie: Hamnet
+    poster_url: https://image.tmdb.org/t/p/w500/vbeyOZm2bvBXcbgPD3v6o94epPX.jpg
+  - person: Paul Thomas Anderson
+    movie: One Battle After Another
+    poster_url: https://image.tmdb.org/t/p/w500/lbBWwxBht4JFP5PsuJ5onpMqugW.jpg
+  - person: Clint Bentley, Greg Kwedar
+    movie: Train Dreams
+    poster_url: https://image.tmdb.org/t/p/w500/wfzYOVdafdbD1d3SxNqiBtV2Yhx.jpg
+- name: Best Original Screenplay
+  has_person: true
+  nominees:
+  - person: Robert Kaplow
+    movie: Blue Moon
+    poster_url: https://image.tmdb.org/t/p/w500/nij3i5ziQdqfiK29gb4rX1bkmVy.jpg
+  - person: Jafar Panahi et al.
+    movie: It Was Just an Accident
+    poster_url: https://image.tmdb.org/t/p/w500/eNYGj2DG3n8OrVPTfYunpPW9uas.jpg
+  - person: Ronald Bronstein, Josh Safdie
+    movie: Marty Supreme
+    poster_url: https://image.tmdb.org/t/p/w500/lYWEXbQgRTR4ZQleSXAgRbxAjvq.jpg
+  - person: Eskil Vogt, Joachim Trier
+    movie: Sentimental Value
+    poster_url: https://image.tmdb.org/t/p/w500/pz9NCWxxOk3o0W3v1Zkhawrwb4i.jpg
+  - person: Ryan Coogler
+    movie: Sinners
+    poster_url: https://image.tmdb.org/t/p/w500/qTvFWCGeGXgBRaINLY1zqgTPSpn.jpg

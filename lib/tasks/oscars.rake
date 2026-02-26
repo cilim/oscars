@@ -189,7 +189,7 @@ namespace :oscars do
     request["Authorization"] = "Bearer #{Rails.application.credentials.tmdb_access_token}"
     request["Accept"] = "application/json"
 
-    response = Net::HTTP.start(uri.host, uri.port, use_ssl: true) { |h| h.request(request) }
+    response = Net::HTTP.start(uri.host, uri.port, use_ssl: true, verify_mode: OpenSSL::SSL::VERIFY_NONE) { |h| h.request(request) }
     return nil unless response.is_a?(Net::HTTPSuccess)
 
     results = JSON.parse(response.body)["results"] || []
