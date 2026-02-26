@@ -1,0 +1,28 @@
+<%= form_with model: [:admin, @season, @season_category, nominee], class: "space-y-5" do |f| %>
+  <% if nominee.errors.any? %>
+    <div class="flash-alert">
+      <ul class="list-disc list-inside space-y-1">
+        <% nominee.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= f.label :movie_name, "Film", class: "label-text" %>
+    <%= f.text_field :movie_name, class: "input-field", placeholder: "e.g. The Brutalist" %>
+  </div>
+
+  <% if @season_category.has_person %>
+    <div>
+      <%= f.label :person_name, "Person", class: "label-text" %>
+      <%= f.text_field :person_name, class: "input-field", placeholder: "e.g. Brady Corbet" %>
+    </div>
+  <% end %>
+
+  <div class="flex gap-3">
+    <%= f.submit class: "btn btn-gold" %>
+    <%= link_to "Cancel", admin_season_path(@season), class: "btn btn-outline no-underline" %>
+  </div>
+<% end %>

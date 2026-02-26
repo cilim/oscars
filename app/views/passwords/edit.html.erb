@@ -1,0 +1,23 @@
+<% content_for(:title, "New Password - Oscars Pool") %>
+
+<div class="max-w-md mx-auto">
+  <div class="text-center mb-8">
+    <h1 class="text-3xl font-bold text-oscar-gold">Set New Password</h1>
+  </div>
+
+  <div class="card">
+    <%= form_with url: password_path(params[:token]), method: :put, class: "space-y-5" do |form| %>
+      <div>
+        <%= form.label :password, "New Password", class: "label-text" %>
+        <%= form.password_field :password, required: true, autocomplete: "new-password", placeholder: "At least 8 characters", maxlength: 72, class: "input-field" %>
+      </div>
+
+      <div>
+        <%= form.label :password_confirmation, "Confirm Password", class: "label-text" %>
+        <%= form.password_field :password_confirmation, required: true, autocomplete: "new-password", placeholder: "Type it again", maxlength: 72, class: "input-field" %>
+      </div>
+
+      <%= form.submit "Update Password", class: "btn btn-gold w-full" %>
+    <% end %>
+  </div>
+</div>

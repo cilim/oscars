@@ -1,0 +1,56 @@
+<% content_for(:title, "Make Picks - #{@season.name}") %>
+
+<div class="mb-8">
+  <div class="flex items-center justify-between flex-wrap gap-4">
+    <div>
+      <h1 class="text-3xl font-bold text-oscar-gold">Make Your Picks</h1>
+      <p class="text-oscar-muted mt-1"><%= @season.name %></p>
+    </div>
+    <%= link_to "Back to Season", season_path(@season), class: "btn btn-outline no-underline" %>
+  </div>
+</div>
+
+<%= form_with url: season_picks_path(@season), method: :patch, class: "space-y-6" do |f| %>
+  <% @season_categories.each do |sc| %>
+    <% pick = @picks_by_category[sc.id] || Pick.new %>
+    <div class="card" data-controller="pick-card">
+      <h3 class="text-xl font-bold text-white mb-1"><%= sc.category_name %></h3>
+      <% if sc.has_person %>
+        <p class="text-oscar-muted text-xs mb-4">Person & film</p>
+      <% else %>
+        <p class="text-oscar-muted text-xs mb-4">Film</p>
+      <% end %>
+
+      <div class="grid gap-4 md:grid-cols-2">
+        <div>
+          <label class="label-text">
+            Think Will Win
+            <span class="text-oscar-gold">(5 pts)</span>
+          </label>
+          <%= f.select "picks[#{sc.id}][think_will_win_id]",
+              options_from_collection_for_select(sc.nominees, :id, :display_name, pick.think_will_win_id),
+              { include_blank: "— Select —" },
+              class: "select-field" %>
+        </div>
+
+        <div>
+          <label class="label-text">
+            Want To Win
+            <span class="text-oscar-muted">(2 pts)</span>
+          </label>
+          <%= f.select "picks[#{sc.id}][want_to_win_id]",
+              options_from_collection_for_select(sc.nominees, :id, :display_name, pick.want_to_win_id),
+              { include_blank: "— Select —" },
+              class: "select-field" %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="sticky bottom-4 z-10">
+    <div class="bg-oscar-deeper/95 backdrop-blur-md border border-oscar-border rounded-xl p-4 flex items-center justify-between shadow-2xl">
+      <span class="text-oscar-muted text-sm"><%= @season_categories.count %> categories</span>
+      <%= f.submit "Save All Picks", class: "btn btn-gold btn-lg" %>
+    </div>
+  </div>
+<% end %>

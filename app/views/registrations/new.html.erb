@@ -1,0 +1,49 @@
+<% content_for(:title, "Sign Up - Oscars Pool") %>
+
+<div class="max-w-md mx-auto">
+  <div class="text-center mb-8">
+    <h1 class="text-3xl font-bold text-oscar-gold">Join the Pool</h1>
+    <p class="text-oscar-muted mt-2">Create your account to start predicting</p>
+  </div>
+
+  <div class="card">
+    <%= form_with model: @user, url: registration_path, class: "space-y-5" do |f| %>
+      <% if @user.errors.any? %>
+        <div class="flash-alert">
+          <ul class="list-disc list-inside space-y-1">
+            <% @user.errors.full_messages.each do |msg| %>
+              <li><%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div>
+        <%= f.label :display_name, "Display Name", class: "label-text" %>
+        <%= f.text_field :display_name, class: "input-field", placeholder: "How friends know you", autofocus: true, required: true %>
+      </div>
+
+      <div>
+        <%= f.label :email_address, "Email", class: "label-text" %>
+        <%= f.email_field :email_address, class: "input-field", placeholder: "you@example.com", required: true, autocomplete: "email" %>
+      </div>
+
+      <div>
+        <%= f.label :password, class: "label-text" %>
+        <%= f.password_field :password, class: "input-field", placeholder: "At least 8 characters", required: true, minlength: 8, autocomplete: "new-password" %>
+      </div>
+
+      <div>
+        <%= f.label :password_confirmation, "Confirm Password", class: "label-text" %>
+        <%= f.password_field :password_confirmation, class: "input-field", placeholder: "Type it again", required: true, autocomplete: "new-password" %>
+      </div>
+
+      <%= f.submit "Create Account", class: "btn btn-gold btn-lg w-full" %>
+    <% end %>
+
+    <p class="text-center text-oscar-muted text-sm mt-6">
+      Already have an account?
+      <%= link_to "Sign in", new_session_path %>
+    </p>
+  </div>
+</div>

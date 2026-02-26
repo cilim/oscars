@@ -1,0 +1,61 @@
+<% content_for(:title, "#{@season.name} - Oscars Pool") %>
+
+<div class="mb-8">
+  <div class="flex items-center justify-between flex-wrap gap-4">
+    <div>
+      <h1 class="text-3xl font-bold text-oscar-gold"><%= @season.name %></h1>
+      <p class="text-oscar-muted mt-1"><%= @season.season_categories.count %> categories &middot; <%= @season.players.count %> players</p>
+    </div>
+
+    <div class="flex gap-3">
+      <%= link_to "Scoreboard", season_scoreboard_path(@season), class: "btn btn-gold no-underline" %>
+      <% if @player && !@season.locked? %>
+        <%= link_to "Make Picks", edit_season_picks_path(@season), class: "btn btn-outline no-underline" %>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<% if @player %>
+  <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <% @season.season_categories.includes(:category, :nominees, winner: :nominee).each do |sc| %>
+      <% pick = @player.picks.find_by(season_category: sc) %>
+      <div class="card">
+        <h3 class="text-lg font-bold text-white mb-3"><%= sc.category_name %></h3>
+
+        <% if sc.winner %>
+          <div class="mb-3 p-3 bg-oscar-gold/10 border border-oscar-gold/20 rounded-lg">
+            <span class="text-xs text-oscar-gold font-semibold uppercase tracking-wider">Winner</span>
+            <p class="text-oscar-gold font-bold mt-1"><%= sc.winner.nominee.display_name %></p>
+          </div>
+        <% end %>
+
+        <% if pick %>
+          <div class="space-y-2 text-sm">
+            <div class="flex justify-between">
+              <span class="text-oscar-muted">Think will win:</span>
+              <span class="text-white"><%= pick.think_will_win&.display_name || "—" %></span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-oscar-muted">Want to win:</span>
+              <span class="text-white"><%= pick.want_to_win&.display_name || "—" %></span>
+            </div>
+            <% if sc.winner %>
+              <div class="flex justify-between pt-2 border-t border-oscar-border">
+                <span class="text-oscar-muted">Points:</span>
+                <span class="font-bold text-oscar-gold"><%= pick.total_score %></span>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-oscar-muted text-sm">No picks yet</p>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <div class="card text-center py-12">
+    <p class="text-oscar-muted text-lg">You are not a player in this season.</p>
+    <p class="text-oscar-muted text-sm mt-2">Ask an admin to add you!</p>
+  </div>
+<% end %>

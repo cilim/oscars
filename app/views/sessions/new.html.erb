@@ -1,0 +1,32 @@
+<% content_for(:title, "Sign In - Oscars Pool") %>
+
+<div class="max-w-md mx-auto">
+  <div class="text-center mb-8">
+    <h1 class="text-3xl font-bold text-oscar-gold">Welcome Back</h1>
+    <p class="text-oscar-muted mt-2">Sign in to view your picks</p>
+  </div>
+
+  <div class="card">
+    <%= form_with url: session_url, class: "space-y-5" do |form| %>
+      <div>
+        <%= form.label :email_address, "Email", class: "label-text" %>
+        <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", placeholder: "you@example.com", value: params[:email_address], class: "input-field" %>
+      </div>
+
+      <div>
+        <%= form.label :password, "Password", class: "label-text" %>
+        <%= form.password_field :password, required: true, autocomplete: "current-password", placeholder: "Your password", maxlength: 72, class: "input-field" %>
+      </div>
+
+      <div class="flex items-center justify-between">
+        <%= form.submit "Sign In", class: "btn btn-gold" %>
+        <%= link_to "Forgot password?", new_password_path, class: "text-sm text-oscar-muted hover:text-oscar-gold" %>
+      </div>
+    <% end %>
+
+    <p class="text-center text-oscar-muted text-sm mt-6">
+      Don't have an account?
+      <%= link_to "Sign up", new_registration_path %>
+    </p>
+  </div>
+</div>

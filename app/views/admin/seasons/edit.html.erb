@@ -1,0 +1,10 @@
+<h1 class="text-3xl font-bold text-oscar-gold mb-8">Edit Season</h1>
+<div class="card max-w-lg">
+  <%= render "form", season: @season %>
+</div>
+
+<div class="mt-6">
+  <%= button_to "Delete Season", admin_season_path(@season), method: :delete,
+      class: "btn btn-danger btn-sm",
+      data: { turbo_confirm: "Are you sure? This will delete all categories, nominees, picks, and players for this season." } %>
+</div>

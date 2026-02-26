@@ -1,0 +1,276 @@
+---
+season:
+  name: "98th Academy Awards (2026)"
+  year: 2026
+
+categories:
+  - name: Best Picture
+    has_person: false
+    nominees:
+      - movie: Bugonia
+      - movie: F1
+      - movie: Frankenstein
+      - movie: Hamnet
+      - movie: Marty Supreme
+      - movie: One Battle After Another
+      - movie: The Secret Agent
+      - movie: Sentimental Value
+      - movie: Sinners
+      - movie: Train Dreams
+
+  - name: Best Director
+    has_person: true
+    nominees:
+      - person: Chloé Zhao
+        movie: Hamnet
+      - person: Josh Safdie
+        movie: Marty Supreme
+      - person: Paul Thomas Anderson
+        movie: One Battle After Another
+      - person: Joachim Trier
+        movie: Sentimental Value
+      - person: Ryan Coogler
+        movie: Sinners
+
+  - name: Best Actor
+    has_person: true
+    nominees:
+      - person: Timothée Chalamet
+        movie: Marty Supreme
+      - person: Leonardo DiCaprio
+        movie: One Battle After Another
+      - person: Ethan Hawke
+        movie: Blue Moon
+      - person: Michael B. Jordan
+        movie: Sinners
+      - person: Wagner Moura
+        movie: The Secret Agent
+
+  - name: Best Actress
+    has_person: true
+    nominees:
+      - person: Jessie Buckley
+        movie: Hamnet
+      - person: Rose Byrne
+        movie: If I Had Legs I'd Kick You
+      - person: Kate Hudson
+        movie: Song Sung Blue
+      - person: Renate Reinsve
+        movie: Sentimental Value
+      - person: Emma Stone
+        movie: Bugonia
+
+  - name: Best Supporting Actor
+    has_person: true
+    nominees:
+      - person: Benicio del Toro
+        movie: One Battle After Another
+      - person: Jacob Elordi
+        movie: Frankenstein
+      - person: Delroy Lindo
+        movie: Sinners
+      - person: Sean Penn
+        movie: One Battle After Another
+      - person: Stellan Skarsgård
+        movie: Sentimental Value
+
+  - name: Best Supporting Actress
+    has_person: true
+    nominees:
+      - person: Elle Fanning
+        movie: Sentimental Value
+      - person: Inga Ibsdotter Lilleaas
+        movie: Sentimental Value
+      - person: Amy Madigan
+        movie: Weapons
+      - person: Wunmi Mosaku
+        movie: Sinners
+      - person: Teyana Taylor
+        movie: One Battle After Another
+
+  - name: Best Animated Feature Film
+    has_person: false
+    nominees:
+      - movie: Arco
+      - movie: Elio
+      - movie: KPop Demon Hunters
+      - movie: "Little Amélie or the Character of Rain"
+      - movie: Zootopia 2
+
+  - name: Best Animated Short Film
+    has_person: false
+    nominees:
+      - movie: Butterfly
+      - movie: Forevergreen
+      - movie: The Girl Who Cried Pearls
+      - movie: Retirement Plan
+      - movie: The Three Sisters
+
+  - name: Best Cinematography
+    has_person: false
+    nominees:
+      - movie: Frankenstein
+      - movie: Marty Supreme
+      - movie: One Battle After Another
+      - movie: Sinners
+      - movie: Train Dreams
+
+  - name: Best Costume Design
+    has_person: false
+    nominees:
+      - movie: "Avatar: Fire and Ash"
+      - movie: Frankenstein
+      - movie: Hamnet
+      - movie: Marty Supreme
+      - movie: Sinners
+
+  - name: Best Documentary Feature Film
+    has_person: false
+    nominees:
+      - movie: The Alabama Solution
+      - movie: Come See Me in the Good Light
+      - movie: Cutting Through Rocks
+      - movie: Mr. Nobody Against Putin
+      - movie: The Perfect Neighbor
+
+  - name: Best Documentary Short Film
+    has_person: false
+    nominees:
+      - movie: All the Empty Rooms
+      - movie: "Armed Only With a Camera: The Life and Death of Brent Renaud"
+      - movie: "Children No More: Were and Are Gone"
+      - movie: The Devil Is Busy
+      - movie: Perfectly a Strangeness
+
+  - name: Best Film Editing
+    has_person: false
+    nominees:
+      - movie: F1
+      - movie: Marty Supreme
+      - movie: One Battle After Another
+      - movie: Sentimental Value
+      - movie: Sinners
+
+  - name: Best International Feature Film
+    has_person: false
+    nominees:
+      - movie: "The Secret Agent (Brazil)"
+      - movie: "It Was Just an Accident (France)"
+      - movie: "Sentimental Value (Norway)"
+      - movie: "Sirāt (Spain)"
+      - movie: "The Voice of Hind Rajab (Tunisia)"
+
+  - name: Best Casting
+    has_person: true
+    nominees:
+      - person: Nina Gold
+        movie: Hamnet
+      - person: Jennifer Venditti
+        movie: Marty Supreme
+      - person: Cassandra Kulukundis
+        movie: One Battle After Another
+      - person: Gabriel Domingues
+        movie: The Secret Agent
+      - person: Francine Maisler
+        movie: Sinners
+
+  - name: Best Makeup and Hairstyling
+    has_person: false
+    nominees:
+      - movie: Frankenstein
+      - movie: Kokuho
+      - movie: Sinners
+      - movie: The Smashing Machine
+      - movie: The Ugly Stepsister
+
+  - name: Best Original Score
+    has_person: true
+    nominees:
+      - person: Jerskin Fendrix
+        movie: Bugonia
+      - person: Alexandre Desplat
+        movie: Frankenstein
+      - person: Max Richter
+        movie: Hamnet
+      - person: Jonny Greenwood
+        movie: One Battle After Another
+      - person: Ludwig Göransson
+        movie: Sinners
+
+  - name: Best Original Song
+    has_person: true
+    nominees:
+      - person: Diane Warren
+        movie: "Diane Warren: Relentless"
+      - person: EJAE, Mark Sonnenblick et al.
+        movie: KPop Demon Hunters
+      - person: Raphael Saadiq, Ludwig Göransson
+        movie: Sinners
+      - person: Nicholas Pike
+        movie: "Viva Verdi!"
+      - person: Nick Cave, Bryce Dessner
+        movie: Train Dreams
+
+  - name: Best Production Design
+    has_person: false
+    nominees:
+      - movie: Frankenstein
+      - movie: Hamnet
+      - movie: Marty Supreme
+      - movie: One Battle After Another
+      - movie: Sinners
+
+  - name: Best Live Action Short Film
+    has_person: false
+    nominees:
+      - movie: "Butcher's Stain"
+      - movie: A Friend of Dorothy
+      - movie: "Jane Austen's Period Drama"
+      - movie: The Singers
+      - movie: Two People Exchanging Saliva
+
+  - name: Best Sound
+    has_person: false
+    nominees:
+      - movie: F1
+      - movie: Frankenstein
+      - movie: One Battle After Another
+      - movie: Sinners
+      - movie: Sirāt
+
+  - name: Best Visual Effects
+    has_person: false
+    nominees:
+      - movie: "Avatar: Fire and Ash"
+      - movie: F1
+      - movie: Jurassic World Rebirth
+      - movie: The Lost Bus
+      - movie: Sinners
+
+  - name: Best Adapted Screenplay
+    has_person: true
+    nominees:
+      - person: Will Tracy
+        movie: Bugonia
+      - person: Guillermo del Toro
+        movie: Frankenstein
+      - person: Chloé Zhao, Maggie O'Farrell
+        movie: Hamnet
+      - person: Paul Thomas Anderson
+        movie: One Battle After Another
+      - person: Clint Bentley, Greg Kwedar
+        movie: Train Dreams
+
+  - name: Best Original Screenplay
+    has_person: true
+    nominees:
+      - person: Robert Kaplow
+        movie: Blue Moon
+      - person: Jafar Panahi et al.
+        movie: It Was Just an Accident
+      - person: Ronald Bronstein, Josh Safdie
+        movie: Marty Supreme
+      - person: Eskil Vogt, Joachim Trier
+        movie: Sentimental Value
+      - person: Ryan Coogler
+        movie: Sinners

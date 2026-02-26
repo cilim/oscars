@@ -1,0 +1,44 @@
+<% content_for(:title, "Oscars Pool") %>
+
+<div class="text-center mb-12">
+  <h1 class="text-4xl font-extrabold text-oscar-gold mb-3">Oscars Pool</h1>
+  <p class="text-oscar-muted text-lg">Predict the winners. Compete with friends.</p>
+</div>
+
+<% if @seasons.any? %>
+  <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <% @seasons.each do |season| %>
+      <% player = Current.user.players.find_by(season: season) %>
+      <%= link_to season_path(season), class: "card group hover:border-oscar-gold/50 transition-all duration-300 no-underline block" do %>
+        <div class="flex items-start justify-between mb-4">
+          <div>
+            <h2 class="text-xl font-bold text-white group-hover:text-oscar-gold transition-colors">
+              <%= season.name %>
+            </h2>
+            <p class="text-oscar-muted text-sm mt-1">
+              <%= season.season_categories.count %> categories
+            </p>
+          </div>
+          <% if season.locked? %>
+            <span class="text-xs font-semibold uppercase tracking-wider text-red-400 bg-red-400/10 px-2 py-1 rounded">Locked</span>
+          <% else %>
+            <span class="text-xs font-semibold uppercase tracking-wider text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded">Open</span>
+          <% end %>
+        </div>
+
+        <div class="flex items-center justify-between text-sm">
+          <span class="text-oscar-muted"><%= season.players.count %> players</span>
+          <% if player %>
+            <span class="text-emerald-400">You're in!</span>
+          <% else %>
+            <span class="text-oscar-muted">Not joined</span>
+          <% end %>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+<% else %>
+  <div class="text-center py-16">
+    <p class="text-oscar-muted text-lg">No active seasons yet. Check back soon!</p>
+  </div>
+<% end %>

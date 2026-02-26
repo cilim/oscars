@@ -1,0 +1,26 @@
+<%= form_with model: [:admin, category], class: "space-y-5" do |f| %>
+  <% if category.errors.any? %>
+    <div class="flash-alert">
+      <ul class="list-disc list-inside space-y-1">
+        <% category.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= f.label :name, class: "label-text" %>
+    <%= f.text_field :name, class: "input-field", placeholder: "e.g. Best Picture" %>
+  </div>
+
+  <label class="flex items-center gap-2 cursor-pointer">
+    <%= f.check_box :has_person, class: "w-4 h-4 accent-oscar-gold" %>
+    <span class="text-sm text-oscar-text">Nominees have a person (actor, director, etc.)</span>
+  </label>
+
+  <div class="flex gap-3">
+    <%= f.submit class: "btn btn-gold" %>
+    <%= link_to "Cancel", admin_categories_path, class: "btn btn-outline no-underline" %>
+  </div>
+<% end %>

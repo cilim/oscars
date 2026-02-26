@@ -1,0 +1,23 @@
+<% content_for(:title, "Scoreboard - #{@season.name}") %>
+
+<% if @is_admin %>
+  <%= turbo_stream_from "season_#{@season.id}_scoreboard_admin" %>
+<% else %>
+  <%= turbo_stream_from "season_#{@season.id}_scoreboard" %>
+<% end %>
+
+<div class="mb-8">
+  <div class="flex items-center justify-between flex-wrap gap-4">
+    <div>
+      <h1 class="text-3xl font-bold text-oscar-gold">Live Scoreboard</h1>
+      <p class="text-oscar-muted mt-1"><%= @season.name %></p>
+    </div>
+    <%= link_to "Back to Season", season_path(@season), class: "btn btn-outline no-underline" %>
+  </div>
+</div>
+
+<div id="scoreboard-flash"></div>
+
+<div id="scoreboard">
+  <%= render "scoreboards/scoreboard", season: @season, scoreboard_data: @scoreboard_data, season_categories: @season_categories, is_admin: @is_admin %>
+</div>

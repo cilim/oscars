@@ -1,0 +1,47 @@
+<div id="season_category_<%= sc.id %>_winner" class="card">
+  <div class="flex items-start justify-between mb-4">
+    <h3 class="text-lg font-bold text-white"><%= sc.category_name %></h3>
+    <% if sc.winner %>
+      <span class="text-xs font-semibold uppercase tracking-wider text-oscar-gold bg-oscar-gold/10 px-2 py-1 rounded">Announced</span>
+    <% else %>
+      <span class="text-xs font-semibold uppercase tracking-wider text-oscar-muted bg-oscar-deeper px-2 py-1 rounded">Pending</span>
+    <% end %>
+  </div>
+
+  <% if sc.winner %>
+    <div class="p-4 bg-oscar-gold/10 border border-oscar-gold/20 rounded-lg mb-4">
+      <div class="flex items-center gap-2">
+        <svg class="w-5 h-5 text-oscar-gold" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L9 9H2l6 4.5L5.5 21 12 16.5 18.5 21 16 13.5 22 9h-7z"/></svg>
+        <span class="text-oscar-gold font-bold text-lg"><%= sc.winner.nominee.display_name %></span>
+      </div>
+    </div>
+  <% elsif is_admin %>
+    <%= form_with url: admin_season_winners_path(season), class: "mb-4" do |f| %>
+      <input type="hidden" name="winner[season_category_id]" value="<%= sc.id %>">
+      <label class="label-text">Select Winner</label>
+      <div class="flex gap-2 items-center mt-1">
+        <select name="winner[nominee_id]" class="select-field" required>
+          <option value="">— Choose winner —</option>
+          <% sc.nominees.each do |nom| %>
+            <option value="<%= nom.id %>"><%= nom.display_name %></option>
+          <% end %>
+        </select>
+        <%= f.submit "Announce ★", class: "btn btn-gold flex-shrink-0" %>
+      </div>
+    <% end %>
+  <% end %>
+
+  <div class="space-y-1 text-sm">
+    <% sc.nominees.each do |nom| %>
+      <div class="flex items-center gap-2 py-1.5 px-3 rounded
+                  <%= sc.winner&.nominee_id == nom.id ? 'bg-oscar-gold/10 text-oscar-gold font-semibold' : 'text-oscar-text' %>">
+        <% if sc.winner&.nominee_id == nom.id %>
+          <svg class="w-4 h-4 text-oscar-gold flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L9 9H2l6 4.5L5.5 21 12 16.5 18.5 21 16 13.5 22 9h-7z"/></svg>
+        <% else %>
+          <span class="w-4 h-4 flex-shrink-0"></span>
+        <% end %>
+        <%= nom.display_name %>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -1,0 +1,5 @@
+<h1 class="text-3xl font-bold text-oscar-gold mb-2">Edit Nominee</h1>
+<p class="text-oscar-muted mb-8"><%= @season.name %> &middot; <%= @season_category.category_name %></p>
+<div class="card max-w-lg">
+  <%= render "form", nominee: @nominee %>
+</div>

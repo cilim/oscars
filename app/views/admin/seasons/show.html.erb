@@ -1,0 +1,130 @@
+<div class="flex items-center justify-between mb-8">
+  <div>
+    <h1 class="text-3xl font-bold text-oscar-gold"><%= @season.name %></h1>
+    <p class="text-oscar-muted mt-1">
+      Manage categories, nominees, and players
+      <% if @season.locked? %>
+        &middot; <span class="text-red-400">Picks Locked</span>
+      <% end %>
+    </p>
+  </div>
+  <div class="flex gap-2">
+    <%= link_to "Scoreboard", season_scoreboard_path(@season), class: "btn btn-outline no-underline" %>
+    <%= link_to "Edit Season", edit_admin_season_path(@season), class: "btn btn-outline no-underline" %>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+  <%# Categories & Nominees %>
+  <div class="lg:col-span-2">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl font-bold text-white">Categories</h2>
+    </div>
+
+    <%# Add category form %>
+    <% if @available_categories.any? %>
+      <div class="card mb-6">
+        <%= form_with url: admin_season_season_categories_path(@season), class: "flex gap-2 items-end" do |f| %>
+          <div class="flex-1">
+            <label class="label-text">Add Category</label>
+            <%= f.select :season_category, {}, {}, { name: "season_category[category_id]", class: "select-field" } do %>
+              <option value="">— Select category —</option>
+              <% @available_categories.each do |cat| %>
+                <option value="<%= cat.id %>"><%= cat.name %></option>
+              <% end %>
+            <% end %>
+          </div>
+          <%= f.submit "Add", class: "btn btn-gold" %>
+        <% end %>
+      </div>
+    <% end %>
+
+    <%# Season categories list %>
+    <div class="space-y-4">
+      <% @season_categories.each do |sc| %>
+        <div class="card">
+          <div class="flex items-start justify-between mb-4">
+            <div>
+              <h3 class="text-lg font-bold text-white"><%= sc.category_name %></h3>
+              <p class="text-oscar-muted text-xs">
+                <%= sc.has_person ? "Person & Film" : "Film only" %>
+                &middot; <%= sc.nominees.count %> nominees
+              </p>
+            </div>
+            <div class="flex gap-2">
+              <%= link_to "Add Nominee", new_admin_season_season_category_nominee_path(@season, sc), class: "btn btn-outline btn-sm no-underline" %>
+              <%= button_to "Remove", admin_season_season_category_path(@season, sc), method: :delete,
+                  class: "btn btn-danger btn-sm",
+                  data: { turbo_confirm: "Remove #{sc.category_name} from this season?" } %>
+            </div>
+          </div>
+
+          <% if sc.nominees.any? %>
+            <div class="space-y-2">
+              <% sc.nominees.each do |nom| %>
+                <div class="flex items-center justify-between py-2 px-3 bg-oscar-deeper rounded-lg">
+                  <span class="text-sm text-oscar-text"><%= nom.display_name %></span>
+                  <div class="flex gap-1">
+                    <%= link_to "Edit", edit_admin_season_season_category_nominee_path(@season, sc, nom), class: "btn btn-outline btn-sm no-underline" %>
+                    <%= button_to "Delete", admin_season_season_category_nominee_path(@season, sc, nom), method: :delete,
+                        class: "btn btn-danger btn-sm",
+                        data: { turbo_confirm: "Remove #{nom.display_name}?" } %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <p class="text-oscar-muted text-sm">No nominees yet</p>
+          <% end %>
+
+          <% if sc.winner %>
+            <div class="mt-3 p-2 bg-oscar-gold/10 border border-oscar-gold/20 rounded-lg flex items-center gap-2">
+              <svg class="w-4 h-4 text-oscar-gold" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L9 9H2l6 4.5L5.5 21 12 16.5 18.5 21 16 13.5 22 9h-7z"/></svg>
+              <span class="text-oscar-gold text-sm font-semibold">Winner: <%= sc.winner.nominee.display_name %></span>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <%# Players sidebar %>
+  <div class="lg:col-span-1">
+    <h2 class="text-xl font-bold text-white mb-4">Players</h2>
+
+    <div class="card mb-4">
+      <% if @available_users.any? %>
+        <%= form_with url: admin_season_players_path(@season), class: "flex gap-2 items-end" do |f| %>
+          <div class="flex-1">
+            <label class="label-text">Add Player</label>
+            <select name="player[user_id]" class="select-field" required>
+              <option value="">— Select user —</option>
+              <% @available_users.each do |user| %>
+                <option value="<%= user.id %>"><%= user.display_name %> (<%= user.email_address %>)</option>
+              <% end %>
+            </select>
+          </div>
+          <%= f.submit "Add", class: "btn btn-gold" %>
+        <% end %>
+      <% else %>
+        <p class="text-oscar-muted text-sm">All users are already players</p>
+      <% end %>
+    </div>
+
+    <div class="space-y-2">
+      <% @players.each do |player| %>
+        <div class="flex items-center justify-between py-2 px-3 bg-oscar-deeper rounded-lg">
+          <div>
+            <span class="text-sm text-white font-medium"><%= player.user.display_name %></span>
+            <% if player.user.admin? %>
+              <span class="text-xs text-oscar-gold ml-1">admin</span>
+            <% end %>
+          </div>
+          <%= button_to "Remove", admin_season_player_path(@season, player), method: :delete,
+              class: "btn btn-danger btn-sm",
+              data: { turbo_confirm: "Remove #{player.user.display_name}?" } %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

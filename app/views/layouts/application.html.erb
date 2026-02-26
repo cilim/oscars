@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+  <head>
+    <title><%= content_for(:title) || "Oscars Pool" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Oscars Pool">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= yield :head %>
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+    <%= turbo_refreshes_with method: :morph, scroll: :preserve %>
+    <%= action_cable_meta_tag %>
+  </head>
+
+  <body class="h-full" data-controller="flash">
+    <nav class="bg-oscar-deeper/80 backdrop-blur-md border-b border-oscar-border sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <div class="flex items-center gap-6">
+            <%= link_to root_path, class: "flex items-center gap-2 text-oscar-gold hover:text-oscar-gold-light no-underline" do %>
+              <svg class="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L9 9H2l6 4.5L5.5 21 12 16.5 18.5 21 16 13.5 22 9h-7z"/>
+              </svg>
+              <span class="font-bold text-xl tracking-tight">Oscars Pool</span>
+            <% end %>
+
+            <% if authenticated? %>
+              <div class="hidden sm:flex items-center gap-4">
+                <%= link_to "Seasons", seasons_path, class: "text-sm text-oscar-muted hover:text-oscar-gold transition-colors no-underline" %>
+                <% if Current.user&.admin? %>
+                  <%= link_to "Admin", admin_seasons_path, class: "text-sm text-oscar-muted hover:text-oscar-gold transition-colors no-underline" %>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <% if authenticated? %>
+              <span class="text-sm text-oscar-muted hidden sm:inline"><%= Current.user.display_name %></span>
+              <%= button_to "Sign Out", session_path, method: :delete, class: "btn btn-outline btn-sm no-underline" %>
+            <% else %>
+              <%= link_to "Sign In", new_session_path, class: "btn btn-outline btn-sm no-underline" %>
+              <%= link_to "Sign Up", new_registration_path, class: "btn btn-gold btn-sm no-underline" %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <% if notice.present? %>
+        <div class="flash-notice" data-flash-target="message" data-action="animationend->flash#remove">
+          <%= notice %>
+        </div>
+      <% end %>
+      <% if alert.present? %>
+        <div class="flash-alert" data-flash-target="message" data-action="animationend->flash#remove">
+          <%= alert %>
+        </div>
+      <% end %>
+
+      <%= yield %>
+    </main>
+  </body>
+</html>

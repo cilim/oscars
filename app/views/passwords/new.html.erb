@@ -1,0 +1,24 @@
+<% content_for(:title, "Reset Password - Oscars Pool") %>
+
+<div class="max-w-md mx-auto">
+  <div class="text-center mb-8">
+    <h1 class="text-3xl font-bold text-oscar-gold">Forgot Password?</h1>
+    <p class="text-oscar-muted mt-2">We'll email you reset instructions</p>
+  </div>
+
+  <div class="card">
+    <%= form_with url: passwords_path, class: "space-y-5" do |form| %>
+      <div>
+        <%= form.label :email_address, "Email", class: "label-text" %>
+        <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", placeholder: "you@example.com", value: params[:email_address], class: "input-field" %>
+      </div>
+
+      <%= form.submit "Email Reset Instructions", class: "btn btn-gold w-full" %>
+    <% end %>
+
+    <p class="text-center text-oscar-muted text-sm mt-6">
+      Remember your password?
+      <%= link_to "Sign in", new_session_path %>
+    </p>
+  </div>
+</div>

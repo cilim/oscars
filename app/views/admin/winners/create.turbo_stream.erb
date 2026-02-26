@@ -1,0 +1,7 @@
+<%= turbo_stream.replace "season_category_#{@winner.season_category_id}_winner" do %>
+  <%= render "scoreboards/category_card", sc: @season_category, season: @season, is_admin: true %>
+<% end %>
+
+<%= turbo_stream.replace "leaderboard" do %>
+  <%= render "scoreboards/leaderboard", scoreboard_data: @scoreboard_data %>
+<% end %>

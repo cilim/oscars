@@ -1,0 +1,27 @@
+<div class="flex items-center justify-between mb-8">
+  <h1 class="text-3xl font-bold text-oscar-gold">Categories</h1>
+  <%= link_to "New Category", new_admin_category_path, class: "btn btn-gold no-underline" %>
+</div>
+
+<div class="card">
+  <% if @categories.any? %>
+    <div class="space-y-3">
+      <% @categories.each do |category| %>
+        <div class="flex items-center justify-between py-3 px-4 bg-oscar-deeper rounded-lg">
+          <div>
+            <span class="text-white font-medium"><%= category.name %></span>
+            <span class="text-oscar-muted text-xs ml-2"><%= category.has_person ? "Person & Film" : "Film only" %></span>
+          </div>
+          <div class="flex gap-2">
+            <%= link_to "Edit", edit_admin_category_path(category), class: "btn btn-outline btn-sm no-underline" %>
+            <%= button_to "Delete", admin_category_path(category), method: :delete,
+                class: "btn btn-danger btn-sm",
+                data: { turbo_confirm: "Delete #{category.name}? This will remove it from all seasons." } %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="text-oscar-muted text-center py-8">No categories yet. Create your first one!</p>
+  <% end %>
+</div>
