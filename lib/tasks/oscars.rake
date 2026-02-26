@@ -38,8 +38,8 @@ namespace :oscars do
 
     ceremony_number = doc.at_css("h1")&.text&.strip || "#{year} Academy Awards"
 
-    if ENV["TMDB_API_KEY"]
-      puts "TMDB_API_KEY found — fetching poster URLs..."
+    if Rails.application.credentials.tmdb_access_token
+      puts "TMDB credentials found — fetching poster URLs..."
       require "json"
       seen = {}
       categories.each do |cat|
@@ -55,7 +55,7 @@ namespace :oscars do
         end
       end
     else
-      puts "Tip: set TMDB_API_KEY to also fetch poster URLs during scrape."
+      puts "Tip: add tmdb_access_token to Rails credentials to also fetch poster URLs during scrape."
     end
 
     output = {
@@ -72,13 +72,12 @@ namespace :oscars do
     puts "Review the file, then import with: rails oscars:import[#{year}]"
   end
 
-  desc "Fetch movie poster URLs from TMDB and save into the YAML file. Usage: TMDB_API_KEY=xxx rails oscars:fetch_posters[2026]"
+  desc "Fetch movie poster URLs from TMDB and save into the YAML file. Usage: rails oscars:fetch_posters[2026]"
   task :fetch_posters, [ :year ] => :environment do |_t, args|
     year = args[:year] || raise("Usage: rails oscars:fetch_posters[YEAR]")
 
-    unless ENV["TMDB_API_KEY"]
-      abort "TMDB_API_KEY not set.\nGet a free key at https://www.themoviedb.org/settings/api\n" \
-            "Then run: TMDB_API_KEY=your_key rails oscars:fetch_posters[#{year}]"
+    unless Rails.application.credentials.tmdb_access_token
+      abort "tmdb_access_token not found in Rails credentials.\nRun: rails credentials:edit"
     end
 
     file = Rails.root.join("db/data/#{year}.yml")
@@ -185,14 +184,12 @@ namespace :oscars do
   end
 
   def tmdb_fetch_poster(movie_name)
-    uri = URI("https://api.themoviedb.org/3/search/movie")
-    uri.query = URI.encode_www_form(
-      query: movie_name,
-      api_key: ENV["TMDB_API_KEY"],
-      language: "en-US",
-      page: 1
-    )
-    response = Net::HTTP.get_response(uri)
+    uri = URI("https://api.themoviedb.org/3/search/movie?query=#{URI.encode_www_form_component(movie_name)}&language=en-US&page=1")
+    request = Net::HTTP::Get.new(uri)
+    request["Authorization"] = "Bearer #{Rails.application.credentials.tmdb_access_token}"
+    request["Accept"] = "application/json"
+
+    response = Net::HTTP.start(uri.host, uri.port, use_ssl: true) { |h| h.request(request) }
     return nil unless response.is_a?(Net::HTTPSuccess)
 
     results = JSON.parse(response.body)["results"] || []
