@@ -48,7 +48,7 @@ module Admin
     end
 
     def nominee_params
-      params.require(:nominee).permit(:movie_name, :person_name)
+      params.require(:nominee).permit(:movie_name, :person_name, :poster_url)
     end
   end
 end

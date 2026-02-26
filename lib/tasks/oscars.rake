@@ -38,6 +38,26 @@ namespace :oscars do
 
     ceremony_number = doc.at_css("h1")&.text&.strip || "#{year} Academy Awards"
 
+    if ENV["TMDB_API_KEY"]
+      puts "TMDB_API_KEY found — fetching poster URLs..."
+      require "json"
+      seen = {}
+      categories.each do |cat|
+        (cat["nominees"] || []).each do |nom|
+          movie = nom["movie"]
+          next if seen.key?(movie)
+          print "  #{movie}... "
+          url = tmdb_fetch_poster(movie)
+          seen[movie] = url
+          nom["poster_url"] = url if url
+          puts url ? "✓" : "not found"
+          sleep 0.26
+        end
+      end
+    else
+      puts "Tip: set TMDB_API_KEY to also fetch poster URLs during scrape."
+    end
+
     output = {
       "season" => {
         "name" => "#{ceremony_number} (#{year})",
@@ -50,6 +70,62 @@ namespace :oscars do
     File.write(outfile, output.to_yaml)
     puts "Saved #{categories.length} categories to #{outfile}"
     puts "Review the file, then import with: rails oscars:import[#{year}]"
+  end
+
+  desc "Fetch movie poster URLs from TMDB and save into the YAML file. Usage: TMDB_API_KEY=xxx rails oscars:fetch_posters[2026]"
+  task :fetch_posters, [ :year ] => :environment do |_t, args|
+    year = args[:year] || raise("Usage: rails oscars:fetch_posters[YEAR]")
+
+    unless ENV["TMDB_API_KEY"]
+      abort "TMDB_API_KEY not set.\nGet a free key at https://www.themoviedb.org/settings/api\n" \
+            "Then run: TMDB_API_KEY=your_key rails oscars:fetch_posters[#{year}]"
+    end
+
+    file = Rails.root.join("db/data/#{year}.yml")
+    abort "File not found: #{file}" unless File.exist?(file)
+
+    require "net/http"
+    require "json"
+
+    data = YAML.safe_load_file(file, permitted_classes: [ Symbol ])
+    updated = 0
+    skipped = 0
+    seen_movies = {}  # cache: avoid duplicate TMDB lookups for the same film
+
+    data["categories"].each do |cat|
+      (cat["nominees"] || []).each do |nom|
+        movie = nom["movie"]
+
+        if nom["poster_url"].present?
+          skipped += 1
+          next
+        end
+
+        if seen_movies.key?(movie)
+          nom["poster_url"] = seen_movies[movie]
+          updated += 1 if seen_movies[movie]
+          next
+        end
+
+        print "  #{movie}... "
+        url = tmdb_fetch_poster(movie)
+        seen_movies[movie] = url
+
+        if url
+          nom["poster_url"] = url
+          updated += 1
+          puts "✓"
+        else
+          puts "not found"
+        end
+
+        sleep 0.26  # ~4 req/s — well within TMDB free tier limit
+      end
+    end
+
+    File.write(file, data.to_yaml)
+    puts "\nDone. #{updated} posters added, #{skipped} already had a URL."
+    puts "Run `rails oscars:import[#{year}]` to push URLs into the database."
   end
 
   desc "List available YAML data files"
@@ -92,11 +168,13 @@ namespace :oscars do
 
         nominees = cat_data["nominees"] || []
         nominees.each do |nom_data|
-          Nominee.find_or_create_by!(
+          nom = Nominee.find_or_initialize_by(
             season_category: sc,
             movie_name: nom_data["movie"],
             person_name: nom_data["person"]
           )
+          nom.poster_url = nom_data["poster_url"] if nom_data["poster_url"].present?
+          nom.save!
         end
 
         puts "  #{category.name}: #{nominees.length} nominees"
@@ -104,6 +182,25 @@ namespace :oscars do
 
       puts "Imported #{categories_data.length} categories with nominees."
     end
+  end
+
+  def tmdb_fetch_poster(movie_name)
+    uri = URI("https://api.themoviedb.org/3/search/movie")
+    uri.query = URI.encode_www_form(
+      query: movie_name,
+      api_key: ENV["TMDB_API_KEY"],
+      language: "en-US",
+      page: 1
+    )
+    response = Net::HTTP.get_response(uri)
+    return nil unless response.is_a?(Net::HTTPSuccess)
+
+    results = JSON.parse(response.body)["results"] || []
+    path = results.first&.fetch("poster_path", nil)
+    path ? "https://image.tmdb.org/t/p/w500#{path}" : nil
+  rescue => e
+    puts "Warning: TMDB lookup failed for '#{movie_name}': #{e.message}"
+    nil
   end
 
   def parse_oscars_page(doc)

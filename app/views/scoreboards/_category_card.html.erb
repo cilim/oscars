@@ -49,7 +49,17 @@
           <% else %>
             <span class="w-4 h-4 flex-shrink-0"></span>
           <% end %>
-          <span><%= nom.display_name %></span>
+          <% if nom.poster_url.present? %>
+            <button type="button"
+                    data-action="click->movie-poster#show"
+                    data-poster-url="<%= nom.poster_url %>"
+                    data-movie-title="<%= nom.movie_name %>"
+                    class="text-left hover:underline underline-offset-2 cursor-pointer bg-transparent border-0 p-0 font-[inherit] <%= is_winner ? 'text-oscar-gold' : 'text-oscar-text hover:text-oscar-gold' %> transition-colors">
+              <%= nom.display_name %>
+            </button>
+          <% else %>
+            <span><%= nom.display_name %></span>
+          <% end %>
         </div>
 
         <%# Pick chips: only rendered when someone picked this nominee %>

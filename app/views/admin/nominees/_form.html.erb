@@ -21,6 +21,15 @@
     </div>
   <% end %>
 
+  <div>
+    <%= f.label :poster_url, "Poster URL", class: "label-text" %>
+    <%= f.url_field :poster_url, class: "input-field", placeholder: "https://image.tmdb.org/t/p/w500/..." %>
+    <% if nominee.poster_url.present? %>
+      <img src="<%= nominee.poster_url %>" alt="Current poster" class="mt-2 rounded-lg w-20 border border-oscar-border">
+    <% end %>
+    <p class="text-xs text-oscar-muted mt-1">Optional. Use <code>rails oscars:fetch_posters[YEAR]</code> to auto-populate from TMDB.</p>
+  </div>
+
   <div class="flex gap-3">
     <%= f.submit class: "btn btn-gold" %>
     <%= link_to "Cancel", admin_season_path(@season), class: "btn btn-outline no-underline" %>

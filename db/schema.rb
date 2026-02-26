@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_25_202033) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_26_202418) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -26,6 +26,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_25_202033) do
     t.datetime "created_at", null: false
     t.string "movie_name", null: false
     t.string "person_name"
+    t.string "poster_url"
     t.bigint "season_category_id", null: false
     t.datetime "updated_at", null: false
     t.index ["season_category_id"], name: "index_nominees_on_season_category_id"

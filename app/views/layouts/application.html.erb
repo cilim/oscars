@@ -18,7 +18,7 @@
     <%= action_cable_meta_tag %>
   </head>
 
-  <body class="h-full" data-controller="flash">
+  <body class="h-full" data-controller="flash movie-poster">
     <nav class="bg-oscar-deeper/80 backdrop-blur-md border-b border-oscar-border sticky top-0 z-50">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16">
@@ -67,5 +67,21 @@
 
       <%= yield %>
     </main>
+    <%# Movie poster modal — shared across all pages %>
+    <dialog class="poster-dialog"
+            data-movie-poster-target="dialog"
+            data-action="click->movie-poster#backdropClick">
+      <div class="relative">
+        <button type="button"
+                data-action="click->movie-poster#close"
+                class="absolute top-3 right-3 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/80 transition-colors text-lg leading-none">
+          &times;
+        </button>
+        <img data-movie-poster-target="poster" src="" alt="Movie poster">
+        <div class="px-5 py-4">
+          <p data-movie-poster-target="title" class="text-oscar-gold font-bold text-lg leading-snug"></p>
+        </div>
+      </div>
+    </dialog>
   </body>
 </html>

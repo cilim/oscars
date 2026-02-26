@@ -16,9 +16,26 @@
     <div class="card" data-controller="pick-card">
       <h3 class="text-xl font-bold text-white mb-1"><%= sc.category_name %></h3>
       <% if sc.has_person %>
-        <p class="text-oscar-muted text-xs mb-4">Person & film</p>
+        <p class="text-oscar-muted text-xs mb-3">Person & film</p>
       <% else %>
-        <p class="text-oscar-muted text-xs mb-4">Film</p>
+        <p class="text-oscar-muted text-xs mb-3">Film</p>
+      <% end %>
+
+      <%# Poster preview buttons — only shown when at least one nominee has a poster %>
+      <% if sc.nominees.any? { |n| n.poster_url.present? } %>
+        <div class="flex flex-wrap gap-1.5 mb-4">
+          <% sc.nominees.each do |nom| %>
+            <% if nom.poster_url.present? %>
+              <button type="button"
+                      data-action="click->movie-poster#show"
+                      data-poster-url="<%= nom.poster_url %>"
+                      data-movie-title="<%= nom.movie_name %>"
+                      class="text-xs text-oscar-muted hover:text-oscar-gold border border-oscar-border hover:border-oscar-gold/50 bg-oscar-surface/40 px-2.5 py-1 rounded-full transition-colors leading-none">
+                <%= nom.movie_name %>
+              </button>
+            <% end %>
+          <% end %>
+        </div>
       <% end %>
 
       <div class="grid gap-4 md:grid-cols-2">
