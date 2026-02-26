@@ -10,7 +10,7 @@ class Winner < ApplicationRecord
 
   def broadcast_scoreboard_update
     season = season_category.season
-    season_categories = season.season_categories.includes(:category, :nominees, winner: :nominee)
+    season_categories = season.season_categories.includes(:category, :nominees, winner: :nominee, picks: { player: :user })
     scoreboard_data = ScoreboardCalculator.new(season).call
 
     # Broadcast to regular players (no admin controls)

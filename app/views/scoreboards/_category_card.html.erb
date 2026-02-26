@@ -31,16 +31,48 @@
     <% end %>
   <% end %>
 
+  <%# Precompute picks grouped by nominee for efficient lookup in the loop below %>
+  <% think_by_nominee = sc.picks.each_with_object(Hash.new { |h, k| h[k] = [] }) { |p, h| h[p.think_will_win_id] << p.player.user.display_name if p.think_will_win_id } %>
+  <% want_by_nominee  = sc.picks.each_with_object(Hash.new { |h, k| h[k] = [] }) { |p, h| h[p.want_to_win_id]  << p.player.user.display_name if p.want_to_win_id  } %>
+
   <div class="space-y-1 text-sm">
     <% sc.nominees.each do |nom| %>
-      <div class="flex items-center gap-2 py-1.5 px-3 rounded
-                  <%= sc.winner&.nominee_id == nom.id ? 'bg-oscar-gold/10 text-oscar-gold font-semibold' : 'text-oscar-text' %>">
-        <% if sc.winner&.nominee_id == nom.id %>
-          <svg class="w-4 h-4 text-oscar-gold flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L9 9H2l6 4.5L5.5 21 12 16.5 18.5 21 16 13.5 22 9h-7z"/></svg>
-        <% else %>
-          <span class="w-4 h-4 flex-shrink-0"></span>
+      <% is_winner = sc.winner&.nominee_id == nom.id %>
+      <% think_names = think_by_nominee[nom.id] %>
+      <% want_names  = want_by_nominee[nom.id]  %>
+
+      <div class="py-1.5 px-3 rounded <%= is_winner ? 'bg-oscar-gold/10 text-oscar-gold font-semibold' : 'text-oscar-text' %>">
+        <%# Nominee name row %>
+        <div class="flex items-center gap-2">
+          <% if is_winner %>
+            <svg class="w-4 h-4 text-oscar-gold flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L9 9H2l6 4.5L5.5 21 12 16.5 18.5 21 16 13.5 22 9h-7z"/></svg>
+          <% else %>
+            <span class="w-4 h-4 flex-shrink-0"></span>
+          <% end %>
+          <span><%= nom.display_name %></span>
+        </div>
+
+        <%# Pick chips: only rendered when someone picked this nominee %>
+        <% if think_names.any? || want_names.any? %>
+          <div class="ml-6 mt-1 space-y-0.5">
+            <% if think_names.any? %>
+              <div class="flex flex-wrap items-center gap-1">
+                <span class="text-[10px] font-bold tracking-wide text-sky-400 bg-sky-900/40 px-1.5 py-0.5 rounded leading-none flex-shrink-0">T</span>
+                <% think_names.sort.each do |name| %>
+                  <span class="text-[11px] text-sky-300 bg-sky-950/60 px-1.5 py-0.5 rounded leading-none"><%= name %></span>
+                <% end %>
+              </div>
+            <% end %>
+            <% if want_names.any? %>
+              <div class="flex flex-wrap items-center gap-1">
+                <span class="text-[10px] font-bold tracking-wide text-violet-400 bg-violet-900/40 px-1.5 py-0.5 rounded leading-none flex-shrink-0">W</span>
+                <% want_names.sort.each do |name| %>
+                  <span class="text-[11px] text-violet-300 bg-violet-950/60 px-1.5 py-0.5 rounded leading-none"><%= name %></span>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
         <% end %>
-        <%= nom.display_name %>
       </div>
     <% end %>
   </div>
