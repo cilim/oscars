@@ -15,12 +15,20 @@ class PicksController < ApplicationController
         pick.update!(pick_attrs.permit(:think_will_win_id, :want_to_win_id))
       end
     end
-    redirect_to season_path(@season), notice: "Picks saved!"
+    respond_to do |format|
+      format.html { redirect_to season_path(@season), notice: "Picks saved!" }
+      format.turbo_stream { head :no_content }
+    end
   rescue ActiveRecord::RecordInvalid
-    flash.now[:alert] = "Error saving picks."
-    @season_categories = @season.season_categories.includes(:category, :nominees)
-    @picks_by_category = @player.picks.reload.index_by(&:season_category_id)
-    render :edit, status: :unprocessable_entity
+    respond_to do |format|
+      format.html do
+        flash.now[:alert] = "Error saving picks."
+        @season_categories = @season.season_categories.includes(:category, :nominees)
+        @picks_by_category = @player.picks.reload.index_by(&:season_category_id)
+        render :edit, status: :unprocessable_entity
+      end
+      format.turbo_stream { head :unprocessable_entity }
+    end
   end
 
   private

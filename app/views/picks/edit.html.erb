@@ -4,70 +4,143 @@
   <div class="flex items-center justify-between flex-wrap gap-4">
     <div>
       <h1 class="text-3xl font-bold text-oscar-gold">Make Your Picks</h1>
-      <p class="text-oscar-muted mt-1"><%= @season.name %></p>
+      <p class="text-oscar-muted mt-1"><%= @season.name %> &middot; Picks save automatically</p>
     </div>
     <%= link_to "Back to Season", season_path(@season), class: "btn btn-outline no-underline" %>
   </div>
 </div>
 
-<%= form_with url: season_picks_path(@season), method: :patch, class: "space-y-6" do |f| %>
+<%= form_with url: season_picks_path(@season), method: :patch, class: "space-y-6",
+              data: { controller: "picks-form",
+                      "picks-form-season-id-value": @season.id,
+                      action: "submit->picks-form#clearStorage" } do |f| %>
+
   <% @season_categories.each do |sc| %>
     <% pick = @picks_by_category[sc.id] || Pick.new %>
-    <div class="card" data-controller="pick-card">
-      <h3 class="text-xl font-bold text-oscar-text mb-1"><%= sc.category_name %></h3>
-      <% if sc.has_person %>
-        <p class="text-oscar-muted text-xs mb-3">Person & film</p>
-      <% else %>
-        <p class="text-oscar-muted text-xs mb-3">Film</p>
-      <% end %>
 
-      <%# Poster preview buttons — only shown when at least one nominee has a poster %>
-      <% if sc.nominees.any? { |n| n.poster_url.present? } %>
-        <div class="flex flex-wrap gap-1.5 mb-4">
-          <% sc.nominees.each do |nom| %>
-            <% if nom.poster_url.present? %>
-              <button type="button"
-                      data-action="click->movie-poster#show"
-                      data-poster-url="<%= nom.poster_url %>"
-                      data-movie-title="<%= nom.movie_name %>"
-                      class="text-xs text-oscar-muted hover:text-oscar-gold border border-oscar-border hover:border-oscar-gold/50 bg-oscar-surface px-2.5 py-1 rounded-full transition-colors leading-none">
-                <%= nom.movie_name %>
-              </button>
-            <% end %>
-          <% end %>
-        </div>
-      <% end %>
+    <div class="card"
+         data-controller="picks-carousel"
+         data-picks-carousel-season-id-value="<%= @season.id %>"
+         data-picks-carousel-category-id-value="<%= sc.id %>">
 
-      <div class="grid gap-4 md:grid-cols-2">
+      <%# Hidden inputs drive the form submission — JS keeps them in sync %>
+      <input type="hidden" name="picks[<%= sc.id %>][think_will_win_id]"
+             value="<%= pick.think_will_win_id %>"
+             data-picks-carousel-target="thinkInput">
+      <input type="hidden" name="picks[<%= sc.id %>][want_to_win_id]"
+             value="<%= pick.want_to_win_id %>"
+             data-picks-carousel-target="wantInput">
+
+      <%# Card header: category name + current selection summary %>
+      <div class="flex items-start justify-between gap-4 mb-4">
         <div>
-          <label class="label-text">
-            Think Will Win
-            <span class="text-oscar-gold">(5 pts)</span>
-          </label>
-          <%= f.select "picks[#{sc.id}][think_will_win_id]",
-              options_from_collection_for_select(sc.nominees, :id, :display_name, pick.think_will_win_id),
-              { include_blank: "— Select —" },
-              class: "select-field" %>
+          <h3 class="text-xl font-bold text-oscar-text"><%= sc.category_name %></h3>
+          <p class="text-oscar-muted text-xs mt-0.5"><%= sc.has_person ? "Person & film" : "Film" %></p>
         </div>
 
-        <div>
-          <label class="label-text">
-            Want To Win
-            <span class="text-oscar-muted">(2 pts)</span>
-          </label>
-          <%= f.select "picks[#{sc.id}][want_to_win_id]",
-              options_from_collection_for_select(sc.nominees, :id, :display_name, pick.want_to_win_id),
-              { include_blank: "— Select —" },
-              class: "select-field" %>
+        <div class="text-right text-xs shrink-0 space-y-1">
+          <div class="flex items-center gap-1.5 justify-end">
+            <span class="font-black text-[10px] text-white bg-sky-500 px-1.5 py-0.5 rounded leading-none">T</span>
+            <span data-picks-carousel-target="thinkSummary" class="text-oscar-muted">—</span>
+          </div>
+          <div class="flex items-center gap-1.5 justify-end">
+            <span class="font-black text-[10px] text-white bg-violet-500 px-1.5 py-0.5 rounded leading-none">W</span>
+            <span data-picks-carousel-target="wantSummary" class="text-oscar-muted">—</span>
+          </div>
         </div>
       </div>
+
+      <%# Legend %>
+      <div class="flex gap-4 text-[11px] text-oscar-muted mb-3">
+        <span><span class="font-bold text-sky-600">T</span> = Think will win <span class="text-oscar-gold font-semibold">(5 pts)</span></span>
+        <span><span class="font-bold text-violet-600">W</span> = Want to win <span class="text-oscar-muted">(2 pts)</span></span>
+      </div>
+
+      <%# Carousel container with prev/next arrows %>
+      <div class="relative -mx-2 px-2">
+        <%# Prev arrow %>
+        <button type="button"
+                data-action="click->picks-carousel#prev"
+                class="absolute left-0 top-[72px] -translate-y-1/2 z-10 w-7 h-7 flex items-center justify-center rounded-full bg-white border border-oscar-border shadow text-oscar-muted hover:text-oscar-text hover:shadow-md transition-all text-lg leading-none select-none">
+          &#8249;
+        </button>
+
+        <%# Scrollable track %>
+        <div class="picks-track overflow-x-auto flex gap-3 snap-x snap-mandatory scroll-smooth px-4 pb-2"
+             data-picks-carousel-target="track">
+
+          <% sc.nominees.each do |nom| %>
+            <%# Card: no fixed width — grows to fit whitespace-nowrap title %>
+            <div class="flex-shrink-0 snap-center select-none flex flex-col items-center"
+                 data-slide
+                 data-nominee-id="<%= nom.id %>"
+                 data-nominee-name="<%= nom.display_name %>">
+
+              <%# Poster: fixed 120×180 px so all cards have identical poster size %>
+              <div class="relative rounded-lg overflow-hidden bg-oscar-surface transition-all duration-150 flex-shrink-0"
+                   style="width: 120px; height: 180px;"
+                   data-poster-wrap>
+                <% if nom.poster_url.present? %>
+                  <img src="<%= nom.poster_url %>"
+                       alt="<%= nom.movie_name %>"
+                       class="w-full h-full object-cover">
+                <% else %>
+                  <div class="w-full h-full flex flex-col items-center justify-center gap-2 p-2">
+                    <svg class="w-6 h-6 text-oscar-border" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M18 4H6C4.9 4 4 4.9 4 6v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H6V6h12v12zm-4.5-6L11 15.5 9 13l-3 4h12l-4.5-6z"/>
+                    </svg>
+                    <span class="text-[10px] text-oscar-muted text-center leading-tight"><%= nom.movie_name %></span>
+                  </div>
+                <% end %>
+
+                <%# T badge — top-left, revealed when selected %>
+                <span data-think-badge hidden
+                      class="absolute top-1.5 left-1.5 bg-sky-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded leading-none shadow-sm">T</span>
+
+                <%# W badge — top-right, revealed when selected %>
+                <span data-want-badge hidden
+                      class="absolute top-1.5 right-1.5 bg-violet-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded leading-none shadow-sm">W</span>
+              </div>
+
+              <%# Nominee name — single line, card widens to fit %>
+              <p class="text-[12px] text-oscar-text font-medium text-center whitespace-nowrap mt-2 mb-2">
+                <%= nom.display_name %>
+              </p>
+
+              <%# T / W toggle buttons — stretch to full card width %>
+              <div class="flex gap-1 w-full">
+                <button type="button"
+                        data-action="click->picks-carousel#toggleThink"
+                        data-nominee-id="<%= nom.id %>"
+                        data-think-btn
+                        data-active="false"
+                        class="flex-1 text-xs py-1.5 rounded-md border font-bold transition-colors leading-none min-w-[36px]">
+                  T
+                </button>
+                <button type="button"
+                        data-action="click->picks-carousel#toggleWant"
+                        data-nominee-id="<%= nom.id %>"
+                        data-want-btn
+                        data-active="false"
+                        class="flex-1 text-xs py-1.5 rounded-md border font-bold transition-colors leading-none min-w-[36px]">
+                  W
+                </button>
+              </div>
+
+            </div>
+          <% end %>
+
+        </div>
+
+        <%# Next arrow %>
+        <button type="button"
+                data-action="click->picks-carousel#next"
+                class="absolute right-0 top-[72px] -translate-y-1/2 z-10 w-7 h-7 flex items-center justify-center rounded-full bg-white border border-oscar-border shadow text-oscar-muted hover:text-oscar-text hover:shadow-md transition-all text-lg leading-none select-none">
+          &#8250;
+        </button>
+      </div>
+
     </div>
   <% end %>
 
-  <div class="sticky bottom-4 z-10">
-    <div class="bg-white/95 backdrop-blur-md border border-oscar-border rounded-xl p-4 flex items-center justify-between shadow-lg">
-      <span class="text-oscar-muted text-sm"><%= @season_categories.count %> categories</span>
-      <%= f.submit "Save All Picks", class: "btn btn-gold btn-lg" %>
-    </div>
-  </div>
 <% end %>

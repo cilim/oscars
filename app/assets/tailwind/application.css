@@ -235,3 +235,56 @@ dialog.poster-dialog img {
   width: 100%;
   height: auto;
 }
+
+/* ── Picks carousel ──────────────────────────────────── */
+
+/* Hide scrollbar on the carousel track */
+.picks-track {
+  scrollbar-width: none;
+}
+.picks-track::-webkit-scrollbar {
+  display: none;
+}
+
+/* Poster ring: think-only → sky, want-only → violet, both → amber */
+[data-slide][data-is-think="true"] [data-poster-wrap] {
+  outline: 2.5px solid #38bdf8; /* sky-400 */
+  outline-offset: 2px;
+}
+[data-slide][data-is-want="true"] [data-poster-wrap] {
+  outline: 2.5px solid #8b5cf6; /* violet-500 */
+  outline-offset: 2px;
+}
+[data-slide][data-is-think="true"][data-is-want="true"] [data-poster-wrap] {
+  outline: 3px solid #f59e0b; /* amber-500 */
+  outline-offset: 2px;
+}
+
+/* T/W toggle buttons: default → outlined, active → filled */
+[data-think-btn] {
+  color: #0284c7;       /* sky-600 */
+  border-color: #bae6fd; /* sky-200 */
+  background: transparent;
+}
+[data-think-btn]:hover {
+  background: #f0f9ff; /* sky-50 */
+}
+[data-think-btn][data-active="true"] {
+  background-color: #0ea5e9; /* sky-500 */
+  border-color:     #0ea5e9;
+  color: #fff;
+}
+
+[data-want-btn] {
+  color: #7c3aed;       /* violet-600 */
+  border-color: #ddd6fe; /* violet-200 */
+  background: transparent;
+}
+[data-want-btn]:hover {
+  background: #f5f3ff; /* violet-50 */
+}
+[data-want-btn][data-active="true"] {
+  background-color: #8b5cf6; /* violet-500 */
+  border-color:     #8b5cf6;
+  color: #fff;
+}
