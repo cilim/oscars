@@ -4,55 +4,178 @@
   <div class="flex items-center justify-between flex-wrap gap-4">
     <div>
       <h1 class="text-3xl font-bold text-oscar-gold"><%= @season.name %></h1>
-      <p class="text-oscar-muted mt-1"><%= @season.season_categories.count %> categories &middot; <%= @season.players.count %> players</p>
+      <p class="text-oscar-muted mt-1"><%= @season_categories.count %> categories &middot; <%= @season.players.count %> players</p>
     </div>
 
     <div class="flex gap-3">
       <%= link_to "Scoreboard", season_scoreboard_path(@season), class: "btn btn-gold no-underline" %>
       <% if @player && !@season.locked? %>
-        <%= link_to "Make Picks", edit_season_picks_path(@season), class: "btn btn-outline no-underline" %>
+        <%= link_to "Edit Picks", edit_season_picks_path(@season), class: "btn btn-outline no-underline" %>
       <% end %>
     </div>
   </div>
 </div>
 
 <% if @player %>
-  <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-    <% @season.season_categories.includes(:category, :nominees, winner: :nominee).each do |sc| %>
-      <% pick = @player.picks.find_by(season_category: sc) %>
-      <div class="card">
-        <h3 class="text-lg font-bold text-oscar-text mb-3"><%= sc.category_name %></h3>
 
-        <% if sc.winner %>
-          <div class="mb-3 p-3 bg-oscar-gold/10 border border-oscar-gold/20 rounded-lg">
-            <span class="text-xs text-oscar-gold font-semibold uppercase tracking-wider">Winner</span>
-            <p class="text-oscar-gold font-bold mt-1"><%= sc.winner.nominee.display_name %></p>
-          </div>
-        <% end %>
+  <%# Pre-compute stats without N+1 %>
+  <% announced_categories = @season_categories.select { |sc| sc.winner.present? } %>
+  <% total_points = 0; correct_t = 0; correct_w = 0 %>
+  <% announced_categories.each do |sc| %>
+    <% pick = @picks_by_category[sc.id] %>
+    <% next unless pick %>
+    <% if pick.think_will_win_id == sc.winner.nominee_id %>
+      <% total_points += 5; correct_t += 1 %>
+    <% end %>
+    <% if pick.want_to_win_id == sc.winner.nominee_id %>
+      <% total_points += 2; correct_w += 1 %>
+    <% end %>
+  <% end %>
 
-        <% if pick %>
-          <div class="space-y-2 text-sm">
-            <div class="flex justify-between">
-              <span class="text-oscar-muted">Think will win:</span>
-              <span class="text-oscar-text font-medium"><%= pick.think_will_win&.display_name || "—" %></span>
+  <%# Stats bar %>
+  <div class="card mb-6">
+    <div class="flex items-center justify-around gap-4 flex-wrap">
+      <div class="text-center">
+        <div class="text-3xl font-bold text-oscar-gold"><%= total_points %></div>
+        <div class="text-[11px] text-oscar-muted uppercase tracking-wider mt-1">Points</div>
+      </div>
+      <div class="w-px h-10 bg-oscar-border hidden sm:block"></div>
+      <div class="text-center">
+        <div class="text-2xl font-bold text-oscar-text"><%= announced_categories.count %> <span class="text-oscar-muted text-base font-normal">/ <%= @season_categories.count %></span></div>
+        <div class="text-[11px] text-oscar-muted uppercase tracking-wider mt-1">Announced</div>
+      </div>
+      <div class="w-px h-10 bg-oscar-border hidden sm:block"></div>
+      <div class="text-center">
+        <div class="text-2xl font-bold text-sky-600"><%= correct_t %></div>
+        <div class="text-[11px] text-oscar-muted uppercase tracking-wider mt-1">Correct T</div>
+      </div>
+      <div class="w-px h-10 bg-oscar-border hidden sm:block"></div>
+      <div class="text-center">
+        <div class="text-2xl font-bold text-violet-600"><%= correct_w %></div>
+        <div class="text-[11px] text-oscar-muted uppercase tracking-wider mt-1">Correct W</div>
+      </div>
+    </div>
+  </div>
+
+  <%# Category list %>
+  <div class="space-y-3">
+    <% @season_categories.each do |sc| %>
+      <% pick          = @picks_by_category[sc.id] %>
+      <% winner_nom    = sc.winner&.nominee %>
+      <% is_announced  = sc.winner.present? %>
+      <% think_correct = is_announced && pick && pick.think_will_win_id == sc.winner.nominee_id %>
+      <% want_correct  = is_announced && pick && pick.want_to_win_id  == sc.winner.nominee_id %>
+      <% think_wrong   = is_announced && pick&.think_will_win_id  && !think_correct %>
+      <% want_wrong    = is_announced && pick&.want_to_win_id      && !want_correct %>
+      <% cat_points    = (think_correct ? 5 : 0) + (want_correct ? 2 : 0) %>
+
+      <div class="card flex gap-4 items-stretch <%= is_announced ? 'border-l-[3px] border-l-oscar-gold' : '' %>">
+
+        <%# Poster / placeholder — fixed 72×108 px %>
+        <div class="flex-shrink-0 self-start">
+          <% if is_announced && winner_nom&.poster_url.present? %>
+            <div class="rounded-lg overflow-hidden shadow-sm" style="width:72px;height:108px;">
+              <img src="<%= winner_nom.poster_url %>"
+                   alt="<%= winner_nom.movie_name %>"
+                   class="w-full h-full object-cover">
             </div>
-            <div class="flex justify-between">
-              <span class="text-oscar-muted">Want to win:</span>
-              <span class="text-oscar-text font-medium"><%= pick.want_to_win&.display_name || "—" %></span>
+          <% elsif is_announced %>
+            <div class="rounded-lg bg-oscar-gold/10 border border-oscar-gold/20 flex items-center justify-center" style="width:72px;height:108px;">
+              <svg class="w-6 h-6 text-oscar-gold" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L9 9H2l6 4.5L5.5 21 12 16.5 18.5 21 16 13.5 22 9h-7z"/>
+              </svg>
             </div>
-            <% if sc.winner %>
-              <div class="flex justify-between pt-2 border-t border-oscar-border">
-                <span class="text-oscar-muted">Points:</span>
-                <span class="font-bold text-oscar-gold"><%= pick.total_score %></span>
-              </div>
+          <% else %>
+            <div class="rounded-lg bg-oscar-surface border border-oscar-border flex items-center justify-center" style="width:72px;height:108px;">
+              <svg class="w-5 h-5 text-oscar-border" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="9"/>
+                <path d="M12 7v5l3 3"/>
+              </svg>
+            </div>
+          <% end %>
+        </div>
+
+        <%# Content %>
+        <div class="flex-1 min-w-0 py-0.5">
+
+          <%# Top row: category name + status badge %>
+          <div class="flex items-center justify-between gap-2 mb-1.5">
+            <h3 class="font-bold text-oscar-text text-base leading-tight"><%= sc.category_name %></h3>
+            <% if is_announced %>
+              <span class="text-[10px] font-semibold uppercase tracking-wider text-oscar-gold bg-oscar-gold/10 px-2 py-0.5 rounded flex-shrink-0">Announced</span>
+            <% else %>
+              <span class="text-[10px] font-semibold uppercase tracking-wider text-oscar-muted bg-oscar-surface px-2 py-0.5 rounded flex-shrink-0">Pending</span>
             <% end %>
           </div>
-        <% else %>
-          <p class="text-oscar-muted text-sm">No picks yet</p>
-        <% end %>
+
+          <%# Winner name %>
+          <% if is_announced %>
+            <div class="flex items-center gap-1 mb-3">
+              <svg class="w-3.5 h-3.5 text-oscar-gold flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L9 9H2l6 4.5L5.5 21 12 16.5 18.5 21 16 13.5 22 9h-7z"/>
+              </svg>
+              <span class="text-sm font-semibold text-oscar-gold leading-tight"><%= winner_nom.display_name %></span>
+            </div>
+          <% end %>
+
+          <%# Picks row %>
+          <% if pick %>
+            <div class="grid grid-cols-2 gap-x-4 gap-y-0.5 text-xs">
+
+              <%# Think Will Win %>
+              <div>
+                <div class="text-[10px] text-oscar-muted uppercase tracking-wider mb-0.5">
+                  Think will win <% if think_correct %><span class="text-oscar-gold font-bold">+5</span><% end %>
+                </div>
+                <div class="flex items-center gap-1">
+                  <% if think_correct %>
+                    <svg class="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                    <span class="font-semibold text-emerald-600"><%= pick.think_will_win&.display_name || "—" %></span>
+                  <% elsif think_wrong %>
+                    <svg class="w-3.5 h-3.5 text-red-400 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                    <span class="text-oscar-muted line-through"><%= pick.think_will_win&.display_name || "—" %></span>
+                  <% else %>
+                    <span class="<%= pick.think_will_win_id ? 'text-oscar-text' : 'text-oscar-muted' %>"><%= pick.think_will_win&.display_name || "—" %></span>
+                  <% end %>
+                </div>
+              </div>
+
+              <%# Want To Win %>
+              <div>
+                <div class="text-[10px] text-oscar-muted uppercase tracking-wider mb-0.5">
+                  Want to win <% if want_correct %><span class="text-oscar-gold font-bold">+2</span><% end %>
+                </div>
+                <div class="flex items-center gap-1">
+                  <% if want_correct %>
+                    <svg class="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                    <span class="font-semibold text-emerald-600"><%= pick.want_to_win&.display_name || "—" %></span>
+                  <% elsif want_wrong %>
+                    <svg class="w-3.5 h-3.5 text-red-400 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                    <span class="text-oscar-muted line-through"><%= pick.want_to_win&.display_name || "—" %></span>
+                  <% else %>
+                    <span class="<%= pick.want_to_win_id ? 'text-oscar-text' : 'text-oscar-muted' %>"><%= pick.want_to_win&.display_name || "—" %></span>
+                  <% end %>
+                </div>
+              </div>
+
+            </div>
+
+            <%# Points badge for this category %>
+            <% if is_announced && cat_points > 0 %>
+              <div class="mt-2 pt-2 border-t border-oscar-border/40 flex justify-end">
+                <span class="text-xs font-bold text-oscar-gold">+<%= cat_points %> pts</span>
+              </div>
+            <% end %>
+
+          <% else %>
+            <p class="text-xs text-oscar-muted italic">No picks submitted</p>
+          <% end %>
+
+        </div>
       </div>
     <% end %>
   </div>
+
 <% else %>
   <div class="card text-center py-12">
     <p class="text-oscar-muted text-lg">You are not a player in this season.</p>
