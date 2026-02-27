@@ -5,7 +5,7 @@ services:
     plan: free
     region: frankfurt
     buildCommand: bundle install && SECRET_KEY_BASE_DUMMY=1 bundle exec rails assets:precompile
-    startCommand: bundle exec rails db:prepare && bundle exec rails server -b 0.0.0.0 -p $PORT
+    startCommand: bundle exec rails db:prepare && bundle exec rails db:seed && bundle exec rails server -b 0.0.0.0 -p $PORT
     healthCheckPath: /up
     envVars:
       - key: RAILS_ENV
