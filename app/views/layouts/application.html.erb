@@ -19,11 +19,11 @@
   </head>
 
   <body class="h-full" data-controller="flash movie-poster">
-    <nav class="bg-oscar-deeper/80 backdrop-blur-md border-b border-oscar-border sticky top-0 z-50">
+    <nav class="bg-oscar-red border-b border-oscar-red sticky top-0 z-50">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16">
           <div class="flex items-center gap-6">
-            <%= link_to root_path, class: "flex items-center gap-2 text-oscar-gold hover:text-oscar-gold-light no-underline" do %>
+            <%= link_to root_path, class: "flex items-center gap-2 text-oscar-gold hover:text-white no-underline" do %>
               <svg class="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 2L9 9H2l6 4.5L5.5 21 12 16.5 18.5 21 16 13.5 22 9h-7z"/>
               </svg>
@@ -32,9 +32,9 @@
 
             <% if authenticated? %>
               <div class="hidden sm:flex items-center gap-4">
-                <%= link_to "Seasons", seasons_path, class: "text-sm text-oscar-muted hover:text-oscar-gold transition-colors no-underline" %>
+                <%= link_to "Seasons", seasons_path, class: "text-sm text-white/80 hover:text-white transition-colors no-underline" %>
                 <% if Current.user&.admin? %>
-                  <%= link_to "Admin", admin_seasons_path, class: "text-sm text-oscar-muted hover:text-oscar-gold transition-colors no-underline" %>
+                  <%= link_to "Admin", admin_seasons_path, class: "text-sm text-white/80 hover:text-white transition-colors no-underline" %>
                 <% end %>
               </div>
             <% end %>
@@ -42,10 +42,10 @@
 
           <div class="flex items-center gap-4">
             <% if authenticated? %>
-              <span class="text-sm text-oscar-muted hidden sm:inline"><%= Current.user.display_name %></span>
-              <%= button_to "Sign Out", session_path, method: :delete, class: "btn btn-outline btn-sm no-underline" %>
+              <span class="text-sm text-white/70 hidden sm:inline"><%= Current.user.display_name %></span>
+              <%= button_to "Sign Out", session_path, method: :delete, class: "btn btn-sm bg-white/10 text-white border-white/20 hover:bg-white/20 no-underline" %>
             <% else %>
-              <%= link_to "Sign In", new_session_path, class: "btn btn-outline btn-sm no-underline" %>
+              <%= link_to "Sign In", new_session_path, class: "btn btn-sm bg-white/10 text-white border-white/20 hover:bg-white/20 no-underline" %>
               <%= link_to "Sign Up", new_registration_path, class: "btn btn-gold btn-sm no-underline" %>
             <% end %>
           </div>

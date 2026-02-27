@@ -4,7 +4,7 @@
     <p class="text-oscar-muted mt-1">
       Manage categories, nominees, and players
       <% if @season.locked? %>
-        &middot; <span class="text-red-400">Picks Locked</span>
+        &middot; <span class="text-oscar-red">Picks Locked</span>
       <% end %>
     </p>
   </div>
@@ -18,7 +18,7 @@
   <%# Categories & Nominees %>
   <div class="lg:col-span-2">
     <div class="flex items-center justify-between mb-4">
-      <h2 class="text-xl font-bold text-white">Categories</h2>
+      <h2 class="text-xl font-bold text-oscar-text">Categories</h2>
     </div>
 
     <%# Add category form %>
@@ -45,7 +45,7 @@
         <div class="card">
           <div class="flex items-start justify-between mb-4">
             <div>
-              <h3 class="text-lg font-bold text-white"><%= sc.category_name %></h3>
+              <h3 class="text-lg font-bold text-oscar-text"><%= sc.category_name %></h3>
               <p class="text-oscar-muted text-xs">
                 <%= sc.has_person ? "Person & Film" : "Film only" %>
                 &middot; <%= sc.nominees.count %> nominees
@@ -62,7 +62,7 @@
           <% if sc.nominees.any? %>
             <div class="space-y-2">
               <% sc.nominees.each do |nom| %>
-                <div class="flex items-center justify-between py-2 px-3 bg-oscar-deeper rounded-lg">
+                <div class="flex items-center justify-between py-2 px-3 bg-oscar-surface rounded-lg">
                   <span class="text-sm text-oscar-text"><%= nom.display_name %></span>
                   <div class="flex gap-1">
                     <%= link_to "Edit", edit_admin_season_season_category_nominee_path(@season, sc, nom), class: "btn btn-outline btn-sm no-underline" %>
@@ -90,7 +90,7 @@
 
   <%# Players sidebar %>
   <div class="lg:col-span-1">
-    <h2 class="text-xl font-bold text-white mb-4">Players</h2>
+    <h2 class="text-xl font-bold text-oscar-text mb-4">Players</h2>
 
     <div class="card mb-4">
       <% if @available_users.any? %>
@@ -113,9 +113,9 @@
 
     <div class="space-y-2">
       <% @players.each do |player| %>
-        <div class="flex items-center justify-between py-2 px-3 bg-oscar-deeper rounded-lg">
+        <div class="flex items-center justify-between py-2 px-3 bg-oscar-surface rounded-lg">
           <div>
-            <span class="text-sm text-white font-medium"><%= player.user.display_name %></span>
+            <span class="text-sm text-oscar-text font-medium"><%= player.user.display_name %></span>
             <% if player.user.admin? %>
               <span class="text-xs text-oscar-gold ml-1">admin</span>
             <% end %>

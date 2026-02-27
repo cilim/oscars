@@ -21,7 +21,7 @@
     <% @season.season_categories.includes(:category, :nominees, winner: :nominee).each do |sc| %>
       <% pick = @player.picks.find_by(season_category: sc) %>
       <div class="card">
-        <h3 class="text-lg font-bold text-white mb-3"><%= sc.category_name %></h3>
+        <h3 class="text-lg font-bold text-oscar-text mb-3"><%= sc.category_name %></h3>
 
         <% if sc.winner %>
           <div class="mb-3 p-3 bg-oscar-gold/10 border border-oscar-gold/20 rounded-lg">
@@ -34,11 +34,11 @@
           <div class="space-y-2 text-sm">
             <div class="flex justify-between">
               <span class="text-oscar-muted">Think will win:</span>
-              <span class="text-white"><%= pick.think_will_win&.display_name || "—" %></span>
+              <span class="text-oscar-text font-medium"><%= pick.think_will_win&.display_name || "—" %></span>
             </div>
             <div class="flex justify-between">
               <span class="text-oscar-muted">Want to win:</span>
-              <span class="text-white"><%= pick.want_to_win&.display_name || "—" %></span>
+              <span class="text-oscar-text font-medium"><%= pick.want_to_win&.display_name || "—" %></span>
             </div>
             <% if sc.winner %>
               <div class="flex justify-between pt-2 border-t border-oscar-border">

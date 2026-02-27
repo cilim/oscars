@@ -16,11 +16,11 @@
   </head>
 
   <body class="h-full">
-    <nav class="bg-oscar-deeper/80 backdrop-blur-md border-b border-oscar-border sticky top-0 z-50">
+    <nav class="bg-oscar-red border-b border-oscar-red sticky top-0 z-50">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16">
           <div class="flex items-center gap-6">
-            <%= link_to root_path, class: "flex items-center gap-2 text-oscar-gold hover:text-oscar-gold-light no-underline" do %>
+            <%= link_to root_path, class: "flex items-center gap-2 text-oscar-gold hover:text-white no-underline" do %>
               <svg class="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 2L9 9H2l6 4.5L5.5 21 12 16.5 18.5 21 16 13.5 22 9h-7z"/>
               </svg>
@@ -28,18 +28,18 @@
             <% end %>
 
             <div class="hidden sm:flex items-center gap-4">
-              <span class="text-xs font-semibold uppercase tracking-wider text-oscar-gold bg-oscar-gold/10 px-2 py-1 rounded">Admin</span>
-              <%= link_to "Seasons", admin_seasons_path, class: "text-sm text-oscar-muted hover:text-oscar-gold transition-colors no-underline" %>
-              <%= link_to "Categories", admin_categories_path, class: "text-sm text-oscar-muted hover:text-oscar-gold transition-colors no-underline" %>
-              <%= link_to "Users", admin_users_path, class: "text-sm text-oscar-muted hover:text-oscar-gold transition-colors no-underline" %>
-              <span class="text-oscar-border">|</span>
-              <%= link_to "Back to Site", root_path, class: "text-sm text-oscar-muted hover:text-oscar-gold transition-colors no-underline" %>
+              <span class="text-xs font-semibold uppercase tracking-wider text-oscar-gold bg-oscar-gold/20 px-2 py-1 rounded">Admin</span>
+              <%= link_to "Seasons", admin_seasons_path, class: "text-sm text-white/80 hover:text-white transition-colors no-underline" %>
+              <%= link_to "Categories", admin_categories_path, class: "text-sm text-white/80 hover:text-white transition-colors no-underline" %>
+              <%= link_to "Users", admin_users_path, class: "text-sm text-white/80 hover:text-white transition-colors no-underline" %>
+              <span class="text-white/30">|</span>
+              <%= link_to "Back to Site", root_path, class: "text-sm text-white/80 hover:text-white transition-colors no-underline" %>
             </div>
           </div>
 
           <div class="flex items-center gap-4">
-            <span class="text-sm text-oscar-muted hidden sm:inline"><%= Current.user.display_name %></span>
-            <%= button_to "Sign Out", session_path, method: :delete, class: "btn btn-outline btn-sm no-underline" %>
+            <span class="text-sm text-white/70 hidden sm:inline"><%= Current.user.display_name %></span>
+            <%= button_to "Sign Out", session_path, method: :delete, class: "btn btn-sm bg-white/10 text-white border-white/20 hover:bg-white/20 no-underline" %>
           </div>
         </div>
       </div>

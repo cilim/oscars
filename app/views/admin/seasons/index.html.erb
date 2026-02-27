@@ -7,7 +7,7 @@
 <% available_years = Dir[Rails.root.join("db/data/*.yml")].map { |f| File.basename(f, ".yml") }.sort %>
 <% if available_years.any? %>
   <div class="card mb-8">
-    <h3 class="text-sm font-semibold text-white mb-3">Import from data file</h3>
+    <h3 class="text-sm font-semibold text-oscar-text mb-3">Import from data file</h3>
     <div class="flex flex-wrap gap-2">
       <% available_years.each do |year| %>
         <%= button_to "Import #{year}", admin_import_path(year: year),
@@ -23,12 +23,12 @@
     <% @seasons.each do |season| %>
       <div class="card flex items-center justify-between">
         <div>
-          <h2 class="text-lg font-bold text-white"><%= season.name %></h2>
+          <h2 class="text-lg font-bold text-oscar-text"><%= season.name %></h2>
           <p class="text-oscar-muted text-sm">
             <%= season.season_categories.count %> categories &middot;
             <%= season.players.count %> players
             <% if season.locked? %>
-              &middot; <span class="text-red-400">Locked</span>
+              &middot; <span class="text-oscar-red">Locked</span>
             <% end %>
             <% if season.archived? %>
               &middot; <span class="text-oscar-muted">Archived</span>

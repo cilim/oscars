@@ -16,7 +16,7 @@
     <tbody>
       <% @users.each do |user| %>
         <tr class="border-b border-oscar-border/50 last:border-0">
-          <td class="py-3 text-white font-medium"><%= user.display_name %></td>
+          <td class="py-3 text-oscar-text font-medium"><%= user.display_name %></td>
           <td class="py-3 text-oscar-text"><%= user.email_address %></td>
           <td class="py-3">
             <% if user.admin? %>

@@ -14,7 +14,7 @@
   <% @season_categories.each do |sc| %>
     <% pick = @picks_by_category[sc.id] || Pick.new %>
     <div class="card" data-controller="pick-card">
-      <h3 class="text-xl font-bold text-white mb-1"><%= sc.category_name %></h3>
+      <h3 class="text-xl font-bold text-oscar-text mb-1"><%= sc.category_name %></h3>
       <% if sc.has_person %>
         <p class="text-oscar-muted text-xs mb-3">Person & film</p>
       <% else %>
@@ -30,7 +30,7 @@
                       data-action="click->movie-poster#show"
                       data-poster-url="<%= nom.poster_url %>"
                       data-movie-title="<%= nom.movie_name %>"
-                      class="text-xs text-oscar-muted hover:text-oscar-gold border border-oscar-border hover:border-oscar-gold/50 bg-oscar-surface/40 px-2.5 py-1 rounded-full transition-colors leading-none">
+                      class="text-xs text-oscar-muted hover:text-oscar-gold border border-oscar-border hover:border-oscar-gold/50 bg-oscar-surface px-2.5 py-1 rounded-full transition-colors leading-none">
                 <%= nom.movie_name %>
               </button>
             <% end %>
@@ -65,7 +65,7 @@
   <% end %>
 
   <div class="sticky bottom-4 z-10">
-    <div class="bg-oscar-deeper/95 backdrop-blur-md border border-oscar-border rounded-xl p-4 flex items-center justify-between shadow-2xl">
+    <div class="bg-white/95 backdrop-blur-md border border-oscar-border rounded-xl p-4 flex items-center justify-between shadow-lg">
       <span class="text-oscar-muted text-sm"><%= @season_categories.count %> categories</span>
       <%= f.submit "Save All Picks", class: "btn btn-gold btn-lg" %>
     </div>

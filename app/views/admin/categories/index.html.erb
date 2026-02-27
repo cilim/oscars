@@ -7,9 +7,9 @@
   <% if @categories.any? %>
     <div class="space-y-3">
       <% @categories.each do |category| %>
-        <div class="flex items-center justify-between py-3 px-4 bg-oscar-deeper rounded-lg">
+        <div class="flex items-center justify-between py-3 px-4 bg-oscar-surface rounded-lg">
           <div>
-            <span class="text-white font-medium"><%= category.name %></span>
+            <span class="text-oscar-text font-medium"><%= category.name %></span>
             <span class="text-oscar-muted text-xs ml-2"><%= category.has_person ? "Person & Film" : "Film only" %></span>
           </div>
           <div class="flex gap-2">

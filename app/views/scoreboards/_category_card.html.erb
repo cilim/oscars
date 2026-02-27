@@ -1,10 +1,10 @@
 <div id="season_category_<%= sc.id %>_winner" class="card">
   <div class="flex items-start justify-between mb-4">
-    <h3 class="text-lg font-bold text-white"><%= sc.category_name %></h3>
+    <h3 class="text-lg font-bold text-oscar-text"><%= sc.category_name %></h3>
     <% if sc.winner %>
       <span class="text-xs font-semibold uppercase tracking-wider text-oscar-gold bg-oscar-gold/10 px-2 py-1 rounded">Announced</span>
     <% else %>
-      <span class="text-xs font-semibold uppercase tracking-wider text-oscar-muted bg-oscar-deeper px-2 py-1 rounded">Pending</span>
+      <span class="text-xs font-semibold uppercase tracking-wider text-oscar-muted bg-oscar-surface px-2 py-1 rounded">Pending</span>
     <% end %>
   </div>
 
@@ -67,17 +67,17 @@
           <div class="ml-6 mt-1 space-y-0.5">
             <% if think_names.any? %>
               <div class="flex flex-wrap items-center gap-1">
-                <span class="text-[10px] font-bold tracking-wide text-sky-400 bg-sky-900/40 px-1.5 py-0.5 rounded leading-none flex-shrink-0">T</span>
+                <span class="text-[10px] font-bold tracking-wide text-sky-700 bg-sky-100 px-1.5 py-0.5 rounded leading-none flex-shrink-0">T</span>
                 <% think_names.sort.each do |name| %>
-                  <span class="text-[11px] text-sky-300 bg-sky-950/60 px-1.5 py-0.5 rounded leading-none"><%= name %></span>
+                  <span class="text-[11px] text-sky-800 bg-sky-50 px-1.5 py-0.5 rounded leading-none"><%= name %></span>
                 <% end %>
               </div>
             <% end %>
             <% if want_names.any? %>
               <div class="flex flex-wrap items-center gap-1">
-                <span class="text-[10px] font-bold tracking-wide text-violet-400 bg-violet-900/40 px-1.5 py-0.5 rounded leading-none flex-shrink-0">W</span>
+                <span class="text-[10px] font-bold tracking-wide text-violet-700 bg-violet-100 px-1.5 py-0.5 rounded leading-none flex-shrink-0">W</span>
                 <% want_names.sort.each do |name| %>
-                  <span class="text-[11px] text-violet-300 bg-violet-950/60 px-1.5 py-0.5 rounded leading-none"><%= name %></span>
+                  <span class="text-[11px] text-violet-800 bg-violet-50 px-1.5 py-0.5 rounded leading-none"><%= name %></span>
                 <% end %>
               </div>
             <% end %>
