@@ -8,8 +8,9 @@ module Admin
         respond_to do |format|
           format.html { redirect_to season_scoreboard_path(@season), notice: "Winner announced!", status: :see_other }
           format.turbo_stream do
-            @season_category = SeasonCategory.includes(:category, :nominees, winner: :nominee, picks: { player: :user }).find(@winner.season_category_id)
-            @scoreboard_data = ScoreboardCalculator.new(@season).call
+            @season_category   = SeasonCategory.includes(:category, :nominees, winner: :nominee, picks: { player: :user }).find(@winner.season_category_id)
+            @season_categories = @season.season_categories.includes(:winner)
+            @scoreboard_data   = ScoreboardCalculator.new(@season).call
           end
         end
       else

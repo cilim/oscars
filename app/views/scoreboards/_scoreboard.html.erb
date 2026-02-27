@@ -1,15 +1,19 @@
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-  <%# Leaderboard %>
+  <%# Sidebar: progress bar + leaderboard, both sticky %>
   <div class="lg:col-span-1">
-    <%= render "scoreboards/leaderboard", scoreboard_data: scoreboard_data %>
+    <div class="sticky top-24 space-y-4">
+      <%= render "scoreboards/progress", season_categories: season_categories %>
+      <%= render "scoreboards/leaderboard", scoreboard_data: scoreboard_data %>
+    </div>
   </div>
 
   <%# Category Results %>
-  <div class="lg:col-span-2 space-y-4">
-    <h2 class="text-2xl font-bold text-oscar-text mb-4">Categories</h2>
-
-    <% season_categories.each do |sc| %>
-      <%= render "scoreboards/category_card", sc: sc, season: season, is_admin: is_admin %>
-    <% end %>
+  <div class="lg:col-span-2">
+    <h2 class="text-xl font-bold text-oscar-text mb-4">Categories</h2>
+    <div class="space-y-3">
+      <% season_categories.each do |sc| %>
+        <%= render "scoreboards/category_card", sc: sc, season: season, is_admin: is_admin %>
+      <% end %>
+    </div>
   </div>
 </div>

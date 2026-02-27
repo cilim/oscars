@@ -1,89 +1,152 @@
-<div id="season_category_<%= sc.id %>_winner" class="card">
-  <div class="flex items-start justify-between mb-4">
-    <h3 class="text-lg font-bold text-oscar-text"><%= sc.category_name %></h3>
-    <% if sc.winner %>
-      <span class="text-xs font-semibold uppercase tracking-wider text-oscar-gold bg-oscar-gold/10 px-2 py-1 rounded">Announced</span>
-    <% else %>
-      <span class="text-xs font-semibold uppercase tracking-wider text-oscar-muted bg-oscar-surface px-2 py-1 rounded">Pending</span>
+<% winner_nom     = sc.winner&.nominee %>
+<% is_announced  = sc.winner.present? %>
+<% think_by_nominee = sc.picks.each_with_object(Hash.new { |h, k| h[k] = [] }) { |p, h| h[p.think_will_win_id] << p.player.user.display_name if p.think_will_win_id } %>
+<% want_by_nominee  = sc.picks.each_with_object(Hash.new { |h, k| h[k] = [] }) { |p, h| h[p.want_to_win_id]  << p.player.user.display_name if p.want_to_win_id  } %>
+
+<div id="season_category_<%= sc.id %>_winner"
+     class="card p-0 overflow-hidden <%= is_announced ? 'border-l-[3px] border-l-oscar-gold' : '' %>">
+
+  <%# ── Header: poster + title + winner ──────────────── %>
+  <div class="flex gap-3 p-4">
+
+    <%# Poster (announced only) %>
+    <% if is_announced %>
+      <div class="flex-shrink-0 rounded-lg overflow-hidden shadow-sm self-start" style="width:64px;height:96px;">
+        <% if winner_nom&.poster_url.present? %>
+          <img src="<%= winner_nom.poster_url %>"
+               alt="<%= winner_nom.movie_name %>"
+               class="w-full h-full object-cover">
+        <% else %>
+          <div class="w-full h-full bg-oscar-gold/10 flex items-center justify-center">
+            <svg class="w-6 h-6 text-oscar-gold" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2L9 9H2l6 4.5L5.5 21 12 16.5 18.5 21 16 13.5 22 9h-7z"/>
+            </svg>
+          </div>
+        <% end %>
+      </div>
     <% end %>
+
+    <%# Title block %>
+    <div class="flex-1 min-w-0">
+      <div class="flex items-start justify-between gap-2 mb-1">
+        <h3 class="text-base font-bold text-oscar-text leading-tight"><%= sc.category_name %></h3>
+        <% if is_announced %>
+          <span class="text-[10px] font-semibold uppercase tracking-wider text-oscar-gold bg-oscar-gold/10 px-2 py-0.5 rounded flex-shrink-0">Announced</span>
+        <% else %>
+          <span class="text-[10px] font-semibold uppercase tracking-wider text-oscar-muted bg-oscar-surface px-2 py-0.5 rounded flex-shrink-0">Pending</span>
+        <% end %>
+      </div>
+
+      <% if is_announced && winner_nom %>
+        <div class="flex items-center gap-1.5 mt-1.5">
+          <svg class="w-3.5 h-3.5 text-oscar-gold flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2L9 9H2l6 4.5L5.5 21 12 16.5 18.5 21 16 13.5 22 9h-7z"/>
+          </svg>
+          <span class="text-sm font-bold text-oscar-gold leading-tight"><%= winner_nom.display_name %></span>
+        </div>
+      <% end %>
+
+      <%# Admin winner form (pending only) %>
+      <% if !is_announced && is_admin %>
+        <%= form_with url: admin_season_winners_path(season), class: "mt-3" do |f| %>
+          <input type="hidden" name="winner[season_category_id]" value="<%= sc.id %>">
+          <div class="flex gap-2 items-center">
+            <select name="winner[nominee_id]" class="select-field text-xs py-1.5" required>
+              <option value="">— Announce winner —</option>
+              <% sc.nominees.each do |nom| %>
+                <option value="<%= nom.id %>"><%= nom.display_name %></option>
+              <% end %>
+            </select>
+            <%= f.submit "★ Announce", class: "btn btn-gold btn-sm flex-shrink-0" %>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
   </div>
 
-  <% if sc.winner %>
-    <div class="p-4 bg-oscar-gold/10 border border-oscar-gold/20 rounded-lg mb-4">
-      <div class="flex items-center gap-2">
-        <svg class="w-5 h-5 text-oscar-gold" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L9 9H2l6 4.5L5.5 21 12 16.5 18.5 21 16 13.5 22 9h-7z"/></svg>
-        <span class="text-oscar-gold font-bold text-lg"><%= sc.winner.nominee.display_name %></span>
-      </div>
-    </div>
-  <% elsif is_admin %>
-    <%= form_with url: admin_season_winners_path(season), class: "mb-4" do |f| %>
-      <input type="hidden" name="winner[season_category_id]" value="<%= sc.id %>">
-      <label class="label-text">Select Winner</label>
-      <div class="flex gap-2 items-center mt-1">
-        <select name="winner[nominee_id]" class="select-field" required>
-          <option value="">— Choose winner —</option>
-          <% sc.nominees.each do |nom| %>
-            <option value="<%= nom.id %>"><%= nom.display_name %></option>
-          <% end %>
-        </select>
-        <%= f.submit "Announce ★", class: "btn btn-gold flex-shrink-0" %>
-      </div>
-    <% end %>
-  <% end %>
+  <%# ── Nominees + pick chips ──────────────────────────── %>
+  <%# Only render if there are any picks at all %>
+  <% has_any_picks = think_by_nominee.any? || want_by_nominee.any? %>
+  <% if has_any_picks %>
+    <div class="border-t border-oscar-border/50 px-4 pt-3 pb-4 space-y-1 text-sm">
+      <% sc.nominees.each do |nom| %>
+        <% is_winner     = is_announced && sc.winner.nominee_id == nom.id %>
+        <% think_names   = think_by_nominee[nom.id] %>
+        <% want_names    = want_by_nominee[nom.id] %>
+        <% next unless think_names.any? || want_names.any? %>
 
-  <%# Precompute picks grouped by nominee for efficient lookup in the loop below %>
-  <% think_by_nominee = sc.picks.each_with_object(Hash.new { |h, k| h[k] = [] }) { |p, h| h[p.think_will_win_id] << p.player.user.display_name if p.think_will_win_id } %>
-  <% want_by_nominee  = sc.picks.each_with_object(Hash.new { |h, k| h[k] = [] }) { |p, h| h[p.want_to_win_id]  << p.player.user.display_name if p.want_to_win_id  } %>
+        <div class="py-1.5 px-3 rounded-md <%= is_winner ? 'bg-oscar-gold/10' : '' %>">
+          <%# Nominee name %>
+          <div class="flex items-center gap-2 mb-1">
+            <% if is_winner %>
+              <svg class="w-3.5 h-3.5 text-oscar-gold flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L9 9H2l6 4.5L5.5 21 12 16.5 18.5 21 16 13.5 22 9h-7z"/>
+              </svg>
+            <% else %>
+              <span class="w-3.5 h-3.5 flex-shrink-0"></span>
+            <% end %>
+            <% if nom.poster_url.present? %>
+              <button type="button"
+                      data-action="click->movie-poster#show"
+                      data-poster-url="<%= nom.poster_url %>"
+                      data-movie-title="<%= nom.movie_name %>"
+                      class="text-left text-xs hover:underline underline-offset-2 cursor-pointer bg-transparent border-0 p-0 font-semibold
+                             <%= is_winner ? 'text-oscar-gold' : is_announced ? 'text-oscar-muted' : 'text-oscar-text hover:text-oscar-gold' %> transition-colors">
+                <%= nom.display_name %>
+              </button>
+            <% else %>
+              <span class="text-xs font-semibold <%= is_winner ? 'text-oscar-gold' : is_announced ? 'text-oscar-muted' : 'text-oscar-text' %>">
+                <%= nom.display_name %>
+              </span>
+            <% end %>
+          </div>
 
-  <div class="space-y-1 text-sm">
-    <% sc.nominees.each do |nom| %>
-      <% is_winner = sc.winner&.nominee_id == nom.id %>
-      <% think_names = think_by_nominee[nom.id] %>
-      <% want_names  = want_by_nominee[nom.id]  %>
-
-      <div class="py-1.5 px-3 rounded <%= is_winner ? 'bg-oscar-gold/10 text-oscar-gold font-semibold' : 'text-oscar-text' %>">
-        <%# Nominee name row %>
-        <div class="flex items-center gap-2">
-          <% if is_winner %>
-            <svg class="w-4 h-4 text-oscar-gold flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L9 9H2l6 4.5L5.5 21 12 16.5 18.5 21 16 13.5 22 9h-7z"/></svg>
-          <% else %>
-            <span class="w-4 h-4 flex-shrink-0"></span>
-          <% end %>
-          <% if nom.poster_url.present? %>
-            <button type="button"
-                    data-action="click->movie-poster#show"
-                    data-poster-url="<%= nom.poster_url %>"
-                    data-movie-title="<%= nom.movie_name %>"
-                    class="text-left hover:underline underline-offset-2 cursor-pointer bg-transparent border-0 p-0 font-[inherit] <%= is_winner ? 'text-oscar-gold' : 'text-oscar-text hover:text-oscar-gold' %> transition-colors">
-              <%= nom.display_name %>
-            </button>
-          <% else %>
-            <span><%= nom.display_name %></span>
-          <% end %>
-        </div>
-
-        <%# Pick chips: only rendered when someone picked this nominee %>
-        <% if think_names.any? || want_names.any? %>
-          <div class="ml-6 mt-1 space-y-0.5">
+          <%# Pick chips — green for correct (winner row), gray for wrong (non-winner, announced) %>
+          <div class="ml-5 space-y-0.5">
             <% if think_names.any? %>
               <div class="flex flex-wrap items-center gap-1">
-                <span class="text-[10px] font-bold tracking-wide text-sky-700 bg-sky-100 px-1.5 py-0.5 rounded leading-none flex-shrink-0">T</span>
-                <% think_names.sort.each do |name| %>
-                  <span class="text-[11px] text-sky-800 bg-sky-50 px-1.5 py-0.5 rounded leading-none"><%= name %></span>
+                <% if is_winner %>
+                  <span class="text-[10px] font-bold tracking-wide text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded leading-none flex-shrink-0" title="Think will win">🧠 +5</span>
+                  <% think_names.sort.each do |name| %>
+                    <span class="text-[11px] text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded leading-none font-medium"><%= name %></span>
+                  <% end %>
+                <% elsif is_announced %>
+                  <span class="text-[10px] font-bold tracking-wide text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded leading-none flex-shrink-0" title="Think will win">🧠</span>
+                  <% think_names.sort.each do |name| %>
+                    <span class="text-[11px] text-gray-400 bg-gray-50 px-1.5 py-0.5 rounded leading-none line-through"><%= name %></span>
+                  <% end %>
+                <% else %>
+                  <span class="text-[10px] font-bold tracking-wide text-sky-700 bg-sky-100 px-1.5 py-0.5 rounded leading-none flex-shrink-0" title="Think will win">🧠</span>
+                  <% think_names.sort.each do |name| %>
+                    <span class="text-[11px] text-sky-800 bg-sky-50 px-1.5 py-0.5 rounded leading-none"><%= name %></span>
+                  <% end %>
                 <% end %>
               </div>
             <% end %>
             <% if want_names.any? %>
               <div class="flex flex-wrap items-center gap-1">
-                <span class="text-[10px] font-bold tracking-wide text-violet-700 bg-violet-100 px-1.5 py-0.5 rounded leading-none flex-shrink-0">W</span>
-                <% want_names.sort.each do |name| %>
-                  <span class="text-[11px] text-violet-800 bg-violet-50 px-1.5 py-0.5 rounded leading-none"><%= name %></span>
+                <% if is_winner %>
+                  <span class="text-[10px] font-bold tracking-wide text-emerald-600 bg-emerald-100 px-1.5 py-0.5 rounded leading-none flex-shrink-0" title="Want to win">❤️ +2</span>
+                  <% want_names.sort.each do |name| %>
+                    <span class="text-[11px] text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded leading-none font-medium"><%= name %></span>
+                  <% end %>
+                <% elsif is_announced %>
+                  <span class="text-[10px] font-bold tracking-wide text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded leading-none flex-shrink-0" title="Want to win">❤️</span>
+                  <% want_names.sort.each do |name| %>
+                    <span class="text-[11px] text-gray-400 bg-gray-50 px-1.5 py-0.5 rounded leading-none line-through"><%= name %></span>
+                  <% end %>
+                <% else %>
+                  <span class="text-[10px] font-bold tracking-wide text-violet-700 bg-violet-100 px-1.5 py-0.5 rounded leading-none flex-shrink-0" title="Want to win">❤️</span>
+                  <% want_names.sort.each do |name| %>
+                    <span class="text-[11px] text-violet-800 bg-violet-50 px-1.5 py-0.5 rounded leading-none"><%= name %></span>
+                  <% end %>
                 <% end %>
               </div>
             <% end %>
           </div>
-        <% end %>
-      </div>
-    <% end %>
-  </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
 </div>

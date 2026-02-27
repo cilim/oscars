@@ -5,3 +5,7 @@
 <%= turbo_stream.replace "leaderboard" do %>
   <%= render "scoreboards/leaderboard", scoreboard_data: @scoreboard_data %>
 <% end %>
+
+<%= turbo_stream.replace "category-progress" do %>
+  <%= render "scoreboards/progress", season_categories: @season_categories %>
+<% end %>

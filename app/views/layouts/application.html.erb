@@ -32,9 +32,9 @@
 
             <% if authenticated? %>
               <div class="hidden sm:flex items-center gap-4">
-                <%= link_to "Seasons", seasons_path, class: "text-sm text-white/80 hover:text-white transition-colors no-underline" %>
+                <%= link_to "Seasons", seasons_path, class: "text-sm no-underline #{request.path.start_with?(seasons_path) ? 'nav-link-active' : 'nav-link'}" %>
                 <% if Current.user&.admin? %>
-                  <%= link_to "Admin", admin_seasons_path, class: "text-sm text-white/80 hover:text-white transition-colors no-underline" %>
+                  <%= link_to "Admin", admin_seasons_path, class: "text-xs font-semibold text-oscar-gold bg-oscar-gold/20 hover:bg-oscar-gold/30 px-2.5 py-1 rounded transition-colors no-underline" %>
                 <% end %>
               </div>
             <% end %>

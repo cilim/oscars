@@ -40,11 +40,11 @@
 
         <div class="text-right text-xs shrink-0 space-y-1">
           <div class="flex items-center gap-1.5 justify-end">
-            <span class="font-black text-[10px] text-white bg-sky-500 px-1.5 py-0.5 rounded leading-none">T</span>
+            <span class="font-black text-[10px] text-white bg-sky-500 px-1.5 py-0.5 rounded leading-none" title="Think will win">🧠</span>
             <span data-picks-carousel-target="thinkSummary" class="text-oscar-muted">—</span>
           </div>
           <div class="flex items-center gap-1.5 justify-end">
-            <span class="font-black text-[10px] text-white bg-violet-500 px-1.5 py-0.5 rounded leading-none">W</span>
+            <span class="font-black text-[10px] text-white bg-violet-500 px-1.5 py-0.5 rounded leading-none" title="Want to win">❤️</span>
             <span data-picks-carousel-target="wantSummary" class="text-oscar-muted">—</span>
           </div>
         </div>
@@ -52,8 +52,8 @@
 
       <%# Legend %>
       <div class="flex gap-4 text-[11px] text-oscar-muted mb-3">
-        <span><span class="font-bold text-sky-600">T</span> = Think will win <span class="text-oscar-gold font-semibold">(5 pts)</span></span>
-        <span><span class="font-bold text-violet-600">W</span> = Want to win <span class="text-oscar-muted">(2 pts)</span></span>
+        <span><span title="Think will win">🧠</span> Think will win <span class="text-oscar-gold font-semibold">(5 pts)</span></span>
+        <span><span title="Want to win">❤️</span> Want to win <span class="text-oscar-muted">(2 pts)</span></span>
       </div>
 
       <%# Carousel container with prev/next arrows %>
@@ -93,13 +93,13 @@
                   </div>
                 <% end %>
 
-                <%# T badge — top-left, revealed when selected %>
+                <%# 🧠 badge — top-left, revealed when selected %>
                 <span data-think-badge hidden
-                      class="absolute top-1.5 left-1.5 bg-sky-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded leading-none shadow-sm">T</span>
+                      class="absolute top-1.5 left-1.5 bg-sky-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded leading-none shadow-sm" title="Think will win">🧠</span>
 
-                <%# W badge — top-right, revealed when selected %>
+                <%# ❤️ badge — top-right, revealed when selected %>
                 <span data-want-badge hidden
-                      class="absolute top-1.5 right-1.5 bg-violet-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded leading-none shadow-sm">W</span>
+                      class="absolute top-1.5 right-1.5 bg-violet-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded leading-none shadow-sm" title="Want to win">❤️</span>
               </div>
 
               <%# Nominee name — single line, card widens to fit %>
@@ -107,23 +107,25 @@
                 <%= nom.display_name %>
               </p>
 
-              <%# T / W toggle buttons — stretch to full card width %>
+              <%# 🧠 / ❤️ toggle buttons — stretch to full card width %>
               <div class="flex gap-1 w-full">
                 <button type="button"
                         data-action="click->picks-carousel#toggleThink"
                         data-nominee-id="<%= nom.id %>"
                         data-think-btn
                         data-active="false"
+                        title="Think will win"
                         class="flex-1 text-xs py-1.5 rounded-md border font-bold transition-colors leading-none min-w-[36px]">
-                  T
+                  🧠
                 </button>
                 <button type="button"
                         data-action="click->picks-carousel#toggleWant"
                         data-nominee-id="<%= nom.id %>"
                         data-want-btn
                         data-active="false"
+                        title="Want to win"
                         class="flex-1 text-xs py-1.5 rounded-md border font-bold transition-colors leading-none min-w-[36px]">
-                  W
+                  ❤️
                 </button>
               </div>
 

@@ -29,9 +29,9 @@
 
             <div class="hidden sm:flex items-center gap-4">
               <span class="text-xs font-semibold uppercase tracking-wider text-oscar-gold bg-oscar-gold/20 px-2 py-1 rounded">Admin</span>
-              <%= link_to "Seasons", admin_seasons_path, class: "text-sm text-white/80 hover:text-white transition-colors no-underline" %>
-              <%= link_to "Categories", admin_categories_path, class: "text-sm text-white/80 hover:text-white transition-colors no-underline" %>
-              <%= link_to "Users", admin_users_path, class: "text-sm text-white/80 hover:text-white transition-colors no-underline" %>
+              <%= link_to "Seasons", admin_seasons_path, class: "text-sm no-underline #{request.path.start_with?(admin_seasons_path) ? 'nav-link-active' : 'nav-link'}" %>
+              <%= link_to "Categories", admin_categories_path, class: "text-sm no-underline #{request.path.start_with?(admin_categories_path) ? 'nav-link-active' : 'nav-link'}" %>
+              <%= link_to "Users", admin_users_path, class: "text-sm no-underline #{request.path.start_with?(admin_users_path) ? 'nav-link-active' : 'nav-link'}" %>
               <span class="text-white/30">|</span>
               <%= link_to "Back to Site", root_path, class: "text-sm text-white/80 hover:text-white transition-colors no-underline" %>
             </div>
