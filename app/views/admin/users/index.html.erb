@@ -1,0 +1,42 @@
+<div class="flex items-center justify-between mb-8">
+  <h1 class="text-3xl font-bold text-oscar-gold">Users</h1>
+  <%= link_to "New User", new_admin_user_path, class: "btn btn-gold no-underline" %>
+</div>
+
+<div class="card">
+  <table class="w-full text-sm">
+    <thead>
+      <tr class="border-b border-oscar-border text-left text-oscar-muted">
+        <th class="pb-3 font-medium">Name</th>
+        <th class="pb-3 font-medium">Email</th>
+        <th class="pb-3 font-medium">Role</th>
+        <th class="pb-3 font-medium text-right">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @users.each do |user| %>
+        <tr class="border-b border-oscar-border/50 last:border-0">
+          <td class="py-3 text-white font-medium"><%= user.display_name %></td>
+          <td class="py-3 text-oscar-text"><%= user.email_address %></td>
+          <td class="py-3">
+            <% if user.admin? %>
+              <span class="text-xs font-semibold text-oscar-gold bg-oscar-gold/10 px-2 py-0.5 rounded">Admin</span>
+            <% else %>
+              <span class="text-xs text-oscar-muted">Player</span>
+            <% end %>
+          </td>
+          <td class="py-3 text-right">
+            <div class="flex gap-1 justify-end">
+              <%= link_to "Edit", edit_admin_user_path(user), class: "btn btn-outline btn-sm no-underline" %>
+              <% unless user == Current.user %>
+                <%= button_to "Delete", admin_user_path(user), method: :delete,
+                    class: "btn btn-danger btn-sm",
+                    data: { turbo_confirm: "Delete #{user.display_name}?" } %>
+              <% end %>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

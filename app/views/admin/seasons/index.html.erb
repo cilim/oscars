@@ -3,6 +3,21 @@
   <%= link_to "New Season", new_admin_season_path, class: "btn btn-gold no-underline" %>
 </div>
 
+<%# Import from YAML data files %>
+<% available_years = Dir[Rails.root.join("db/data/*.yml")].map { |f| File.basename(f, ".yml") }.sort %>
+<% if available_years.any? %>
+  <div class="card mb-8">
+    <h3 class="text-sm font-semibold text-white mb-3">Import from data file</h3>
+    <div class="flex flex-wrap gap-2">
+      <% available_years.each do |year| %>
+        <%= button_to "Import #{year}", admin_import_path(year: year),
+            class: "btn btn-outline btn-sm",
+            data: { turbo_confirm: "Import/update data for #{year}? This is safe to run multiple times." } %>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+
 <% if @seasons.any? %>
   <div class="space-y-4">
     <% @seasons.each do |season| %>

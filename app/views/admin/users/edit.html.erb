@@ -1,0 +1,8 @@
+<div class="mb-8">
+  <h1 class="text-3xl font-bold text-oscar-gold">Edit User</h1>
+  <p class="text-oscar-muted mt-1"><%= @user.display_name %></p>
+</div>
+
+<div class="card max-w-lg">
+  <%= render "form", user: @user %>
+</div>

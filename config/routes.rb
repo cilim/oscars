@@ -9,6 +9,7 @@ Rails.application.routes.draw do
   end
 
   namespace :admin do
+    post "import/:year", to: "imports#create", as: :import
     resources :seasons do
       resources :season_categories, only: [ :create, :destroy ] do
         resources :nominees, except: [ :index, :show ]
@@ -17,6 +18,7 @@ Rails.application.routes.draw do
       resources :winners, only: [ :create, :destroy ]
     end
     resources :categories
+    resources :users
   end
 
   get "up" => "rails/health#show", as: :rails_health_check
