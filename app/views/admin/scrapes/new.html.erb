@@ -1,0 +1,33 @@
+<% content_for(:title, "Scrape Nominations") %>
+
+<div class="mb-8">
+  <div class="flex items-center gap-3 mb-1">
+    <%= link_to "← Seasons", admin_seasons_path, class: "text-sm text-oscar-muted hover:text-oscar-text no-underline transition-colors" %>
+  </div>
+  <h1 class="text-3xl font-bold text-oscar-gold">Scrape Nominations</h1>
+  <p class="text-oscar-muted mt-1">Fetches nominees directly from oscars.org and shows an editable preview before importing.</p>
+</div>
+
+<div class="card max-w-md"
+     data-controller="scrape-new">
+  <%= form_with url: admin_scrapes_path, method: :post,
+                data: { action: "submit->scrape-new#loading", turbo: false } do |f| %>
+
+    <div class="mb-5">
+      <label class="label-text" for="year">Ceremony Year</label>
+      <input type="number" name="year" id="year"
+             value="<%= Date.today.year + 1 %>"
+             min="1990" max="<%= Date.today.year + 3 %>"
+             class="input-field" required autofocus>
+      <p class="text-xs text-oscar-muted mt-1">e.g. 2026 for the 98th Academy Awards</p>
+    </div>
+
+    <div class="bg-oscar-surface border border-oscar-border rounded-lg p-3 mb-5 text-xs text-oscar-muted space-y-1">
+      <p>Nominations are fetched from <strong class="text-oscar-text">Wikipedia</strong>. Poster images are then fetched from TMDB (if credentials are configured). This may take 20–40 seconds for a full ceremony.</p>
+    </div>
+
+    <input type="submit" value="Scrape Nominations →"
+           data-scrape-new-target="button"
+           class="btn btn-gold w-full cursor-pointer">
+  <% end %>
+</div>

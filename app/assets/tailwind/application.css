@@ -27,6 +27,8 @@ main a:not(.no-underline):hover {
   color: var(--color-oscar-red);
 }
 
+@layer components {
+
 /* ── Nav links ───────────────────────────────────────── */
 
 .nav-link {
@@ -306,3 +308,5 @@ dialog.poster-dialog img {
   border-color:     #8b5cf6;
   color: #fff;
 }
+
+} /* end @layer components */

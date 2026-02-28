@@ -4,7 +4,13 @@
 </div>
 
 <div class="mt-6">
+  <% pick_count = Pick.joins(:player).where(players: { season: @season }).count %>
+  <% confirm_msg = if pick_count > 0
+      "WARNING: #{pick_count} player pick#{"s" if pick_count != 1} will be permanently deleted along with all categories, nominees, and players. This cannot be undone. Proceed?"
+    else
+      "Delete this season and all its categories, nominees, and players? This cannot be undone."
+    end %>
   <%= button_to "Delete Season", admin_season_path(@season), method: :delete,
       class: "btn btn-danger btn-sm",
-      data: { turbo_confirm: "Are you sure? This will delete all categories, nominees, picks, and players for this season." } %>
+      data: { turbo_confirm: confirm_msg } %>
 </div>

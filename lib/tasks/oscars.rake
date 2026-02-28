@@ -22,7 +22,7 @@ namespace :oscars do
     url = URI("https://www.oscars.org/oscars/ceremonies/#{year}")
     puts "Fetching #{url}..."
 
-    response = Net::HTTP.get_response(url)
+    response = Net::HTTP.start(url.host, url.port, use_ssl: true, verify_mode: OpenSSL::SSL::VERIFY_NONE) { |h| h.get(url.request_uri) }
     unless response.is_a?(Net::HTTPSuccess)
       abort "Failed to fetch page (HTTP #{response.code}). The page may not be available yet or may block automated requests.\n" \
             "You can try manually creating the YAML file at db/data/#{year}.yml instead."
@@ -147,39 +147,14 @@ namespace :oscars do
   private
 
   def import_season(data)
-    season_data = data["season"]
-    categories_data = data["categories"]
+    importer = SeasonImporter.new(data)
+    season   = importer.call
 
-    ActiveRecord::Base.transaction do
-      season = Season.find_or_create_by!(year: season_data["year"]) do |s|
-        s.name = season_data["name"]
-      end
+    if season
       puts "Season: #{season.name} (id: #{season.id})"
-
-      categories_data.each_with_index do |cat_data, position|
-        category = Category.find_or_create_by!(name: cat_data["name"]) do |c|
-          c.has_person = cat_data["has_person"]
-        end
-
-        sc = SeasonCategory.find_or_create_by!(season: season, category: category) do |s|
-          s.position = position
-        end
-
-        nominees = cat_data["nominees"] || []
-        nominees.each do |nom_data|
-          nom = Nominee.find_or_initialize_by(
-            season_category: sc,
-            movie_name: nom_data["movie"],
-            person_name: nom_data["person"]
-          )
-          nom.poster_url = nom_data["poster_url"] if nom_data["poster_url"].present?
-          nom.save!
-        end
-
-        puts "  #{category.name}: #{nominees.length} nominees"
-      end
-
-      puts "Imported #{categories_data.length} categories with nominees."
+      puts "Imported #{data['categories'].length} categories with nominees."
+    else
+      abort "Import failed: #{importer.errors.join(', ')}"
     end
   end
 

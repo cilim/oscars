@@ -10,6 +10,9 @@ Rails.application.routes.draw do
 
   namespace :admin do
     post "import/:year", to: "imports#create", as: :import
+    resources :scrapes, only: [ :new, :create ] do
+      post :import, on: :collection
+    end
     resources :seasons do
       resources :season_categories, only: [ :create, :destroy ] do
         resources :nominees, except: [ :index, :show ]
