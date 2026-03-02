@@ -33,6 +33,14 @@ export default class extends Controller {
     row.querySelector("input").focus()
   }
 
+  togglePerson(event) {
+    const hasPerson = event.target.checked
+    this.hasPersonValue = hasPerson
+    this.nomineeListTarget.querySelectorAll("[data-person-field]").forEach(el => {
+      el.classList.toggle("hidden", !hasPerson)
+    })
+  }
+
   removeNominee(event) {
     event.target.closest("[data-nominee-row]").remove()
   }

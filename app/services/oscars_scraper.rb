@@ -149,11 +149,15 @@ class OscarsScraper
   #   Person-first: Person – <i>Film</i>  (actors, director, cinematography)
   # Song is a special case: "Title" from <i>Film</i> – songwriter
   def extract_person(li, movie, cat_name)
+    # Strip nested <ul> (used on some years to nest other nominees inside the winner's <li>)
+    # so their text doesn't bleed into this nominee's person field.
+    li_node = li.dup
+    li_node.css("ul").each(&:remove)
+
     if cat_name.include?("Song")
-      # Grab the quoted song title
-      li.text.match(/"([^"]+)"/)&.captures&.first
+      li_node.text.match(/"([^"]+)"/)&.captures&.first
     else
-      full = clean(li.text)
+      full = clean(li_node.text)
       return nil unless full.include?(" – ")
 
       before, after = full.split(" – ", 2)
@@ -168,7 +172,7 @@ class OscarsScraper
   end
 
   def clean(text)
-    text.gsub(/\[[^\]]+\]/, "").gsub(/\u00a0/, " ").gsub(/\s+/, " ").strip
+    text.gsub(/\[[^\]]+\]/, "").gsub(/[‡†]/, "").gsub(/\u00a0/, " ").gsub(/\s+/, " ").strip
   end
 
   def oscar_category?(name)

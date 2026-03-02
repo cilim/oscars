@@ -9,6 +9,7 @@ Rails.application.routes.draw do
   end
 
   namespace :admin do
+    get  "tmdb_search", to: "tmdb_search#search"
     post "import/:year", to: "imports#create", as: :import
     resources :scrapes, only: [ :new, :create ] do
       post :import, on: :collection
