@@ -44,5 +44,20 @@ RSpec.describe "Picks", type: :request do
       expect(pick.think_will_win).to eq(nominee1)
       expect(pick.want_to_win).to eq(nominee2)
     end
+
+    it "redirects with alert when the season is locked" do
+      season.update!(locked: true)
+      patch season_picks_path(season), params: { picks: {} }
+      expect(response).to redirect_to(season_path(season))
+    end
+  end
+
+  describe "when user is not a player in the season" do
+    let(:other_season) { create(:season) }
+
+    it "redirects with alert on edit" do
+      get edit_season_picks_path(other_season)
+      expect(response).to redirect_to(season_path(other_season))
+    end
   end
 end
