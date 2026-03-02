@@ -1,5 +1,7 @@
 # Oscars Pool
 
+Completely done by AI. Repository owner acted as client and product owner.
+
 A prediction game for Oscar ceremonies. Friends compete by guessing winners across all categories, with a live scoreboard that updates in real-time during the ceremony.
 
 ## Tech Stack
