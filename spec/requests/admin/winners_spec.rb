@@ -36,11 +36,20 @@ RSpec.describe "Admin::Winners", type: :request do
   end
 
   describe "DELETE /admin/seasons/:season_id/winners/:id" do
-    it "removes a winner" do
-      winner = create(:winner, season_category: season_category, nominee: nominee)
+    let!(:winner) { create(:winner, season_category: season_category, nominee: nominee) }
+
+    it "removes a winner and redirects" do
       expect {
         delete admin_season_winner_path(season, winner)
       }.to change(Winner, :count).by(-1)
+      expect(response).to redirect_to(season_scoreboard_path(season))
+    end
+
+    it "accepts turbo_stream format" do
+      delete admin_season_winner_path(season, winner),
+             headers: { "Accept" => "text/vnd.turbo-stream.html" }
+      expect(response).to have_http_status(:ok)
+      expect(Winner.count).to eq(0)
     end
   end
 end

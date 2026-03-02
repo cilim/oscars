@@ -109,6 +109,7 @@ export default class extends Controller {
     })
 
     this.updateSummary(thinkId, wantId)
+    this.dispatch("changed")
   }
 
   updateSummary(thinkId, wantId) {

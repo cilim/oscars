@@ -23,8 +23,16 @@ module Admin
 
     def destroy
       @winner = Winner.find(params[:id])
+      @season_category_id = @winner.season_category_id
       @winner.destroy!
-      redirect_to season_scoreboard_path(@season), notice: "Winner removed.", status: :see_other
+      respond_to do |format|
+        format.html { redirect_to season_scoreboard_path(@season), notice: "Winner removed.", status: :see_other }
+        format.turbo_stream do
+          @season_category   = SeasonCategory.includes(:category, :nominees, winner: :nominee, picks: { player: :user }).find(@season_category_id)
+          @season_categories = @season.season_categories.includes(:winner)
+          @scoreboard_data   = ScoreboardCalculator.new(@season).call
+        end
+      end
     end
 
     private

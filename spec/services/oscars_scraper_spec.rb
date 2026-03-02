@@ -14,8 +14,15 @@ RSpec.describe OscarsScraper do
     r
   end
 
-  def stub_wikipedia(html)
-    allow(Net::HTTP).to receive(:start).and_return(mock_response(html))
+  def stub_wikipedia(html, success: true)
+    response = mock_response(html, success: success)
+    http_double = instance_double(Net::HTTP)
+    allow(http_double).to receive(:get).and_return(response)
+    allow(Net::HTTP).to receive(:start)
+      .with("en.wikipedia.org", 443, anything)
+      .and_yield(http_double)
+    # Prevent real TMDB calls if credentials happen to be present
+    allow(Rails.application.credentials).to receive(:tmdb_access_token).and_return(nil)
   end
 
   # ── HTML fixtures ────────────────────────────────────────────────────────────
@@ -194,7 +201,7 @@ RSpec.describe OscarsScraper do
     end
 
     context "when Wikipedia returns a non-200 response" do
-      before { allow(Net::HTTP).to receive(:start).and_return(mock_response("", success: false)) }
+      before { stub_wikipedia("", success: false) }
 
       it "returns nil" do
         expect(scraper.call).to be_nil
@@ -246,7 +253,7 @@ RSpec.describe OscarsScraper do
     end
 
     before do
-      allow(scraper).to receive(:tmdb_token).and_return("test_token")
+      allow(Rails.application.credentials).to receive(:tmdb_access_token).and_return("test_token")
       allow(scraper).to receive(:tmdb_fetch_poster) { |movie| "https://img.tmdb.org/#{movie}.jpg" }
     end
 
@@ -271,6 +278,59 @@ RSpec.describe OscarsScraper do
       allow(scraper).to receive(:tmdb_fetch_poster).and_return(nil)
       scraper.send(:fetch_posters, categories)
       expect(categories.first["nominees"].first["poster_url"]).to be_nil
+    end
+  end
+
+  # ── #tmdb_fetch_poster ───────────────────────────────────────────────────────
+
+  describe "#tmdb_fetch_poster" do
+    def stub_tmdb(body, success: true)
+      r = mock_response(body, success: success)
+      allow(Net::HTTP).to receive(:start).with("api.themoviedb.org", 443, anything).and_return(r)
+    end
+
+    before { allow(Rails.application.credentials).to receive(:tmdb_access_token).and_return("tok") }
+
+    it "returns the poster URL when TMDB returns a result" do
+      stub_tmdb('{"results":[{"poster_path":"/abc.jpg"}]}')
+      expect(scraper.send(:tmdb_fetch_poster, "Anora")).to eq("https://image.tmdb.org/t/p/w500/abc.jpg")
+    end
+
+    it "returns nil when the result has no poster_path" do
+      stub_tmdb('{"results":[{"poster_path":null}]}')
+      expect(scraper.send(:tmdb_fetch_poster, "Anora")).to be_nil
+    end
+
+    it "returns nil when results are empty" do
+      stub_tmdb('{"results":[]}')
+      expect(scraper.send(:tmdb_fetch_poster, "Anora")).to be_nil
+    end
+
+    it "returns nil when TMDB responds with a non-200 status" do
+      stub_tmdb("", success: false)
+      expect(scraper.send(:tmdb_fetch_poster, "Anora")).to be_nil
+    end
+
+    it "returns nil and logs a warning when an exception is raised" do
+      allow(Net::HTTP).to receive(:start).with("api.themoviedb.org", 443, anything).and_raise(SocketError, "connection failed")
+      expect(Rails.logger).to receive(:warn).with(/TMDB lookup failed/)
+      expect(scraper.send(:tmdb_fetch_poster, "Anora")).to be_nil
+    end
+  end
+
+  # ── #call with TMDB token present ────────────────────────────────────────────
+
+  describe "#call with TMDB enabled" do
+    before do
+      allow(Net::HTTP).to receive(:start).with("en.wikipedia.org", 443, anything).and_return(mock_response(FLAT_HTML))
+      allow(Rails.application.credentials).to receive(:tmdb_access_token).and_return("tok")
+      allow(scraper).to receive(:tmdb_fetch_poster).and_return(nil)
+      allow(scraper).to receive(:sleep)
+    end
+
+    it "calls fetch_posters when a token is present" do
+      expect(scraper).to receive(:fetch_posters)
+      scraper.call
     end
   end
 
@@ -313,6 +373,14 @@ RSpec.describe OscarsScraper do
 
     it "strips leading and trailing whitespace" do
       expect(scraper.send(:clean, "  padded  ")).to eq("padded")
+    end
+  end
+
+  # ── #normalize_category_name ─────────────────────────────────────────────────
+
+  describe "#normalize_category_name" do
+    it "returns the original name when no mapping matches" do
+      expect(scraper.send(:normalize_category_name, "Unrecognized Award")).to eq("Unrecognized Award")
     end
   end
 end

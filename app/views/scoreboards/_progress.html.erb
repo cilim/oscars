@@ -6,7 +6,7 @@
 <div id="category-progress" class="relative h-9 rounded-full overflow-hidden bg-oscar-surface border border-oscar-border">
   <%# Gold fill — grows as winners are announced %>
   <div class="absolute inset-y-0 left-0 bg-oscar-gold flex items-center px-4 transition-all duration-700"
-       style="width: <%= pct %>%">
+       style="width: <%= pct %>%" <%= "hidden" if announced_count == 0 %>>
     <% if announced_count > 0 %>
       <span class="text-xs font-bold text-white whitespace-nowrap overflow-hidden">
         ★ <%= announced_count %> announced

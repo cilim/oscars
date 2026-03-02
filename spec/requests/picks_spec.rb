@@ -45,6 +45,29 @@ RSpec.describe "Picks", type: :request do
       expect(pick.want_to_win).to eq(nominee2)
     end
 
+    it "accepts turbo_stream format and returns no content" do
+      patch season_picks_path(season),
+            params: { picks: { season_category.id.to_s => { think_will_win_id: nominee1.id, want_to_win_id: nominee2.id } } },
+            headers: { "Accept" => "text/vnd.turbo-stream.html" }
+      expect(response).to have_http_status(:no_content)
+    end
+
+    it "re-renders edit on RecordInvalid" do
+      allow_any_instance_of(Pick).to receive(:update!).and_raise(ActiveRecord::RecordInvalid)
+      patch season_picks_path(season), params: {
+        picks: { season_category.id.to_s => { think_will_win_id: nominee1.id, want_to_win_id: nominee2.id } }
+      }
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+
+    it "returns 422 on RecordInvalid with turbo_stream format" do
+      allow_any_instance_of(Pick).to receive(:update!).and_raise(ActiveRecord::RecordInvalid)
+      patch season_picks_path(season),
+            params: { picks: { season_category.id.to_s => { think_will_win_id: nominee1.id, want_to_win_id: nominee2.id } } },
+            headers: { "Accept" => "text/vnd.turbo-stream.html" }
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+
     it "redirects with alert when the season is locked" do
       season.update!(locked: true)
       patch season_picks_path(season), params: { picks: {} }

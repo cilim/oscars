@@ -58,7 +58,7 @@ class OscarsScraper
       return nil
     end
 
-    fetch_posters(categories) if tmdb_token.present?
+    fetch_posters(categories) if Rails.application.credentials.tmdb_access_token.present?
 
     {
       "season"     => { "name" => "#{ceremony} Academy Awards (#{@year})", "year" => @year },
@@ -82,14 +82,14 @@ class OscarsScraper
   def ordinal_number(n)
     suffix = if (11..13).include?(n % 100)
                "th"
-             else
+    else
                case n % 10
                when 1 then "st"
                when 2 then "nd"
                when 3 then "rd"
                else "th"
                end
-             end
+    end
     "#{n}#{suffix}"
   end
 
@@ -181,10 +181,6 @@ class OscarsScraper
 
   # ── TMDB poster fetch ─────────────────────────────────────────────────────
 
-  def tmdb_token
-    Rails.application.credentials.tmdb_access_token
-  end
-
   def fetch_posters(categories)
     seen = {}
     categories.each do |cat|
@@ -205,7 +201,7 @@ class OscarsScraper
   def tmdb_fetch_poster(movie_name)
     uri     = URI("https://api.themoviedb.org/3/search/movie?query=#{URI.encode_www_form_component(movie_name)}&language=en-US&page=1")
     request = Net::HTTP::Get.new(uri)
-    request["Authorization"] = "Bearer #{tmdb_token}"
+    request["Authorization"] = "Bearer #{Rails.application.credentials.tmdb_access_token}"
     request["Accept"]        = "application/json"
 
     response = Net::HTTP.start(uri.host, uri.port, use_ssl: true, verify_mode: OpenSSL::SSL::VERIFY_NONE) { |h| h.request(request) }
