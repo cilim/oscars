@@ -8,7 +8,9 @@
     </div>
 
     <div class="flex gap-3">
-      <%= link_to "Scoreboard", season_scoreboard_path(@season), class: "btn btn-gold no-underline" %>
+      <% if @season.locked? %>
+        <%= link_to "Scoreboard", season_scoreboard_path(@season), class: "btn btn-gold no-underline" %>
+      <% end %>
       <% if @player && !@season.locked? %>
         <%= link_to "Edit Picks", edit_season_picks_path(@season), class: "btn btn-outline no-underline" %>
       <% end %>

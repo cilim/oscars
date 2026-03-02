@@ -19,6 +19,8 @@ body {
   min-height: 100vh;
 }
 
+@layer components {
+
 a {
   color: var(--color-oscar-gold-dark);
   transition: color 0.15s ease;
@@ -26,8 +28,6 @@ a {
 main a:not(.no-underline):hover {
   color: var(--color-oscar-red);
 }
-
-@layer components {
 
 /* ── Nav links ───────────────────────────────────────── */
 
@@ -73,9 +73,14 @@ input[type="button"].btn {
 }
 
 /* Gold — primary CTA */
+.btn-gold,
+a.btn-gold,
+a.btn-gold:visited,
+a.btn-gold:hover {
+  color: #fff;
+}
 .btn-gold {
   background-color: var(--color-oscar-gold);
-  color: #fff;
   border-color: var(--color-oscar-gold);
 }
 .btn-gold:hover {
