@@ -21,6 +21,35 @@
   </div>
 <% end %>
 
+<div class="card mb-8">
+  <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+    <div>
+      <h3 class="text-sm font-semibold text-oscar-text mb-2">Database backup</h3>
+      <p class="text-sm text-oscar-muted max-w-2xl">
+        Download a full JSON backup of the current database, or restore the app by importing a previously downloaded backup file.
+      </p>
+    </div>
+
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
+      <%= link_to "Download backup",
+          admin_database_backup_path,
+          class: "btn btn-outline no-underline" %>
+
+      <%= form_with url: import_admin_database_backup_path, multipart: true, class: "flex flex-col gap-2 sm:flex-row sm:items-end" do |form| %>
+        <div>
+          <%= form.label :backup_file, "Import backup JSON", class: "block text-xs font-semibold uppercase tracking-wider text-oscar-muted mb-1" %>
+          <%= form.file_field :backup_file, accept: "application/json,.json", class: "block w-full text-sm text-oscar-text" %>
+        </div>
+        <%= form.submit "Restore backup",
+            class: "btn btn-gold",
+            data: {
+              turbo_confirm: "Replace the entire database with this backup? This deletes all current data and may sign you out."
+            } %>
+      <% end %>
+    </div>
+  </div>
+</div>
+
 <% if @seasons.any? %>
   <div class="space-y-4">
     <% @seasons.each do |season| %>
