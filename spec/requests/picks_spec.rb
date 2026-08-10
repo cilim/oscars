@@ -1,5 +1,3 @@
-require "rails_helper"
-
 RSpec.describe "Picks", type: :request do
   let(:user) { create(:user) }
   let(:season) { create(:season) }
@@ -7,6 +5,17 @@ RSpec.describe "Picks", type: :request do
   let(:season_category) { create(:season_category, season: season) }
   let!(:nominee1) { create(:nominee, season_category: season_category) }
   let!(:nominee2) { create(:nominee, season_category: season_category) }
+  let(:think_type) { season.scoring_scheme.pick_types.order(:display_order).first }
+  let(:want_type) { season.scoring_scheme.pick_types.order(:display_order).second }
+
+  let(:pick_params) do
+    {
+      season_category.id.to_s => {
+        think_type.id.to_s => { nominee_ids: [ nominee1.id ] },
+        want_type.id.to_s => { nominee_ids: [ nominee2.id ] }
+      }
+    }
+  end
 
   before { sign_in(user) }
 
@@ -29,42 +38,25 @@ RSpec.describe "Picks", type: :request do
   describe "PATCH /seasons/:season_id/picks" do
     it "saves picks" do
       expect {
-        patch season_picks_path(season), params: {
-          picks: {
-            season_category.id.to_s => {
-              think_will_win_id: nominee1.id,
-              want_to_win_id: nominee2.id
-            }
-          }
-        }
-      }.to change(Pick, :count).by(1)
+        patch season_picks_path(season), params: { picks: pick_params }
+      }.to change(PickSelection, :count).by(2)
 
       expect(response).to redirect_to(season_path(season))
-      pick = Pick.last
-      expect(pick.think_will_win).to eq(nominee1)
-      expect(pick.want_to_win).to eq(nominee2)
+      selections = player.pick_selections.where(season_category: season_category)
+      expect(selections.map(&:nominee_id)).to contain_exactly(nominee1.id, nominee2.id)
     end
 
     it "accepts turbo_stream format and returns no content" do
       patch season_picks_path(season),
-            params: { picks: { season_category.id.to_s => { think_will_win_id: nominee1.id, want_to_win_id: nominee2.id } } },
+            params: { picks: pick_params },
             headers: { "Accept" => "text/vnd.turbo-stream.html" }
       expect(response).to have_http_status(:no_content)
     end
 
-    it "re-renders edit on RecordInvalid" do
-      allow_any_instance_of(Pick).to receive(:update!).and_raise(ActiveRecord::RecordInvalid)
-      patch season_picks_path(season), params: {
-        picks: { season_category.id.to_s => { think_will_win_id: nominee1.id, want_to_win_id: nominee2.id } }
-      }
-      expect(response).to have_http_status(:unprocessable_entity)
-    end
+    it "re-renders edit on validation error" do
+      allow_any_instance_of(Player).to receive(:pick_selections).and_raise(ActiveRecord::RecordInvalid.new(PickSelection.new))
 
-    it "returns 422 on RecordInvalid with turbo_stream format" do
-      allow_any_instance_of(Pick).to receive(:update!).and_raise(ActiveRecord::RecordInvalid)
-      patch season_picks_path(season),
-            params: { picks: { season_category.id.to_s => { think_will_win_id: nominee1.id, want_to_win_id: nominee2.id } } },
-            headers: { "Accept" => "text/vnd.turbo-stream.html" }
+      patch season_picks_path(season), params: { picks: pick_params }
       expect(response).to have_http_status(:unprocessable_entity)
     end
 

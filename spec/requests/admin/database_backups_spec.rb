@@ -1,5 +1,3 @@
-require "rails_helper"
-
 RSpec.describe "Admin::DatabaseBackups", type: :request do
   let(:admin) { create(:user, :admin) }
 
@@ -20,7 +18,7 @@ RSpec.describe "Admin::DatabaseBackups", type: :request do
 
       payload = JSON.parse(response.body)
 
-      expect(payload["format_version"]).to eq(1)
+      expect(payload["format_version"]).to eq(2)
       expect(payload["tables"].keys).to include("users", "seasons", "categories", "season_categories", "nominees")
       expect(payload["tables"].keys).not_to include("schema_migrations", "ar_internal_metadata")
       expect(payload.dig("tables", "seasons", "rows")).to include(
@@ -80,6 +78,18 @@ RSpec.describe "Admin::DatabaseBackups", type: :request do
 
       expect(response).to redirect_to(admin_seasons_path)
       expect(flash[:alert]).to include("not valid JSON")
+    end
+
+    it "rejects backups from the previous format version" do
+      payload = DatabaseBackupExporter.new.call
+      payload["format_version"] = 1
+
+      post import_admin_database_backup_path, params: {
+        backup_file: uploaded_backup_file(payload)
+      }
+
+      expect(response).to redirect_to(admin_seasons_path)
+      expect(flash[:alert]).to include("format version")
     end
 
     it "requires an uploaded file" do

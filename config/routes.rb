@@ -24,6 +24,7 @@ Rails.application.routes.draw do
       resources :players, only: [ :create, :destroy ]
       resources :winners, only: [ :create, :destroy ]
     end
+    resources :scoring_schemes, except: [ :show ]
     resources :categories
     resources :users
   end

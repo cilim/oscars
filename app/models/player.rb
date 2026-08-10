@@ -1,7 +1,7 @@
 class Player < ApplicationRecord
   belongs_to :user
   belongs_to :season
-  has_many :picks, dependent: :destroy
+  has_many :pick_selections, dependent: :destroy
 
   validates :user_id, uniqueness: { scope: :season_id }
 

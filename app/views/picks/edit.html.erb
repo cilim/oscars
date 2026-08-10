@@ -10,7 +10,20 @@
   </div>
 </div>
 
-<%# Progress bar — updates live as the user makes picks %>
+<% pick_types_json = @pick_types.map { |pt|
+  {
+    id: pt.id,
+    emoji: pt.emoji,
+    name: pt.name,
+    color: pt.color,
+    multi: pt.allow_multiple_selections?,
+    max: pt.allow_multiple_selections? ? pt.max_selections : 1,
+    pointsCorrect: pt.points_on_correct,
+    pointsIncorrect: pt.points_on_incorrect,
+    risky: pt.risky?
+  }
+}.to_json %>
+
 <div class="mb-6"
      data-controller="picks-progress"
      data-picks-progress-total-value="<%= @season_categories.size %>"
@@ -35,22 +48,27 @@
                       action: "submit->picks-form#clearStorage" } do |f| %>
 
   <% @season_categories.each do |sc| %>
-    <% pick = @picks_by_category[sc.id] || Pick.new %>
+    <% category_selections = @selections_by_category[sc.id] || {} %>
 
     <div class="card"
          data-controller="picks-carousel"
          data-picks-carousel-season-id-value="<%= @season.id %>"
-         data-picks-carousel-category-id-value="<%= sc.id %>">
+         data-picks-carousel-category-id-value="<%= sc.id %>"
+         data-picks-carousel-pick-types-value="<%= pick_types_json %>">
 
-      <%# Hidden inputs drive the form submission — JS keeps them in sync %>
-      <input type="hidden" name="picks[<%= sc.id %>][think_will_win_id]"
-             value="<%= pick.think_will_win_id %>"
-             data-picks-carousel-target="thinkInput">
-      <input type="hidden" name="picks[<%= sc.id %>][want_to_win_id]"
-             value="<%= pick.want_to_win_id %>"
-             data-picks-carousel-target="wantInput">
+      <% @pick_types.each do |pick_type| %>
+        <% selected_ids = category_selections[pick_type.id] || [] %>
+        <div data-picks-carousel-target="pickTypeGroup" data-pick-type-id="<%= pick_type.id %>">
+          <% selected_ids.each do |nominee_id| %>
+            <input type="hidden"
+                   name="picks[<%= sc.id %>][<%= pick_type.id %>][nominee_ids][]"
+                   value="<%= nominee_id %>"
+                   data-picks-carousel-target="pickInput"
+                   data-pick-type-id="<%= pick_type.id %>">
+          <% end %>
+        </div>
+      <% end %>
 
-      <%# Card header: category name + current selection summary %>
       <div class="flex items-start justify-between gap-4 mb-4">
         <div>
           <h3 class="text-xl font-bold text-oscar-text"><%= sc.category_name %></h3>
@@ -58,110 +76,143 @@
         </div>
 
         <div class="text-right text-xs shrink-0 space-y-1">
-          <div class="flex items-center gap-1.5 justify-end">
-            <span class="font-black text-[10px] text-white bg-sky-500 px-1.5 py-0.5 rounded leading-none" title="Think will win">🧠</span>
-            <span data-picks-carousel-target="thinkSummary" class="text-oscar-muted">—</span>
-          </div>
-          <div class="flex items-center gap-1.5 justify-end">
-            <span class="font-black text-[10px] text-white bg-violet-500 px-1.5 py-0.5 rounded leading-none" title="Want to win">❤️</span>
-            <span data-picks-carousel-target="wantSummary" class="text-oscar-muted">—</span>
-          </div>
+          <% @pick_types.each do |pick_type| %>
+            <div class="flex items-center gap-1.5 justify-end">
+              <span class="font-black text-[10px] text-white px-1.5 py-0.5 rounded leading-none"
+                    style="background-color: <%= pick_type.color %>"
+                    title="<%= pick_type.name %>"><%= pick_type.emoji %></span>
+              <span data-picks-carousel-target="summary"
+                    data-pick-type-id="<%= pick_type.id %>"
+                    class="text-oscar-muted">—</span>
+            </div>
+          <% end %>
         </div>
       </div>
 
-      <%# Legend %>
-      <div class="flex gap-4 text-[11px] text-oscar-muted mb-3">
-        <span><span title="Think will win">🧠</span> Think will win <span class="text-oscar-gold font-semibold">(5 pts)</span></span>
-        <span><span title="Want to win">❤️</span> Want to win <span class="text-oscar-muted">(2 pts)</span></span>
+      <div class="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-oscar-muted mb-3">
+        <% @pick_types.each do |pick_type| %>
+          <span class="<%= pick_type.risky? ? 'text-amber-700 font-semibold' : '' %>">
+            <%= pick_type_legend_label(pick_type) %>
+            <% if pick_type.allow_multiple_selections? %>
+              <span data-pick-counter data-pick-type-id="<%= pick_type.id %>" class="ml-1 font-semibold"></span>
+            <% end %>
+          </span>
+        <% end %>
       </div>
 
-      <%# Carousel container with prev/next arrows %>
       <div class="relative -mx-2 px-2">
-        <%# Prev arrow %>
         <button type="button"
                 data-action="click->picks-carousel#prev"
                 class="absolute left-0 top-[72px] -translate-y-1/2 z-10 w-7 h-7 flex items-center justify-center rounded-full bg-white border border-oscar-border shadow text-oscar-muted hover:text-oscar-text hover:shadow-md transition-all text-lg leading-none select-none">
           &#8249;
         </button>
 
-        <%# Scrollable track %>
-        <div class="picks-track overflow-x-auto flex gap-3 snap-x snap-mandatory scroll-smooth px-4 pb-2"
+        <div class="picks-track overflow-x-auto flex gap-3 snap-x snap-mandatory scroll-smooth px-4 pt-1 pb-2"
              data-picks-carousel-target="track">
 
           <% sc.nominees.each do |nom| %>
-            <%# Card: no fixed width — grows to fit whitespace-nowrap title %>
             <div class="flex-shrink-0 snap-center select-none flex flex-col items-center"
                  data-slide
                  data-nominee-id="<%= nom.id %>"
                  data-nominee-name="<%= nom.display_name %>">
 
-              <%# Poster: fixed 120×180 px so all cards have identical poster size %>
-              <div class="relative rounded-lg overflow-hidden bg-oscar-surface transition-all duration-150 flex-shrink-0"
-                   style="width: 120px; height: 180px;"
+              <div class="relative rounded-lg bg-oscar-surface transition-all duration-150 flex-shrink-0"
+                   style="width: 120px; height: 180px; box-sizing: border-box; border: 2px solid transparent;"
                    data-poster-wrap>
-                <% if nom.poster_url.present? %>
-                  <img src="<%= nom.poster_url %>"
-                       alt="<%= nom.movie_name %>"
-                       class="w-full h-full object-cover">
-                <% else %>
-                  <div class="w-full h-full flex flex-col items-center justify-center gap-2 p-2">
-                    <svg class="w-6 h-6 text-oscar-border" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M18 4H6C4.9 4 4 4.9 4 6v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H6V6h12v12zm-4.5-6L11 15.5 9 13l-3 4h12l-4.5-6z"/>
-                    </svg>
-                    <span class="text-[10px] text-oscar-muted text-center leading-tight"><%= nom.movie_name %></span>
-                  </div>
-                <% end %>
+                <div class="absolute inset-0 overflow-hidden rounded-lg">
+                  <% if nom.poster_url.present? %>
+                    <img src="<%= nom.poster_url %>"
+                         alt="<%= nom.movie_name %>"
+                         class="w-full h-full object-cover">
+                  <% else %>
+                    <div class="w-full h-full flex flex-col items-center justify-center gap-2 p-2">
+                      <svg class="w-6 h-6 text-oscar-border" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M18 4H6C4.9 4 4 4.9 4 6v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H6V6h12v12zm-4.5-6L11 15.5 9 13l-3 4h12l-4.5-6z"/>
+                      </svg>
+                      <span class="text-[10px] text-oscar-muted text-center leading-tight"><%= nom.movie_name %></span>
+                    </div>
+                  <% end %>
+                </div>
 
-                <%# 🧠 badge — top-left, revealed when selected %>
-                <span data-think-badge hidden
-                      class="absolute top-1.5 left-1.5 bg-sky-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded leading-none shadow-sm" title="Think will win">🧠</span>
-
-                <%# ❤️ badge — top-right, revealed when selected %>
-                <span data-want-badge hidden
-                      class="absolute top-1.5 right-1.5 bg-violet-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded leading-none shadow-sm" title="Want to win">❤️</span>
+                <div class="pointer-events-none"
+                     style="position: absolute; top: 6px; left: 6px; right: 6px; z-index: 1; display: flex; flex-wrap: wrap; gap: 4px;">
+                  <% @pick_types.each do |pick_type| %>
+                    <span data-pick-badge="<%= pick_type.id %>" hidden
+                          class="text-[10px] font-black text-white px-1.5 py-0.5 rounded leading-none shadow-sm"
+                          style="background-color: <%= pick_type.color %>;"
+                          title="<%= pick_type.name %>"><%= pick_type.emoji %></span>
+                  <% end %>
+                </div>
               </div>
 
-              <%# Nominee name — single line, card widens to fit %>
               <p class="text-[12px] text-oscar-text font-medium text-center whitespace-nowrap mt-2 mb-2">
                 <%= nom.display_name %>
               </p>
 
-              <%# 🧠 / ❤️ toggle buttons — stretch to full card width %>
               <div class="flex gap-1 w-full">
-                <button type="button"
-                        data-action="click->picks-carousel#toggleThink"
-                        data-nominee-id="<%= nom.id %>"
-                        data-think-btn
-                        data-active="false"
-                        title="Think will win"
-                        class="flex-1 text-xs py-1.5 rounded-md border font-bold transition-colors leading-none min-w-[36px]">
-                  🧠
-                </button>
-                <button type="button"
-                        data-action="click->picks-carousel#toggleWant"
-                        data-nominee-id="<%= nom.id %>"
-                        data-want-btn
-                        data-active="false"
-                        title="Want to win"
-                        class="flex-1 text-xs py-1.5 rounded-md border font-bold transition-colors leading-none min-w-[36px]">
-                  ❤️
-                </button>
+                <% @pick_types.each do |pick_type| %>
+                  <button type="button"
+                          data-action="click->picks-carousel#togglePick"
+                          data-nominee-id="<%= nom.id %>"
+                          data-pick-type-id="<%= pick_type.id %>"
+                          data-pick-btn="<%= pick_type.id %>"
+                          data-active="false"
+                          title="<%= pick_type.name %>"
+                          class="pick-type-btn flex-1 text-xs py-1.5 rounded-md border font-bold transition-colors leading-none min-w-[36px]"
+                          style="--pick-color: <%= pick_type.color %>">
+                    <%= pick_type.emoji %>
+                  </button>
+                <% end %>
               </div>
-
             </div>
           <% end %>
-
         </div>
 
-        <%# Next arrow %>
         <button type="button"
                 data-action="click->picks-carousel#next"
                 class="absolute right-0 top-[72px] -translate-y-1/2 z-10 w-7 h-7 flex items-center justify-center rounded-full bg-white border border-oscar-border shadow text-oscar-muted hover:text-oscar-text hover:shadow-md transition-all text-lg leading-none select-none">
           &#8250;
         </button>
       </div>
-
     </div>
   <% end %>
 
 <% end %>
+
+<script>
+(function () {
+  function syncPosterRings() {
+    document.querySelectorAll("[data-slide]").forEach((slide) => {
+      const poster = slide.querySelector("[data-poster-wrap]")
+      if (!poster) return
+
+      const activeColors = []
+      slide.querySelectorAll("[data-pick-btn][data-active='true']").forEach((btn) => {
+        const color = btn.style.getPropertyValue("--pick-color")
+        if (color) activeColors.push(color)
+      })
+
+      poster.style.outline = ""
+      poster.style.outlineOffset = ""
+      poster.style.boxShadow = ""
+
+      if (activeColors.length === 0) {
+        poster.style.borderColor = "transparent"
+        return
+      }
+
+      poster.style.borderStyle = "solid"
+      if (activeColors.length === 1) {
+        poster.style.borderWidth = "2.5px"
+        poster.style.borderColor = activeColors[0]
+      } else {
+        poster.style.borderWidth = "3px"
+        poster.style.borderColor = "#f59e0b"
+      }
+    })
+  }
+
+  document.addEventListener("DOMContentLoaded", () => setTimeout(syncPosterRings, 0))
+  window.addEventListener("picks-carousel:changed", syncPosterRings)
+})()
+</script>

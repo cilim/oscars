@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_27_145120) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_10_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -32,18 +32,33 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_27_145120) do
     t.index ["season_category_id"], name: "index_nominees_on_season_category_id"
   end
 
-  create_table "picks", force: :cascade do |t|
+  create_table "pick_selections", force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.bigint "nominee_id", null: false
+    t.bigint "pick_type_id", null: false
     t.bigint "player_id", null: false
     t.bigint "season_category_id", null: false
-    t.bigint "think_will_win_id"
     t.datetime "updated_at", null: false
-    t.bigint "want_to_win_id"
-    t.index ["player_id", "season_category_id"], name: "index_picks_on_player_id_and_season_category_id", unique: true
-    t.index ["player_id"], name: "index_picks_on_player_id"
-    t.index ["season_category_id"], name: "index_picks_on_season_category_id"
-    t.index ["think_will_win_id"], name: "index_picks_on_think_will_win_id"
-    t.index ["want_to_win_id"], name: "index_picks_on_want_to_win_id"
+    t.index ["nominee_id"], name: "index_pick_selections_on_nominee_id"
+    t.index ["pick_type_id"], name: "index_pick_selections_on_pick_type_id"
+    t.index ["player_id", "season_category_id", "pick_type_id", "nominee_id"], name: "index_pick_selections_unique_per_nominee", unique: true
+    t.index ["player_id"], name: "index_pick_selections_on_player_id"
+    t.index ["season_category_id"], name: "index_pick_selections_on_season_category_id"
+  end
+
+  create_table "pick_types", force: :cascade do |t|
+    t.boolean "allow_multiple_selections", default: false, null: false
+    t.string "color", null: false
+    t.datetime "created_at", null: false
+    t.integer "display_order", default: 0, null: false
+    t.string "emoji", null: false
+    t.integer "max_selections"
+    t.string "name", null: false
+    t.integer "points_on_correct", default: 0, null: false
+    t.integer "points_on_incorrect", default: 0, null: false
+    t.bigint "scoring_scheme_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["scoring_scheme_id"], name: "index_pick_types_on_scoring_scheme_id"
   end
 
   create_table "players", force: :cascade do |t|
@@ -54,6 +69,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_27_145120) do
     t.index ["season_id"], name: "index_players_on_season_id"
     t.index ["user_id", "season_id"], name: "index_players_on_user_id_and_season_id", unique: true
     t.index ["user_id"], name: "index_players_on_user_id"
+  end
+
+  create_table "scoring_schemes", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_scoring_schemes_on_name", unique: true
   end
 
   create_table "season_categories", force: :cascade do |t|
@@ -72,10 +94,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_27_145120) do
     t.datetime "created_at", null: false
     t.boolean "locked", default: false, null: false
     t.string "name", null: false
+    t.bigint "scoring_scheme_id", null: false
     t.datetime "updated_at", null: false
     t.integer "year", null: false
     t.index ["name"], name: "index_seasons_on_name", unique: true
-    t.index ["year"], name: "index_seasons_on_year", unique: true
+    t.index ["scoring_scheme_id"], name: "index_seasons_on_scoring_scheme_id"
+    t.index ["year"], name: "index_seasons_on_year"
   end
 
   create_table "sessions", force: :cascade do |t|
@@ -249,14 +273,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_27_145120) do
   end
 
   add_foreign_key "nominees", "season_categories"
-  add_foreign_key "picks", "nominees", column: "think_will_win_id"
-  add_foreign_key "picks", "nominees", column: "want_to_win_id"
-  add_foreign_key "picks", "players"
-  add_foreign_key "picks", "season_categories"
+  add_foreign_key "pick_selections", "nominees"
+  add_foreign_key "pick_selections", "pick_types"
+  add_foreign_key "pick_selections", "players"
+  add_foreign_key "pick_selections", "season_categories"
+  add_foreign_key "pick_types", "scoring_schemes"
   add_foreign_key "players", "seasons"
   add_foreign_key "players", "users"
   add_foreign_key "season_categories", "categories"
   add_foreign_key "season_categories", "seasons"
+  add_foreign_key "seasons", "scoring_schemes"
   add_foreign_key "sessions", "users"
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_claimed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade

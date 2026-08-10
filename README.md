@@ -25,22 +25,26 @@ rails db:seed                 # Seed with sample data (2025 season + test users)
 bin/dev                       # Start server + Tailwind watcher
 ```
 
-**Default admin login:** `admin@oscars.com` / `password123`
-
 ## How It Works
 
 1. **Admin** creates categories (global, reusable) and seasons (yearly)
 2. **Admin** assigns categories to a season, adds nominees, and adds players
-3. **Players** make picks for each category: "think will win" and "want to win"
+3. **Players** make picks using the season's scoring scheme (pick types, points, single/multi-select rules)
 4. **Admin** locks picks when the ceremony starts
 5. On the **live scoreboard**, the admin selects winners as they're announced — all connected browsers update instantly via ActionCable
 
-### Scoring
+### Scoring schemes
 
-| Prediction | Points |
-|-----------|--------|
-| Correct "think will win" | 5 |
-| Correct "want to win" | 2 |
+Admins define reusable **scoring schemes** with one or more **pick types** (name, emoji, points if correct/incorrect, color, single vs multi-select). Each season uses one scheme.
+
+The default **Classic** scheme matches the original rules:
+
+| Pick type | Correct | Incorrect |
+|-----------|---------|-----------|
+| Think will win 🧠 | +5 | 0 |
+| Want to win ❤️ | +2 | 0 |
+
+Custom schemes can add penalty picks, multi-select types, and negative scores. Scoring is always a straight sum — no points cap. Schemes lock once player picks reference them.
 
 ## Rake Tasks
 
@@ -76,6 +80,7 @@ Shows all YAML files in `db/data/` with category and nominee counts.
 season:
   name: "98th Academy Awards (2026)"
   year: 2026
+  scoring_scheme: Classic   # optional; defaults to Classic
 
 categories:
   - name: Best Picture
@@ -110,5 +115,6 @@ bundle exec rspec
 | `/seasons/:id/picks/edit` | Make/edit picks |
 | `/seasons/:id/scoreboard` | Live scoreboard |
 | `/admin/seasons` | Admin: manage seasons |
+| `/admin/scoring_schemes` | Admin: manage scoring schemes |
 | `/admin/categories` | Admin: manage categories |
 | `/admin/seasons/:id` | Admin: manage nominees & players |

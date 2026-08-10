@@ -1,7 +1,7 @@
 class SeasonCategory < ApplicationRecord
   belongs_to :season
   belongs_to :category
-  has_many :picks, dependent: :destroy
+  has_many :pick_selections, dependent: :destroy
   has_one :winner, dependent: :destroy
   has_many :nominees, dependent: :destroy
 

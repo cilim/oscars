@@ -19,6 +19,24 @@
     <%= f.number_field :year, class: "input-field", placeholder: "e.g. 2026" %>
   </div>
 
+  <div>
+    <%= f.label :scoring_scheme_id, "Scoring scheme", class: "label-text" %>
+    <% scheme_locked = season.persisted? && season.scoring_scheme_locked? %>
+    <% if scheme_locked %>
+      <p class="text-sm text-oscar-text font-medium"><%= season.scoring_scheme.name %></p>
+      <p class="text-xs text-oscar-muted mt-1">Cannot change — players have already submitted picks.</p>
+    <% else %>
+      <%= f.collection_select :scoring_scheme_id,
+            @assignable_scoring_schemes || ScoringScheme.includes(:pick_types).select(&:assignable?).sort_by(&:name),
+            :id, :name,
+            { prompt: "Select a scheme" },
+            class: "select-field" %>
+      <% if (@assignable_scoring_schemes || []).empty? %>
+        <p class="text-xs text-amber-700 mt-1">No schemes with pick types are available. Create one first.</p>
+      <% end %>
+    <% end %>
+  </div>
+
   <div class="flex gap-6">
     <label class="flex items-center gap-2 cursor-pointer">
       <%= f.check_box :locked, class: "w-4 h-4 accent-oscar-gold" %>

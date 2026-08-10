@@ -1,5 +1,3 @@
-require "rails_helper"
-
 RSpec.describe "Admin::Imports", type: :request do
   let(:admin) { create(:user, :admin) }
   before { sign_in(admin) }

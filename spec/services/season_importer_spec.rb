@@ -1,5 +1,3 @@
-require "rails_helper"
-
 RSpec.describe SeasonImporter do
   let(:data) do
     {
@@ -76,6 +74,28 @@ RSpec.describe SeasonImporter do
       expect(importer.errors).to be_empty
     end
 
+    it "assigns Classic by default" do
+      season = importer.call
+      expect(season.scoring_scheme.name).to eq("Classic")
+    end
+
+    context "with an explicit scoring scheme name" do
+      let!(:custom_scheme) do
+        scheme = create(:scoring_scheme, name: "Risky Season")
+        create(:pick_type, scoring_scheme: scheme, name: "Hate it", emoji: "👎",
+               points_on_correct: -10, points_on_incorrect: 1, display_order: 1, color: "#ef4444")
+        scheme
+      end
+
+      let(:data) do
+        super().deep_merge("season" => { "scoring_scheme" => "Risky Season" })
+      end
+
+      it "assigns the named scheme" do
+        expect(importer.call.scoring_scheme).to eq(custom_scheme)
+      end
+    end
+
     context "idempotency — importing the same data twice" do
       before { importer.call }
 
@@ -95,7 +115,7 @@ RSpec.describe SeasonImporter do
         updated = data.deep_dup
         updated["season"]["name"] = "97th Academy Awards (Updated)"
         described_class.new(updated).call
-        expect(Season.find_by(year: 2025).name).to eq("97th Academy Awards (Updated)")
+        expect(Season.find_by(year: 2025, name: "97th Academy Awards (Updated)").name).to eq("97th Academy Awards (Updated)")
       end
     end
 

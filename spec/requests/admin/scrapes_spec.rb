@@ -1,5 +1,3 @@
-require "rails_helper"
-
 RSpec.describe "Admin::Scrapes", type: :request do
   let(:scraper_data) do
     {
@@ -87,6 +85,14 @@ RSpec.describe "Admin::Scrapes", type: :request do
       context "when the import succeeds" do
         it "creates a Season" do
           expect { post import_admin_scrapes_path, params: import_params }.to change(Season, :count).by(1)
+        end
+
+        it "creates a separate season when the name differs from an existing same-year season" do
+          create(:season, name: "98th Academy Awards (2026)", year: 2026)
+          params = import_params.deep_dup
+          params[:season][:name] = "Chaotic 98th Academy Awards (2026)"
+
+          expect { post import_admin_scrapes_path, params: params }.to change(Season, :count).by(1)
         end
 
         it "redirects to the admin season page" do

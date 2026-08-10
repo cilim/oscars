@@ -1,5 +1,6 @@
 FactoryBot.define do
   factory :season do
+    scoring_scheme { ScoringScheme.find_by(name: "Classic") || create(:scoring_scheme, :classic) }
     sequence(:name) { |n| "#{2024 + n} Oscars" }
     sequence(:year) { |n| 2024 + n }
     locked { false }

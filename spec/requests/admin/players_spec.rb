@@ -1,5 +1,3 @@
-require "rails_helper"
-
 RSpec.describe "Admin::Players", type: :request do
   let(:admin)  { create(:user, :admin) }
   let(:season) { create(:season) }

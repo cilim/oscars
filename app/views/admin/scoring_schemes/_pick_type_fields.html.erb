@@ -1,0 +1,74 @@
+<div class="border border-oscar-border rounded-lg p-4 bg-oscar-surface space-y-4"
+     data-nested-pick-types-target="item"
+     data-controller="pick-type-fields">
+  <%= f.hidden_field :_destroy, value: "0", data: { nested_pick_types_target: "destroyField" } %>
+
+  <div class="flex items-center justify-between gap-2">
+    <h3 class="font-semibold text-oscar-text">Pick Type</h3>
+    <% unless locked %>
+      <button type="button" class="text-xs text-red-600 hover:text-red-700"
+              data-action="nested-pick-types#remove">
+        Remove
+      </button>
+    <% end %>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <%= f.label :name, "Name", class: "label-text" %>
+      <%= f.text_field :name, class: "input-field", disabled: locked, placeholder: "Think will win" %>
+    </div>
+
+    <div data-controller="emoji-picker">
+      <%= f.label :emoji, class: "label-text" %>
+      <div class="flex gap-2 items-center">
+        <%= f.text_field :emoji, class: "input-field w-24 text-center text-xl", disabled: locked,
+                         data: { emoji_picker_target: "input" }, maxlength: 4 %>
+        <% unless locked %>
+          <button type="button" class="btn btn-outline btn-sm" data-action="emoji-picker#toggle">Pick emoji</button>
+        <% end %>
+      </div>
+      <div class="mt-2 hidden" data-emoji-picker-target="popover">
+        <emoji-picker data-action="emoji-click->emoji-picker#select"></emoji-picker>
+      </div>
+    </div>
+
+    <div>
+      <%= f.label :points_on_correct, "Points if correct", class: "label-text" %>
+      <%= f.number_field :points_on_correct, class: "input-field", disabled: locked, step: 1 %>
+    </div>
+
+    <div>
+      <%= f.label :points_on_incorrect, "Points if incorrect", class: "label-text" %>
+      <%= f.number_field :points_on_incorrect, class: "input-field", disabled: locked, step: 1 %>
+    </div>
+
+    <div>
+      <%= f.label :display_order, class: "label-text" %>
+      <%= f.number_field :display_order, class: "input-field", disabled: locked, min: 1 %>
+    </div>
+
+    <div>
+      <%= f.label :color, class: "label-text" %>
+      <div class="flex gap-2 items-center">
+        <%= f.color_field :color, class: "w-12 h-10 p-1 border border-oscar-border rounded cursor-pointer", disabled: locked %>
+        <span class="text-sm text-oscar-muted font-mono"><%= f.object.color %></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex flex-wrap gap-6 items-center">
+    <label class="flex items-center gap-2 cursor-pointer">
+      <%= f.check_box :allow_multiple_selections, class: "w-4 h-4 accent-oscar-gold", disabled: locked,
+                      data: { pick_type_fields_target: "multiToggle", action: "pick-type-fields#toggleMulti" } %>
+      <span class="text-sm text-oscar-text">Allow multiple selections</span>
+    </label>
+
+    <div data-pick-type-fields-target="maxSelections"
+         class="<%= f.object.allow_multiple_selections? ? '' : 'hidden' %>">
+      <%= f.label :max_selections, "Max selections", class: "label-text" %>
+      <%= f.number_field :max_selections, class: "input-field w-24", disabled: locked || !f.object.allow_multiple_selections?,
+                         min: 2, value: f.object.max_selections %>
+    </div>
+  </div>
+</div>

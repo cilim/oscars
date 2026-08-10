@@ -1,5 +1,3 @@
-require "rails_helper"
-
 RSpec.describe OscarsScraper do
   subject(:scraper) { described_class.new(2026) }
 

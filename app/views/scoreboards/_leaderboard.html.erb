@@ -9,7 +9,6 @@
       <% scoreboard_data.each_with_index do |entry, i| %>
         <div class="flex items-center gap-3 py-2.5 px-3 rounded-lg
                     <%= i == 0 ? 'bg-oscar-gold/10 border border-oscar-gold/30' : 'bg-oscar-surface' %>">
-          <%# Rank badge %>
           <span class="w-7 h-7 flex-shrink-0 flex items-center justify-center rounded-full text-xs font-bold
                        <%= case i
                            when 0 then 'bg-oscar-gold text-white'
@@ -20,20 +19,20 @@
             <%= i + 1 %>
           </span>
 
-          <%# Name %>
           <span class="flex-1 font-semibold text-sm truncate <%= i == 0 ? 'text-oscar-gold-dark' : 'text-oscar-text' %>">
             <%= entry[:player_name] %>
           </span>
 
-          <%# Score + breakdown %>
           <div class="text-right flex-shrink-0">
             <span class="text-xl font-mono font-bold <%= i == 0 ? 'text-oscar-gold-dark' : 'text-oscar-text' %>">
               <%= entry[:total_score] %>
             </span>
-            <div class="text-[10px] text-oscar-muted">
-              <span title="Think will win"><%= entry[:think_score] %>🧠</span>
-              +
-              <span title="Want to win"><%= entry[:want_score] %>❤️</span>
+            <div class="text-[10px] text-oscar-muted flex flex-wrap justify-end gap-x-1">
+              <% entry[:pick_type_scores].each do |type_score| %>
+                <span title="<%= type_score[:name] %>" class="<%= points_color_class(type_score[:score]) %>">
+                  <%= format_points(type_score[:score]) %><%= type_score[:emoji] %>
+                </span>
+              <% end %>
             </div>
           </div>
         </div>

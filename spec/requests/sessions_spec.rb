@@ -1,5 +1,3 @@
-require "rails_helper"
-
 RSpec.describe "Sessions", type: :request do
   let(:user) { create(:user) }
 

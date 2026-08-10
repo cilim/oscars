@@ -14,7 +14,8 @@ module Admin
     end
 
     def new
-      @season = Season.new
+      @season = Season.new(scoring_scheme_id: ScoringScheme.find_by(name: "Classic")&.id)
+      load_form_options
     end
 
     def create
@@ -22,17 +23,25 @@ module Admin
       if @season.save
         redirect_to admin_season_path(@season), notice: "Season created."
       else
+        load_form_options
         render :new, status: :unprocessable_entity
       end
     end
 
     def edit
+      load_form_options
     end
 
     def update
-      if @season.update(season_params)
+      attrs = season_params
+      if @season.scoring_scheme_locked?
+        attrs = attrs.except(:scoring_scheme_id)
+      end
+
+      if @season.update(attrs)
         redirect_to admin_season_path(@season), notice: "Season updated."
       else
+        load_form_options
         render :edit, status: :unprocessable_entity
       end
     end
@@ -49,7 +58,11 @@ module Admin
     end
 
     def season_params
-      params.require(:season).permit(:name, :year, :locked, :archived)
+      params.require(:season).permit(:name, :year, :locked, :archived, :scoring_scheme_id)
+    end
+
+    def load_form_options
+      @assignable_scoring_schemes = ScoringScheme.includes(:pick_types).select(&:assignable?).sort_by(&:name)
     end
   end
 end

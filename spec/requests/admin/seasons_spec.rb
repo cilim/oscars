@@ -1,5 +1,3 @@
-require "rails_helper"
-
 RSpec.describe "Admin::Seasons", type: :request do
   describe "as admin" do
     let(:admin) { create(:user, :admin) }
@@ -29,9 +27,13 @@ RSpec.describe "Admin::Seasons", type: :request do
     end
 
     describe "POST /admin/seasons" do
+      let(:scoring_scheme) { ScoringScheme.find_by!(name: "Classic") }
+
       it "creates a season" do
         expect {
-          post admin_seasons_path, params: { season: { name: "2026 Oscars", year: 2026 } }
+          post admin_seasons_path, params: {
+            season: { name: "2026 Oscars", year: 2026, scoring_scheme_id: scoring_scheme.id }
+          }
         }.to change(Season, :count).by(1)
         expect(response).to redirect_to(admin_season_path(Season.last))
       end

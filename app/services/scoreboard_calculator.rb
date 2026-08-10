@@ -1,6 +1,7 @@
 class ScoreboardCalculator
   def initialize(season)
     @season = season
+    @pick_types = season.scoring_scheme.pick_types.order(:display_order).to_a
   end
 
   def call
@@ -9,8 +10,8 @@ class ScoreboardCalculator
       .pluck("season_categories.id", "winners.nominee_id")
       .to_h
 
-    @season.players
-      .includes(:user, picks: :season_category)
+  @season.players
+      .includes(:user, pick_selections: :pick_type)
       .map { |player| calculate_player_score(player, winners) }
       .sort_by { |entry| -entry[:total_score] }
   end
@@ -18,23 +19,29 @@ class ScoreboardCalculator
   private
 
   def calculate_player_score(player, winners)
-    think_score = 0
-    want_score = 0
+    scores_by_type = @pick_types.index_with { 0 }
 
-    player.picks.each do |pick|
-      winner_nominee_id = winners[pick.season_category_id]
+    player.pick_selections.each do |selection|
+      winner_nominee_id = winners[selection.season_category_id]
       next unless winner_nominee_id
 
-      think_score += 5 if pick.think_will_win_id == winner_nominee_id
-      want_score += 2 if pick.want_to_win_id == winner_nominee_id
+      scores_by_type[selection.pick_type] += selection.score_for(winner_nominee_id)
+    end
+
+    pick_type_scores = @pick_types.map do |pick_type|
+      {
+        pick_type_id: pick_type.id,
+        emoji: pick_type.emoji,
+        name: pick_type.name,
+        score: scores_by_type[pick_type]
+      }
     end
 
     {
       player_id: player.id,
       player_name: player.user.display_name,
-      think_score: think_score,
-      want_score: want_score,
-      total_score: think_score + want_score
+      pick_type_scores: pick_type_scores,
+      total_score: pick_type_scores.sum { |entry| entry[:score] }
     }
   end
 end

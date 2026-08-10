@@ -1,0 +1,40 @@
+<div class="flex items-center justify-between mb-8">
+  <h1 class="text-3xl font-bold text-oscar-gold">Scoring Schemes</h1>
+  <%= link_to "New Scoring Scheme", new_admin_scoring_scheme_path, class: "btn btn-gold no-underline" %>
+</div>
+
+<div class="card">
+  <% if @scoring_schemes.any? %>
+    <div class="space-y-3">
+      <% @scoring_schemes.each do |scheme| %>
+        <div class="flex items-center justify-between py-3 px-4 bg-oscar-surface rounded-lg gap-4">
+          <div>
+            <span class="text-oscar-text font-medium"><%= scheme.name %></span>
+            <div class="text-oscar-muted text-xs mt-1 flex flex-wrap gap-x-3 gap-y-1">
+              <span><%= scheme.pick_types.size %> pick types</span>
+              <span><%= scheme.seasons.size %> seasons</span>
+              <% if scheme.locked? %>
+                <span class="text-amber-700 font-semibold">Locked (picks exist)</span>
+              <% end %>
+              <% unless scheme.assignable? %>
+                <span class="text-amber-700">No pick types yet</span>
+              <% end %>
+            </div>
+          </div>
+          <div class="flex gap-2 shrink-0">
+            <%= link_to "Edit", edit_admin_scoring_scheme_path(scheme), class: "btn btn-outline btn-sm no-underline" %>
+            <% if scheme.deletable? %>
+              <%= button_to "Delete", admin_scoring_scheme_path(scheme), method: :delete,
+                  class: "btn btn-danger btn-sm",
+                  data: { turbo_confirm: "Delete #{scheme.name}?" } %>
+            <% else %>
+              <span class="text-xs text-oscar-muted self-center">Cannot delete</span>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="text-oscar-muted text-center py-8">No scoring schemes yet.</p>
+  <% end %>
+</div>

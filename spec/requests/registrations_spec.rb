@@ -1,5 +1,3 @@
-require "rails_helper"
-
 RSpec.describe "Registrations", type: :request do
   describe "GET /registration/new" do
     it "renders the registration form" do

@@ -1,5 +1,3 @@
-require "rails_helper"
-
 RSpec.describe "Admin::TmdbSearch", type: :request do
   let(:tmdb_json) do
     {

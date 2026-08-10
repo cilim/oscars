@@ -1,5 +1,3 @@
-require "rails_helper"
-
 RSpec.describe Season, type: :model do
   describe "associations" do
     it { is_expected.to have_many(:season_categories).dependent(:destroy) }
@@ -13,7 +11,13 @@ RSpec.describe Season, type: :model do
     it { is_expected.to validate_presence_of(:name) }
     it { is_expected.to validate_uniqueness_of(:name) }
     it { is_expected.to validate_presence_of(:year) }
-    it { is_expected.to validate_uniqueness_of(:year) }
+
+    it "allows multiple seasons in the same year" do
+      create(:season, name: "Classic League 2026", year: 2026)
+      duplicate_year = build(:season, name: "Chaos League 2026", year: 2026)
+
+      expect(duplicate_year).to be_valid
+    end
   end
 
   describe ".active" do

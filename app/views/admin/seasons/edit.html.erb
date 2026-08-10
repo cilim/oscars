@@ -4,7 +4,7 @@
 </div>
 
 <div class="mt-6">
-  <% pick_count = Pick.joins(:player).where(players: { season: @season }).count %>
+  <% pick_count = PickSelection.joins(:player).where(players: { season: @season }).count %>
   <% confirm_msg = if pick_count > 0
       "WARNING: #{pick_count} player pick#{"s" if pick_count != 1} will be permanently deleted along with all categories, nominees, and players. This cannot be undone. Proceed?"
     else

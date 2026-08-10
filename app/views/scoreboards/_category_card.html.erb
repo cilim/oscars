@@ -1,15 +1,16 @@
-<% winner_nom     = sc.winner&.nominee %>
-<% is_announced  = sc.winner.present? %>
-<% think_by_nominee = sc.picks.each_with_object(Hash.new { |h, k| h[k] = [] }) { |p, h| h[p.think_will_win_id] << p.player.user.display_name if p.think_will_win_id } %>
-<% want_by_nominee  = sc.picks.each_with_object(Hash.new { |h, k| h[k] = [] }) { |p, h| h[p.want_to_win_id]  << p.player.user.display_name if p.want_to_win_id  } %>
+<% winner_nom = sc.winner&.nominee %>
+<% is_announced = sc.winner.present? %>
+<% winner_nominee_id = sc.winner&.nominee_id %>
+<% pick_types = season.scoring_scheme.pick_types.order(:display_order) %>
+
+<% selections_by_nominee = sc.pick_selections.each_with_object(Hash.new { |h, k| h[k] = [] }) do |selection, hash|
+  hash[selection.nominee_id] << selection
+end %>
 
 <div id="season_category_<%= sc.id %>_winner"
      class="card p-0 overflow-hidden <%= is_announced ? 'border-l-[3px] border-l-oscar-gold' : '' %>">
 
-  <%# ── Header: poster + title + winner ──────────────── %>
   <div class="flex gap-3 p-4">
-
-    <%# Poster (announced only) %>
     <% if is_announced %>
       <div class="flex-shrink-0 rounded-lg overflow-hidden shadow-sm self-start" style="width:64px;height:96px;">
         <% if winner_nom&.poster_url.present? %>
@@ -26,7 +27,6 @@
       </div>
     <% end %>
 
-    <%# Title block %>
     <div class="flex-1 min-w-0">
       <div class="flex items-start justify-between gap-2 mb-1">
         <h3 class="text-base font-bold text-oscar-text leading-tight"><%= sc.category_name %></h3>
@@ -54,7 +54,6 @@
         </div>
       <% end %>
 
-      <%# Admin winner form (pending only) %>
       <% if !is_announced && is_admin %>
         <%= form_with url: admin_season_winners_path(season), class: "mt-3" do |f| %>
           <input type="hidden" name="winner[season_category_id]" value="<%= sc.id %>">
@@ -72,19 +71,16 @@
     </div>
   </div>
 
-  <%# ── Nominees + pick chips ──────────────────────────── %>
-  <%# Only render if there are any picks at all %>
-  <% has_any_picks = think_by_nominee.any? || want_by_nominee.any? %>
+  <% has_any_picks = selections_by_nominee.any? %>
   <% if has_any_picks %>
     <div class="border-t border-oscar-border/50 px-4 pt-3 pb-4 space-y-1 text-sm">
       <% sc.nominees.each do |nom| %>
-        <% is_winner     = is_announced && sc.winner.nominee_id == nom.id %>
-        <% think_names   = think_by_nominee[nom.id] %>
-        <% want_names    = want_by_nominee[nom.id] %>
-        <% next unless think_names.any? || want_names.any? %>
+        <% selections = selections_by_nominee[nom.id] %>
+        <% next if selections.blank? %>
+
+        <% is_winner = is_announced && winner_nominee_id == nom.id %>
 
         <div class="py-1.5 px-3 rounded-md <%= is_winner ? 'bg-oscar-gold/10' : '' %>">
-          <%# Nominee name %>
           <div class="flex items-center gap-2 mb-1">
             <% if is_winner %>
               <svg class="w-3.5 h-3.5 text-oscar-gold flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
@@ -109,44 +105,36 @@
             <% end %>
           </div>
 
-          <%# Pick chips — green for correct (winner row), gray for wrong (non-winner, announced) %>
           <div class="ml-5 space-y-0.5">
-            <% if think_names.any? %>
+            <% pick_types.each do |pick_type| %>
+              <% type_selections = selections.select { |s| s.pick_type_id == pick_type.id } %>
+              <% next if type_selections.empty? %>
+
+              <% chip_points = type_selections.first.score_for(winner_nominee_id) if is_announced && winner_nominee_id %>
+              <% chip_label_points = chip_points&.zero? ? nil : chip_points %>
               <div class="flex flex-wrap items-center gap-1">
-                <% if is_winner %>
-                  <span class="text-[10px] font-bold tracking-wide text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded leading-none flex-shrink-0" title="Think will win">🧠 +5</span>
-                  <% think_names.sort.each do |name| %>
-                    <span class="text-[11px] text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded leading-none font-medium"><%= name %></span>
-                  <% end %>
-                <% elsif is_announced %>
-                  <span class="text-[10px] font-bold tracking-wide text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded leading-none flex-shrink-0" title="Think will win">🧠</span>
-                  <% think_names.sort.each do |name| %>
-                    <span class="text-[11px] text-gray-400 bg-gray-50 px-1.5 py-0.5 rounded leading-none line-through"><%= name %></span>
+                <% if is_announced %>
+                  <span class="text-[10px] font-bold tracking-wide px-1.5 py-0.5 rounded leading-none flex-shrink-0 <%= points_color_class(chip_points || 0) %> bg-oscar-surface"
+                        title="<%= pick_type.name %>">
+                    <%= pick_chip_label(pick_type, chip_label_points) %>
+                  </span>
+                  <% type_selections.map { |s| s.player.user.display_name }.sort.each do |name| %>
+                    <span class="text-[11px] px-1.5 py-0.5 rounded leading-none font-medium <%= if chip_points&.positive?
+                      'text-emerald-700 bg-emerald-50'
+                    elsif chip_points&.negative?
+                      'text-red-700 bg-red-50'
+                    else
+                      'text-gray-400 bg-gray-50 line-through'
+                    end %>">
+                      <%= name %>
+                    </span>
                   <% end %>
                 <% else %>
-                  <span class="text-[10px] font-bold tracking-wide text-sky-700 bg-sky-100 px-1.5 py-0.5 rounded leading-none flex-shrink-0" title="Think will win">🧠</span>
-                  <% think_names.sort.each do |name| %>
-                    <span class="text-[11px] text-sky-800 bg-sky-50 px-1.5 py-0.5 rounded leading-none"><%= name %></span>
-                  <% end %>
-                <% end %>
-              </div>
-            <% end %>
-            <% if want_names.any? %>
-              <div class="flex flex-wrap items-center gap-1">
-                <% if is_winner %>
-                  <span class="text-[10px] font-bold tracking-wide text-emerald-600 bg-emerald-100 px-1.5 py-0.5 rounded leading-none flex-shrink-0" title="Want to win">❤️ +2</span>
-                  <% want_names.sort.each do |name| %>
-                    <span class="text-[11px] text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded leading-none font-medium"><%= name %></span>
-                  <% end %>
-                <% elsif is_announced %>
-                  <span class="text-[10px] font-bold tracking-wide text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded leading-none flex-shrink-0" title="Want to win">❤️</span>
-                  <% want_names.sort.each do |name| %>
-                    <span class="text-[11px] text-gray-400 bg-gray-50 px-1.5 py-0.5 rounded leading-none line-through"><%= name %></span>
-                  <% end %>
-                <% else %>
-                  <span class="text-[10px] font-bold tracking-wide text-violet-700 bg-violet-100 px-1.5 py-0.5 rounded leading-none flex-shrink-0" title="Want to win">❤️</span>
-                  <% want_names.sort.each do |name| %>
-                    <span class="text-[11px] text-violet-800 bg-violet-50 px-1.5 py-0.5 rounded leading-none"><%= name %></span>
+                  <span class="text-[10px] font-bold tracking-wide text-white px-1.5 py-0.5 rounded leading-none flex-shrink-0"
+                        style="background-color: <%= pick_type.color %>"
+                        title="<%= pick_type.name %>"><%= pick_type.emoji %></span>
+                  <% type_selections.map { |s| s.player.user.display_name }.sort.each do |name| %>
+                    <span class="text-[11px] text-oscar-text bg-oscar-surface px-1.5 py-0.5 rounded leading-none"><%= name %></span>
                   <% end %>
                 <% end %>
               </div>
@@ -156,5 +144,4 @@
       <% end %>
     </div>
   <% end %>
-
 </div>

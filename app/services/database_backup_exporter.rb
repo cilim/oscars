@@ -1,7 +1,7 @@
 require "base64"
 
 class DatabaseBackupExporter
-  FORMAT_VERSION = 1
+  FORMAT_VERSION = 2
 
   def initialize(schema: DatabaseBackupSchema.new)
     @schema = schema

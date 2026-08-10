@@ -11,3 +11,27 @@ else
   admin.save!
   Rails.logger.info "Admin user #{new_record ? 'created' : 'already existed'}: #{admin.email_address}"
 end
+
+unless ScoringScheme.exists?(name: "Classic")
+  classic = ScoringScheme.create!(name: "Classic")
+  PickType.create!(
+    scoring_scheme: classic,
+    name: "Think will win",
+    emoji: "🧠",
+    points_on_correct: 5,
+    points_on_incorrect: 0,
+    display_order: 1,
+    color: "#0ea5e9",
+    allow_multiple_selections: false
+  )
+  PickType.create!(
+    scoring_scheme: classic,
+    name: "Want to win",
+    emoji: "❤️",
+    points_on_correct: 2,
+    points_on_incorrect: 0,
+    display_order: 2,
+    color: "#8b5cf6",
+    allow_multiple_selections: false
+  )
+end

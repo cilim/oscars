@@ -1,15 +1,17 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["track", "thinkInput", "wantInput", "thinkSummary", "wantSummary"]
-  static values = { seasonId: Number, categoryId: Number }
+  static targets = ["track", "pickTypeGroup", "pickInput", "summary"]
+  static values = {
+    seasonId: Number,
+    categoryId: Number,
+    pickTypes: Array
+  }
 
   connect() {
     this.restoreFromStorage()
     this.updateAllCards()
   }
-
-  // ── localStorage ───────────────────────────────────────
 
   get storageKey() {
     return `oscars_picks_${this.seasonIdValue}_cat_${this.categoryIdValue}`
@@ -19,18 +21,22 @@ export default class extends Controller {
     try {
       const saved = localStorage.getItem(this.storageKey)
       if (!saved) return
-      const { think, want } = JSON.parse(saved)
-      this.thinkInputTarget.value = think ?? ""
-      this.wantInputTarget.value  = want  ?? ""
+
+      const selections = JSON.parse(saved)
+      this.pickTypesValue.forEach((pickType) => {
+        const ids = selections[pickType.id] || []
+        this.setSelectionsForType(pickType.id, ids)
+      })
     } catch (_) {}
   }
 
   saveToStorage() {
     try {
-      localStorage.setItem(this.storageKey, JSON.stringify({
-        think: this.thinkInputTarget.value || null,
-        want:  this.wantInputTarget.value  || null
-      }))
+      const selections = {}
+      this.pickTypesValue.forEach((pickType) => {
+        selections[pickType.id] = this.selectedIdsForType(pickType.id)
+      })
+      localStorage.setItem(this.storageKey, JSON.stringify(selections))
     } catch (_) {}
   }
 
@@ -38,19 +44,31 @@ export default class extends Controller {
     localStorage.removeItem(this.storageKey)
   }
 
-  // ── Actions ────────────────────────────────────────────
+  togglePick(event) {
+    const button = event.currentTarget
+    const pickTypeId = button.dataset.pickTypeId
+    const nomineeId = button.dataset.nomineeId
+    const pickType = this.pickTypeConfig(pickTypeId)
 
-  toggleThink(event) {
-    const id = event.currentTarget.dataset.nomineeId
-    this.thinkInputTarget.value = (this.thinkInputTarget.value === id) ? "" : id
-    this.updateAllCards()
-    this.saveToStorage()
-    this.scheduleAutoSave()
-  }
+    if (!pickType) return
 
-  toggleWant(event) {
-    const id = event.currentTarget.dataset.nomineeId
-    this.wantInputTarget.value = (this.wantInputTarget.value === id) ? "" : id
+    const current = this.selectedIdsForType(pickTypeId)
+    const isSelected = this.nomineeHasPick(nomineeId, pickTypeId)
+
+    let next
+    if (pickType.multi) {
+      if (isSelected) {
+        next = current.filter((id) => id !== nomineeId)
+      } else if (current.length >= pickType.max) {
+        return
+      } else {
+        next = [...current, nomineeId]
+      }
+    } else {
+      next = isSelected ? [] : [nomineeId]
+    }
+
+    this.setSelectionsForType(pickTypeId, next)
     this.updateAllCards()
     this.saveToStorage()
     this.scheduleAutoSave()
@@ -75,58 +93,123 @@ export default class extends Controller {
     const track = this.trackTarget
     const slide = track.querySelector("[data-slide]")
     if (!slide) return
-    // Scroll 3 cards at a time (card width + gap)
     const step = (slide.offsetWidth + 12) * 3
     track.scrollBy({ left: dir * step, behavior: "smooth" })
   }
 
-  // ── UI update ──────────────────────────────────────────
+  pickTypeConfig(pickTypeId) {
+    return this.pickTypesValue.find((pickType) => String(pickType.id) === String(pickTypeId))
+  }
+
+  selectedIdsForType(pickTypeId) {
+    return this.pickInputTargets
+      .filter((input) => input.dataset.pickTypeId === String(pickTypeId))
+      .map((input) => input.value)
+      .filter(Boolean)
+  }
+
+  nomineeHasPick(nomineeId, pickTypeId) {
+    return this.selectedIdsForType(pickTypeId).some(
+      (id) => String(id) === String(nomineeId)
+    )
+  }
+
+  setSelectionsForType(pickTypeId, nomineeIds) {
+    const group = this.pickTypeGroupTargets.find(
+      (element) => element.dataset.pickTypeId === String(pickTypeId)
+    )
+    if (!group) return
+
+    group.querySelectorAll("[data-picks-carousel-target='pickInput']").forEach((input) => input.remove())
+
+    nomineeIds.forEach((nomineeId) => {
+      const input = document.createElement("input")
+      input.type = "hidden"
+      input.name = `picks[${this.categoryIdValue}][${pickTypeId}][nominee_ids][]`
+      input.value = nomineeId
+      input.dataset.picksCarouselTarget = "pickInput"
+      input.dataset.pickTypeId = pickTypeId
+      group.appendChild(input)
+    })
+  }
 
   updateAllCards() {
-    const thinkId = this.thinkInputTarget.value
-    const wantId  = this.wantInputTarget.value
+    const activeByNominee = {}
 
-    this.trackTarget.querySelectorAll("[data-slide]").forEach(slide => {
-      const id      = slide.dataset.nomineeId
-      const isThink = thinkId === id && id !== ""
-      const isWant  = wantId  === id && id !== ""
+    this.trackTarget.querySelectorAll("[data-slide]").forEach((slide) => {
+      const nomineeId = slide.dataset.nomineeId
+      const activeTypes = []
 
-      // Data attributes drive CSS styling (see application.css)
-      slide.dataset.isThink = isThink ? "true" : "false"
-      slide.dataset.isWant  = isWant  ? "true" : "false"
+      this.pickTypesValue.forEach((pickType) => {
+        const isActive = this.nomineeHasPick(nomineeId, pickType.id)
+        slide.dataset[`pickType${pickType.id}`] = isActive ? "true" : "false"
 
-      // Badges: toggle hidden attribute
-      const thinkBadge = slide.querySelector("[data-think-badge]")
-      const wantBadge  = slide.querySelector("[data-want-badge]")
-      if (thinkBadge) thinkBadge.hidden = !isThink
-      if (wantBadge)  wantBadge.hidden  = !isWant
+        const badge = slide.querySelector(`[data-pick-badge="${pickType.id}"]`)
+        if (badge) badge.hidden = !isActive
 
-      // Button active state
-      const thinkBtn = slide.querySelector("[data-think-btn]")
-      const wantBtn  = slide.querySelector("[data-want-btn]")
-      if (thinkBtn) thinkBtn.dataset.active = isThink ? "true" : "false"
-      if (wantBtn)  wantBtn.dataset.active  = isWant  ? "true" : "false"
+        const button = slide.querySelector(`[data-pick-btn="${pickType.id}"]`)
+        if (button) button.dataset.active = isActive ? "true" : "false"
+
+        if (isActive) activeTypes.push(pickType)
+      })
+
+      activeByNominee[nomineeId] = activeTypes
+      this.applyPosterRing(slide, activeTypes)
     })
 
-    this.updateSummary(thinkId, wantId)
+    this.updateSummaries()
+    this.updateCounters()
     this.dispatch("changed")
   }
 
-  updateSummary(thinkId, wantId) {
+  applyPosterRing(slide, activeTypes) {
+    const poster = slide.querySelector("[data-poster-wrap]")
+    if (!poster) return
+
+    poster.style.outline = ""
+    poster.style.outlineOffset = ""
+    poster.style.boxShadow = ""
+
+    if (activeTypes.length === 0) {
+      poster.style.borderColor = "transparent"
+      return
+    }
+
+    poster.style.borderStyle = "solid"
+
+    if (activeTypes.length === 1) {
+      poster.style.borderWidth = "2.5px"
+      poster.style.borderColor = activeTypes[0].color
+      return
+    }
+
+    poster.style.borderWidth = "3px"
+    poster.style.borderColor = "#f59e0b"
+  }
+
+  updateSummaries() {
     const names = {}
-    this.trackTarget.querySelectorAll("[data-slide]").forEach(slide => {
+    this.trackTarget.querySelectorAll("[data-slide]").forEach((slide) => {
       names[slide.dataset.nomineeId] = slide.dataset.nomineeName
     })
 
-    if (this.hasThinkSummaryTarget) {
-      this.thinkSummaryTarget.textContent = names[thinkId] || "—"
-      this.thinkSummaryTarget.classList.toggle("text-sky-600",    !!names[thinkId])
-      this.thinkSummaryTarget.classList.toggle("text-oscar-muted", !names[thinkId])
-    }
-    if (this.hasWantSummaryTarget) {
-      this.wantSummaryTarget.textContent = names[wantId] || "—"
-      this.wantSummaryTarget.classList.toggle("text-violet-600",  !!names[wantId])
-      this.wantSummaryTarget.classList.toggle("text-oscar-muted", !names[wantId])
-    }
+    this.summaryTargets.forEach((summary) => {
+      const pickTypeId = summary.dataset.pickTypeId
+      const selected = this.selectedIdsForType(pickTypeId)
+      const label = selected.map((id) => names[id]).filter(Boolean).join(", ") || "—"
+      summary.textContent = label
+      summary.classList.toggle("text-oscar-muted", selected.length === 0)
+    })
+  }
+
+  updateCounters() {
+    this.element.querySelectorAll("[data-pick-counter]").forEach((counter) => {
+      const pickTypeId = counter.dataset.pickTypeId
+      const pickType = this.pickTypeConfig(pickTypeId)
+      if (!pickType?.multi) return
+
+      const count = this.selectedIdsForType(pickTypeId).length
+      counter.textContent = `${count}/${pickType.max} selected`
+    })
   }
 }
