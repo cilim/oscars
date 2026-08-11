@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["input", "popover"]
+  static targets = ["input", "popover", "display"]
 
   connect() {
     this.outsideClick = (event) => {
@@ -37,6 +37,7 @@ export default class extends Controller {
     if (emoji) {
       this.inputTarget.value = emoji
       this.inputTarget.dispatchEvent(new Event("input", { bubbles: true }))
+      if (this.hasDisplayTarget) this.displayTarget.textContent = emoji
     }
     this.hide()
   }

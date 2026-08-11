@@ -15,7 +15,8 @@
 <% end %>
 
 <%= form_with model: [:admin, @scoring_scheme], class: "space-y-6",
-              data: { controller: "nested-pick-types pick-type-fields" } do |f| %>
+              data: { controller: "nested-pick-types pick-type-fields pick-types-sortable",
+                      action: "submit->pick-types-sortable#renumber" } do |f| %>
   <% if @scoring_scheme.errors.any? %>
     <div class="flash-alert">
       <ul class="list-disc list-inside space-y-1">
@@ -47,7 +48,7 @@
       <p class="text-sm text-amber-700 mb-4">Add at least one pick type before this scheme can be assigned to a season.</p>
     <% end %>
 
-    <div class="space-y-4" data-nested-pick-types-target="container">
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4" data-nested-pick-types-target="container">
       <%= f.fields_for :pick_types do |pick_type_fields| %>
         <%= render "pick_type_fields", f: pick_type_fields, locked: @scoring_scheme.locked? %>
       <% end %>
