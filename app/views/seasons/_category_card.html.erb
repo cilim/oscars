@@ -1,0 +1,71 @@
+<% winner_nom = sc.winner&.nominee %>
+<% is_announced = sc.winner.present? %>
+<% winner_nominee_id = sc.winner&.nominee_id %>
+<% selections_by_nominee = type_selections.values.flatten.group_by(&:nominee_id) %>
+<% cat_points = is_announced ? selections_by_nominee.values.flatten.sum { |s| s.score_for(winner_nominee_id) } : nil %>
+<% has_picks = selections_by_nominee.any? %>
+
+<div data-category-id="<%= sc.id %>"
+     class="card flex gap-4 items-stretch <%= is_announced ? 'border-l-[3px] border-l-oscar-gold' : '' %>">
+  <div class="flex-shrink-0 self-start">
+    <% if is_announced && winner_nom&.poster_url.present? %>
+      <div class="rounded-lg overflow-hidden shadow-sm" style="width:72px;height:108px;">
+        <img src="<%= winner_nom.poster_url %>"
+             alt="<%= winner_nom.movie_name %>"
+             class="w-full h-full object-cover">
+      </div>
+    <% elsif is_announced %>
+      <div class="rounded-lg bg-oscar-gold/10 border border-oscar-gold/20 flex items-center justify-center" style="width:72px;height:108px;">
+        <svg class="w-6 h-6 text-oscar-gold" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2L9 9H2l6 4.5L5.5 21 12 16.5 18.5 21 16 13.5 22 9h-7z"/>
+        </svg>
+      </div>
+    <% else %>
+      <div class="rounded-lg bg-oscar-surface border border-oscar-border flex items-center justify-center" style="width:72px;height:108px;">
+        <svg class="w-5 h-5 text-oscar-border" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="9"/>
+          <path d="M12 7v5l3 3"/>
+        </svg>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="flex-1 min-w-0 py-0.5">
+    <div class="flex items-center justify-between gap-2 mb-1.5">
+      <h3 class="font-bold text-oscar-text text-base leading-tight"><%= sc.category_name %></h3>
+      <div class="flex items-center gap-2 flex-shrink-0">
+        <% if is_announced %>
+          <span class="text-xs font-bold <%= points_color_class(cat_points) %>"><%= format_points(cat_points) %> pts</span>
+        <% end %>
+        <% if is_announced %>
+          <span data-category-status class="text-[10px] font-semibold uppercase tracking-wider text-oscar-gold bg-oscar-gold/10 px-2 py-0.5 rounded">Announced</span>
+        <% else %>
+          <span data-category-status class="text-[10px] font-semibold uppercase tracking-wider text-oscar-muted bg-oscar-surface px-2 py-0.5 rounded">Pending</span>
+        <% end %>
+      </div>
+    </div>
+
+    <% if is_announced && winner_nom %>
+      <div class="flex items-center gap-1 mb-3">
+        <svg class="w-3.5 h-3.5 text-oscar-gold flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2L9 9H2l6 4.5L5.5 21 12 16.5 18.5 21 16 13.5 22 9h-7z"/>
+        </svg>
+        <span class="text-sm font-semibold text-oscar-gold leading-tight"><%= winner_nom.display_name %></span>
+      </div>
+    <% end %>
+
+    <div class="nominee-chips">
+      <% sc.nominees.each do |nom| %>
+        <%= render "seasons/nominee_chip",
+              nominee: nom,
+              selections: selections_by_nominee[nom.id] || [],
+              is_announced: is_announced,
+              winner_nominee_id: winner_nominee_id %>
+      <% end %>
+    </div>
+
+    <% unless has_picks %>
+      <p class="text-xs text-oscar-muted italic mt-2">No picks submitted</p>
+    <% end %>
+  </div>
+</div>

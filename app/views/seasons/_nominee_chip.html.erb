@@ -1,0 +1,39 @@
+<% is_winner = is_announced && winner_nominee_id == nominee.id %>
+<% picked = selections.any? %>
+<% chip_points = is_announced && picked ? selections.sum { |s| s.score_for(winner_nominee_id) } : nil %>
+<% clickable = nominee.poster_url.present? %>
+<% chip_classes = ["nominee-chip"] %>
+<% chip_classes << "is-winner" if is_winner %>
+<% chip_classes << "is-picked" if picked %>
+<% chip_classes << "is-clickable" if clickable %>
+<% if is_announced && picked %>
+  <% chip_classes << points_color_class(chip_points) %>
+<% elsif is_winner %>
+  <% chip_classes << "text-oscar-gold" %>
+<% elsif picked %>
+  <% chip_classes << "text-oscar-text" %>
+<% else %>
+  <% chip_classes << "text-oscar-muted" %>
+<% end %>
+<% chip_data = { nominee_id: nominee.id } %>
+<% if clickable %>
+  <% chip_data.merge!(action: "click->movie-poster#show", poster_url: nominee.poster_url, movie_title: nominee.movie_name) %>
+<% end %>
+
+<%= content_tag clickable ? :button : :span,
+      type: (clickable ? "button" : nil),
+      class: chip_classes.join(" "),
+      data: chip_data do %>
+  <% if is_winner %>
+    <svg class="w-3 h-3 text-oscar-gold flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 2L9 9H2l6 4.5L5.5 21 12 16.5 18.5 21 16 13.5 22 9h-7z"/>
+    </svg>
+  <% end %>
+  <span class="nominee-chip-name"><%= nominee.display_name %></span>
+  <% selections.each do |selection| %>
+    <span title="<%= selection.pick_type.name %>" class="leading-none"><%= selection.pick_type.emoji %></span>
+  <% end %>
+  <% if is_announced && picked && !chip_points.zero? %>
+    <span class="nominee-chip-points font-bold"><%= format_points(chip_points) %></span>
+  <% end %>
+<% end %>

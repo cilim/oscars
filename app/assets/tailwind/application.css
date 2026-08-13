@@ -160,6 +160,51 @@ a.btn-gold:hover {
   padding: 1.5rem;
 }
 
+.nominee-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.nominee-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  max-width: 100%;
+  padding: 0.25rem 0.55rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  line-height: 1.2;
+  background-color: #fff;
+  border: 1px solid var(--color-oscar-border);
+}
+
+.nominee-chip-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nominee-chip.is-winner {
+  background-color: rgba(213, 186, 109, 0.12);
+  border-color: var(--color-oscar-gold);
+}
+
+.nominee-chip.is-picked {
+  font-weight: 600;
+}
+
+button.nominee-chip {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+button.nominee-chip:hover {
+  border-color: var(--color-oscar-gold);
+}
+
 /* ── Form controls ───────────────────────────────────── */
 
 .input-field {
