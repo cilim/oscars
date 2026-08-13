@@ -25,6 +25,30 @@ RSpec.describe "Picks", type: :request do
       expect(response).to have_http_status(:ok)
     end
 
+    it "renders a pick pool for each pick type" do
+      get edit_season_picks_path(season)
+
+      expect(response.body).to include("pick-pool")
+      expect(response.body).to include("data-pool-remaining=\"#{think_type.id}\"")
+      expect(response.body).to include("data-pool-remaining=\"#{want_type.id}\"")
+      expect(response.body).not_to include("data-pick-counter")
+    end
+
+    context "with a multi-select pick type" do
+      let(:scheme) { create(:scoring_scheme, name: "Pool Scheme") }
+      let!(:think_type) { create(:pick_type, :think, scoring_scheme: scheme) }
+      let!(:want_type) { create(:pick_type, :want, :multi, scoring_scheme: scheme, max_selections: 20) }
+      let(:season) { create(:season, scoring_scheme: scheme) }
+
+      it "renders a pool token for each available pick" do
+        get edit_season_picks_path(season)
+
+        page = Nokogiri::HTML(response.body)
+        tokens = page.css(%([data-picks-carousel-target="poolToken"][data-pick-type-id="#{want_type.id}"]))
+        expect(tokens.size).to eq(20)
+      end
+    end
+
     context "when season is locked" do
       let(:season) { create(:season, :locked) }
 

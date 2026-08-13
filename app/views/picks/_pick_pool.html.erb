@@ -1,0 +1,43 @@
+<div class="pick-pool" data-picks-carousel-target="pool">
+  <% pick_types.each do |pick_type| %>
+    <% max = pick_type.allow_multiple_selections? ? pick_type.max_selections : 1 %>
+    <% peek = if max <= 1
+         "1.65rem"
+       elsif max <= 4
+         "1.15rem"
+       else
+         "0.38rem"
+       end %>
+
+    <div class="pick-pool-tray"
+         data-picks-carousel-target="poolTray"
+         data-pick-type-id="<%= pick_type.id %>"
+         data-empty="false"
+         style="--pick-color: <%= pick_type.color %>; --token-peek: <%= peek %>;"
+         title="<%= pick_type_legend_label(pick_type) %>">
+      <div class="pick-pool-tray-top">
+        <span class="pick-pool-name"><%= pick_type.name %></span>
+        <span class="pick-pool-count">
+          <span data-pool-remaining="<%= pick_type.id %>"><%= max %></span><span class="pick-pool-max">/<%= max %></span>
+        </span>
+      </div>
+
+      <div class="pick-pool-tokens" data-pool-tokens="<%= pick_type.id %>">
+        <% max.times do |index| %>
+          <span class="pick-pool-token"
+                data-picks-carousel-target="poolToken"
+                data-pick-type-id="<%= pick_type.id %>"
+                data-token-index="<%= index %>"
+                aria-hidden="true"><%= pick_type.emoji %></span>
+        <% end %>
+      </div>
+
+      <p class="pick-pool-points">
+        <%= format_points(pick_type.points_on_correct) %> / <%= format_points(pick_type.points_on_incorrect) %>
+        <% if pick_type.risky? %>
+          <span class="pick-pool-risky">risky</span>
+        <% end %>
+      </p>
+    </div>
+  <% end %>
+</div>

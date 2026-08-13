@@ -89,16 +89,7 @@
         </div>
       </div>
 
-      <div class="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-oscar-muted mb-3">
-        <% @pick_types.each do |pick_type| %>
-          <span class="<%= pick_type.risky? ? 'text-amber-700 font-semibold' : '' %>">
-            <%= pick_type_legend_label(pick_type) %>
-            <% if pick_type.allow_multiple_selections? %>
-              <span data-pick-counter data-pick-type-id="<%= pick_type.id %>" class="ml-1 font-semibold"></span>
-            <% end %>
-          </span>
-        <% end %>
-      </div>
+      <%= render "picks/pick_pool", pick_types: @pick_types %>
 
       <div class="relative -mx-2 px-2">
         <button type="button"

@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["track", "pickTypeGroup", "pickInput", "summary"]
+  static targets = ["track", "pickTypeGroup", "pickInput", "summary", "pool", "poolTray", "poolToken"]
   static values = {
     seasonId: Number,
     categoryId: Number,
@@ -55,20 +55,37 @@ export default class extends Controller {
     const current = this.selectedIdsForType(pickTypeId)
     const isSelected = this.nomineeHasPick(nomineeId, pickTypeId)
 
-    let next
-    if (pickType.multi) {
-      if (isSelected) {
-        next = current.filter((id) => id !== nomineeId)
-      } else if (current.length >= pickType.max) {
+    if (isSelected) {
+      this.playTransfer({
+        kind: "return",
+        pickType,
+        fromEl: this.badgeEl(nomineeId, pickTypeId),
+        toEl: this.firstSpentToken(pickTypeId)
+      })
+      this.setSelectionsForType(pickTypeId, current.filter((id) => id !== nomineeId))
+    } else if (current.length >= pickType.max) {
+      if (pickType.multi) {
+        this.shakeTray(pickTypeId)
         return
-      } else {
-        next = [...current, nomineeId]
       }
+
+      this.playTransfer({
+        kind: "move",
+        pickType,
+        fromEl: this.badgeEl(current[0], pickTypeId),
+        toEl: this.badgeEl(nomineeId, pickTypeId)
+      })
+      this.setSelectionsForType(pickTypeId, [nomineeId])
     } else {
-      next = isSelected ? [] : [nomineeId]
+      this.playTransfer({
+        kind: "take",
+        pickType,
+        fromEl: this.lastRemainingToken(pickTypeId),
+        toEl: this.badgeEl(nomineeId, pickTypeId)
+      })
+      this.setSelectionsForType(pickTypeId, [...current, nomineeId])
     }
 
-    this.setSelectionsForType(pickTypeId, next)
     this.updateAllCards()
     this.saveToStorage()
     this.scheduleAutoSave()
@@ -145,7 +162,10 @@ export default class extends Controller {
         slide.dataset[`pickType${pickType.id}`] = isActive ? "true" : "false"
 
         const badge = slide.querySelector(`[data-pick-badge="${pickType.id}"]`)
-        if (badge) badge.hidden = !isActive
+        if (badge) {
+          badge.hidden = !isActive
+          if (!isActive) badge.classList.remove("is-arriving", "pick-badge-pop")
+        }
 
         const button = slide.querySelector(`[data-pick-btn="${pickType.id}"]`)
         if (button) button.dataset.active = isActive ? "true" : "false"
@@ -158,7 +178,7 @@ export default class extends Controller {
     })
 
     this.updateSummaries()
-    this.updateCounters()
+    this.updatePool()
     this.dispatch("changed")
   }
 
@@ -202,14 +222,143 @@ export default class extends Controller {
     })
   }
 
-  updateCounters() {
-    this.element.querySelectorAll("[data-pick-counter]").forEach((counter) => {
-      const pickTypeId = counter.dataset.pickTypeId
-      const pickType = this.pickTypeConfig(pickTypeId)
-      if (!pickType?.multi) return
+  updatePool() {
+    this.pickTypesValue.forEach((pickType) => {
+      const remaining = Math.max(0, pickType.max - this.selectedIdsForType(pickType.id).length)
+      this.poolTokensFor(pickType.id).forEach((token, index) => {
+        token.classList.toggle("is-spent", index >= remaining)
+      })
 
-      const count = this.selectedIdsForType(pickTypeId).length
-      counter.textContent = `${count}/${pickType.max} selected`
+      const count = this.element.querySelector(`[data-pool-remaining="${pickType.id}"]`)
+      if (count) count.textContent = remaining
+
+      const tray = this.trayFor(pickType.id)
+      if (tray) tray.dataset.empty = remaining === 0 ? "true" : "false"
     })
+  }
+
+  playTransfer({ kind, pickType, fromEl, toEl }) {
+    if (this.prefersReducedMotion() || !fromEl || !toEl) return
+
+    const fromRect = this.measureRect(fromEl)
+    const toRect = this.measureRect(toEl)
+    if (fromRect.width === 0 || toRect.width === 0) return
+
+    if (kind === "take") {
+      toEl.classList.add("is-arriving")
+    } else if (kind === "return") {
+      toEl.classList.add("is-awaiting")
+    } else if (kind === "move") {
+      toEl.classList.add("is-arriving")
+    }
+
+    this.animateFly(fromRect, toRect, pickType).finally(() => {
+      toEl.classList.remove("is-arriving", "is-awaiting")
+      if (kind === "take" || kind === "move") {
+        toEl.classList.remove("pick-badge-pop")
+        void toEl.offsetWidth
+        toEl.classList.add("pick-badge-pop")
+      }
+    })
+  }
+
+  animateFly(fromRect, toRect, pickType) {
+    const clone = document.createElement("span")
+    clone.className = "pick-fly"
+    clone.textContent = pickType.emoji
+    clone.setAttribute("aria-hidden", "true")
+    clone.style.setProperty("--pick-color", pickType.color)
+    clone.style.left = `${fromRect.left}px`
+    clone.style.top = `${fromRect.top}px`
+    clone.style.width = `${fromRect.width}px`
+    clone.style.height = `${fromRect.height}px`
+    clone.style.fontSize = `${Math.max(12, fromRect.height * 0.55)}px`
+    document.body.appendChild(clone)
+
+    const dx = toRect.left - fromRect.left
+    const dy = toRect.top - fromRect.top
+    const scale = Math.max(0.55, Math.min(1.35, toRect.width / Math.max(fromRect.width, 1)))
+    const lift = Math.min(56, Math.abs(dx) * 0.18 + 28)
+
+    const animation = clone.animate(
+      [
+        { transform: "translate(0, 0) scale(1) rotate(0deg)", opacity: 1 },
+        {
+          transform: `translate(${dx * 0.5}px, ${dy * 0.45 - lift}px) scale(1.2) rotate(${dx >= 0 ? 14 : -14}deg)`,
+          opacity: 1,
+          offset: 0.55
+        },
+        { transform: `translate(${dx}px, ${dy}px) scale(${scale}) rotate(0deg)`, opacity: 1 }
+      ],
+      {
+        duration: 520,
+        easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+        fill: "forwards"
+      }
+    )
+
+    return animation.finished.catch(() => {}).finally(() => clone.remove())
+  }
+
+  measureRect(element) {
+    const wasHidden = element.hidden
+    const previousVisibility = element.style.visibility
+    const previousDisplay = element.style.display
+
+    if (wasHidden) {
+      element.hidden = false
+      element.style.visibility = "hidden"
+      element.style.display = "inline-flex"
+    }
+
+    const rect = element.getBoundingClientRect()
+    const snapshot = { left: rect.left, top: rect.top, width: rect.width, height: rect.height }
+
+    if (wasHidden) {
+      element.hidden = true
+      element.style.visibility = previousVisibility
+      element.style.display = previousDisplay
+    }
+
+    return snapshot
+  }
+
+  shakeTray(pickTypeId) {
+    const tray = this.trayFor(pickTypeId)
+    if (!tray) return
+
+    tray.classList.remove("is-shaking")
+    void tray.offsetWidth
+    tray.classList.add("is-shaking")
+    tray.addEventListener("animationend", () => tray.classList.remove("is-shaking"), { once: true })
+  }
+
+  prefersReducedMotion() {
+    return window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches
+  }
+
+  poolTokensFor(pickTypeId) {
+    return this.poolTokenTargets.filter((token) => token.dataset.pickTypeId === String(pickTypeId))
+  }
+
+  lastRemainingToken(pickTypeId) {
+    const remaining = this.poolTokensFor(pickTypeId).filter((token) => !token.classList.contains("is-spent"))
+    return remaining[remaining.length - 1]
+  }
+
+  firstSpentToken(pickTypeId) {
+    return this.poolTokensFor(pickTypeId).find((token) => token.classList.contains("is-spent"))
+  }
+
+  trayFor(pickTypeId) {
+    return this.poolTrayTargets.find((tray) => tray.dataset.pickTypeId === String(pickTypeId))
+  }
+
+  badgeEl(nomineeId, pickTypeId) {
+    return this.slideFor(nomineeId)?.querySelector(`[data-pick-badge="${pickTypeId}"]`)
+  }
+
+  slideFor(nomineeId) {
+    return this.trackTarget.querySelector(`[data-slide][data-nominee-id="${nomineeId}"]`)
   }
 }
