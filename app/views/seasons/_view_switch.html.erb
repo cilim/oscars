@@ -1,0 +1,9 @@
+<div class="view-switch mb-4" role="group" aria-label="Group season by">
+  <% if view == :categories %>
+    <span class="view-switch__option view-switch__option--active" aria-current="true">Categories</span>
+    <%= link_to "Movies", season_path(season, view: "movies"), class: "view-switch__option" %>
+  <% else %>
+    <%= link_to "Categories", season_path(season), class: "view-switch__option" %>
+    <span class="view-switch__option view-switch__option--active" aria-current="true">Movies</span>
+  <% end %>
+</div>

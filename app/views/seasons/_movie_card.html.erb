@@ -1,0 +1,64 @@
+<% wins = tally[:nominations].select { |nomination| nomination[:won] } %>
+<% others = tally[:nominations].reject { |nomination| nomination[:won] } %>
+<% movie = tally[:movie] %>
+<% clickable = movie.modal_available? %>
+
+<div class="card movie-tally <%= "movie-tally--winner" if tally[:win_count] > 0 %>" data-movie-id="<%= movie.id %>">
+  <div class="flex-shrink-0 self-start">
+    <% poster_tag = capture do %>
+      <% if movie.poster_url.present? %>
+        <div class="rounded-lg overflow-hidden shadow-sm" style="width:72px;height:108px;">
+          <img src="<%= movie.poster_url %>" alt="<%= movie.name %>" class="w-full h-full object-cover">
+        </div>
+      <% else %>
+        <div class="rounded-lg bg-oscar-gold/10 border border-oscar-gold/20 flex items-center justify-center" style="width:72px;height:108px;">
+          <%= statuette_image %>
+        </div>
+      <% end %>
+    <% end %>
+    <% if clickable %>
+      <%= content_tag :button, poster_tag, type: "button", class: "p-0 border-0 bg-transparent cursor-pointer", data: movie_poster_trigger_data(movie) %>
+    <% else %>
+      <%= poster_tag %>
+    <% end %>
+  </div>
+
+  <div class="flex-1 min-w-0">
+    <div class="flex flex-wrap items-start justify-between gap-2 mb-2">
+      <h3 class="font-bold text-oscar-text text-lg leading-tight"><%= movie.name %></h3>
+      <div class="oscar-haul <%= "oscar-haul--empty" if tally[:win_count].zero? %>" aria-label="<%= pluralize(tally[:win_count], "Oscar") %>">
+        <% tally[:win_count].times do %>
+          <%= statuette_image %>
+        <% end %>
+        <span class="oscar-haul__count"><%= pluralize(tally[:win_count], "Oscar") %></span>
+      </div>
+    </div>
+
+    <% if wins.any? %>
+      <div class="win-chips mb-2">
+        <% wins.each do |nomination| %>
+          <span class="win-chip">
+            <%= statuette_image(size: :sm) %>
+            <span>
+              <%= nomination[:category_name] %>
+              <% if nomination[:person_name].present? %>
+                <span class="win-chip__person"><%= nomination[:person_name] %></span>
+              <% end %>
+            </span>
+          </span>
+        <% end %>
+      </div>
+    <% end %>
+
+    <% if others.any? %>
+      <p class="text-xs text-oscar-muted leading-relaxed">
+        Nominated:
+        <%= others.map { |nomination|
+          label = nomination[:category_name]
+          label = "#{label} (#{nomination[:person_name]})" if nomination[:person_name].present?
+          label
+        }.join(", ") %>
+      </p>
+    <% end %>
+  </div>
+</div>

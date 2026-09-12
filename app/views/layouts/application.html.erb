@@ -8,7 +8,7 @@
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <%= yield :head %>
-    <link rel="icon" href="/icon.png" type="image/png">
+    <%= favicon_link_tag "favicon.png", rel: "icon", type: "image/png" %>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -88,7 +88,7 @@
                hidden
                class="flex-shrink-0 inline-flex"
                aria-label="View on IMDb">
-              <img src="/imdb-badge.svg" alt="IMDb" class="imdb-badge">
+              <%= image_tag "imdb-badge.svg", alt: "IMDb", class: "imdb-badge" %>
             </a>
           </div>
           <p data-movie-poster-target="description" class="text-sm text-oscar-muted leading-relaxed" hidden></p>

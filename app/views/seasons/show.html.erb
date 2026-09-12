@@ -52,13 +52,19 @@
     </div>
   </div>
 
-  <div class="space-y-3">
-    <% @season_categories.each do |sc| %>
-      <%= render "seasons/category_card",
-            sc: sc,
-            type_selections: @selections_by_category[sc.id] || {} %>
-    <% end %>
-  </div>
+  <%= render "seasons/view_switch", season: @season, view: @view %>
+
+  <% if @view == :movies %>
+    <%= render "seasons/movies", tallies: @movie_tallies %>
+  <% else %>
+    <div class="space-y-3">
+      <% @season_categories.each do |sc| %>
+        <%= render "seasons/category_card",
+              sc: sc,
+              type_selections: @selections_by_category[sc.id] || {} %>
+      <% end %>
+    </div>
+  <% end %>
 
 <% else %>
   <div class="card text-center py-12">

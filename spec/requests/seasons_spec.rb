@@ -37,7 +37,7 @@ RSpec.describe "Seasons", type: :request do
       get season_path(season)
       expect(response).to have_http_status(:ok)
       expect(response.body).to include(season.name)
-      expect(response.body).to include("/imdb-badge.svg")
+      expect(response.body).to include("imdb-badge")
     end
 
     context "when the user is a player" do
@@ -158,7 +158,7 @@ RSpec.describe "Seasons", type: :request do
         title_row = dialog.at_css("[data-movie-poster-target='title']").parent
         badge = title_row.at_css("img.imdb-badge")
 
-        expect(badge["src"]).to eq("/imdb-badge.svg")
+        expect(badge["src"]).to include("imdb-badge")
         expect(dialog.text).not_to include("View on IMDb")
       end
 
@@ -179,6 +179,49 @@ RSpec.describe "Seasons", type: :request do
         movie_queries = queries.select { |sql| sql.match?(/FROM ["']?movies["']?/i) }
 
         expect(response).to have_http_status(:ok)
+        expect(movie_queries.size).to eq(1)
+      end
+
+      it "offers a Categories/Movies switch and defaults to categories" do
+        get season_path(season)
+
+        expect(response.body).to include("Categories")
+        expect(response.body).to include("Movies")
+        expect(response.body).to include(season_path(season, view: "movies"))
+        page = Nokogiri::HTML(response.body)
+        expect(page.at_css("[data-category-id='#{season_category.id}']")).to be_present
+        expect(page.at_css("[data-movie-id]")).to be_nil
+      end
+
+      it "groups the season by movie and shows oscar wins" do
+        acting = create(:season_category, season: season, category: create(:category, name: "Best Actor"))
+        actor = create(:nominee, season_category: acting, movie_name: "Marty Supreme", person_name: "Timothée Chalamet")
+        create(:winner, season_category: season_category, nominee: winner_nominee)
+        create(:winner, season_category: acting, nominee: actor)
+
+        get season_path(season, view: "movies")
+
+        expect(response.body).to include("Marty Supreme")
+        expect(response.body).to include("2 Oscars")
+        expect(response.body).to include("Best Picture")
+        expect(response.body).to include("Best Actor")
+        expect(response.body).to include("Timothée Chalamet")
+        expect(response.body).to include("statuette")
+        page = Nokogiri::HTML(response.body)
+        expect(page.at_css("[data-movie-id='#{winner_nominee.movie_id}']")).to be_present
+        expect(page.at_css("[data-category-id]")).to be_nil
+      end
+
+      it "does not N+1 movie queries on the movies view" do
+        extra = create(:season_category, season: season, category: create(:category, name: "Best Director"))
+        create_list(:nominee, 4, season_category: extra)
+
+        queries = capture_sql { get season_path(season, view: "movies") }
+        movie_queries = queries.select { |sql| sql.match?(/FROM ["']?movies["']?/i) }
+
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to include("Movies")
+        expect(Nokogiri::HTML(response.body).at_css("[data-movie-id]")).to be_present
         expect(movie_queries.size).to eq(1)
       end
     end

@@ -86,6 +86,102 @@ a.world-switch__option:hover {
   cursor: default;
 }
 
+.view-switch {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px;
+  border-radius: 9999px;
+  background: var(--color-oscar-surface);
+  border: 1px solid var(--color-oscar-border);
+}
+.view-switch__option {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 6.5rem;
+  padding: 0.4rem 0.95rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1;
+  text-decoration: none;
+  color: var(--color-oscar-muted);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+a.view-switch__option {
+  color: var(--color-oscar-muted);
+}
+a.view-switch__option:hover {
+  color: var(--color-oscar-text);
+  background: rgba(0, 0, 0, 0.04);
+}
+.view-switch__option--active {
+  background: var(--color-oscar-gold);
+  color: var(--color-oscar-text);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  cursor: default;
+}
+
+.movie-tally {
+  display: flex;
+  gap: 1rem;
+  align-items: stretch;
+}
+.movie-tally--winner {
+  border-left: 3px solid var(--color-oscar-gold);
+}
+.statuette {
+  height: 1.5rem;
+  width: auto;
+  display: block;
+}
+.statuette--sm {
+  height: 1.05rem;
+}
+.oscar-haul {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  flex-shrink: 0;
+}
+.oscar-haul__count {
+  margin-left: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-oscar-gold-dark);
+  white-space: nowrap;
+}
+.oscar-haul--empty .oscar-haul__count {
+  color: var(--color-oscar-muted);
+  font-weight: 600;
+}
+.win-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.win-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.28rem 0.6rem 0.28rem 0.4rem;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--color-oscar-gold) 16%, white);
+  border: 1px solid color-mix(in srgb, var(--color-oscar-gold) 40%, white);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-oscar-text);
+  line-height: 1.2;
+}
+.win-chip__person {
+  display: block;
+  font-weight: 500;
+  font-size: 0.65rem;
+  color: var(--color-oscar-muted);
+}
+
 /* ── Buttons ─────────────────────────────────────────── */
 
 .btn,

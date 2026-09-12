@@ -10,4 +10,9 @@ module MoviesHelper
       imdb_url: movie.imdb_url.to_s
     }
   end
+
+  def statuette_image(size: :md)
+    css = size == :sm ? "statuette statuette--sm" : "statuette"
+    image_tag "statuette.png", alt: "", class: css, aria: { hidden: true }
+  end
 end

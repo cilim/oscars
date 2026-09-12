@@ -1,0 +1,11 @@
+<% if tallies.any? %>
+  <div class="space-y-3">
+    <% tallies.each do |tally| %>
+      <%= render "seasons/movie_card", tally: tally %>
+    <% end %>
+  </div>
+<% else %>
+  <div class="card text-center py-12">
+    <p class="text-oscar-muted text-lg">No movies in this season yet.</p>
+  </div>
+<% end %>
