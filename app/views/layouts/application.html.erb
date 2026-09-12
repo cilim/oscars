@@ -31,11 +31,14 @@
             <% end %>
 
             <% if authenticated? %>
-              <div class="hidden sm:flex items-center gap-4">
+              <div class="flex items-center gap-3 sm:gap-4">
                 <% if Current.user&.admin? %>
-                  <%= render "shared/world_switch", current: :pool %>
+                  <div class="hidden sm:block">
+                    <%= render "shared/world_switch", current: :pool %>
+                  </div>
                 <% end %>
-                <%= link_to "Seasons", seasons_path, class: "text-sm no-underline #{request.path.start_with?(seasons_path) ? 'nav-link-active' : 'nav-link'}" %>
+                <%= link_to "Seasons", seasons_path, class: "text-xs sm:text-sm no-underline #{request.path.start_with?(seasons_path) ? 'nav-link-active' : 'nav-link'}" %>
+                <%= link_to "History", history_path, class: "text-xs sm:text-sm no-underline #{request.path == history_path ? 'nav-link-active' : 'nav-link'}" %>
               </div>
             <% end %>
           </div>

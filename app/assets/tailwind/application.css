@@ -664,6 +664,19 @@ dialog.poster-dialog img.imdb-badge {
   will-change: transform, opacity;
 }
 
+.history-chart__plot {
+  min-height: 22rem;
+  width: 100%;
+}
+
+.history-panel .highcharts-container {
+  font-family: Inter, system-ui, sans-serif;
+}
+
+.history-panel .highcharts-tooltip {
+  z-index: 60;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .pick-pool-token,
   .pick-pool-tray,

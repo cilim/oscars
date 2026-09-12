@@ -8,6 +8,8 @@ Rails.application.routes.draw do
     resource :scoreboard, only: [ :show ]
   end
 
+  resource :history, only: [ :show ], controller: "history"
+
   namespace :admin do
     get  "tmdb_search", to: "tmdb_search#search"
     resource :database_backup, only: [ :show ] do

@@ -1,0 +1,40 @@
+<% content_for(:title, "History - Oscars Pool") %>
+
+<div class="mb-10">
+  <h1 class="text-3xl font-bold text-oscar-gold">History</h1>
+  <p class="text-oscar-muted mt-1">
+    <% years = @nights.map { |night| night[:year] } %>
+    <% if years.empty? %>
+      Hogged nights, Picture splits, and films that left with nothing — once the envelopes open.
+    <% else %>
+      <%= years.min %>–<%= years.max %>: hogged nights, Picture splits, and films that left with nothing.
+    <% end %>
+  </p>
+</div>
+
+<% if @nights.empty? %>
+  <div class="card text-center py-16">
+    <p class="text-oscar-muted text-lg">No winners yet. Come back after the envelopes.</p>
+  </div>
+<% else %>
+  <div class="space-y-8">
+    <section class="card history-panel">
+      <h2 class="text-xl font-bold text-oscar-text mb-1">Who hogged the night?</h2>
+      <p class="text-oscar-muted text-sm mb-4"><%= hog_kicker(@nights) %></p>
+      <%= render "history/chart", options: @hog_chart %>
+    </section>
+
+    <section class="card history-panel">
+      <h2 class="text-xl font-bold text-oscar-text mb-1">Glory and heartbreak</h2>
+      <p class="text-oscar-muted text-sm mb-4"><%= heartbreak_kicker(@films) %></p>
+      <%= render "history/chart", options: @heartbreak_chart %>
+      <p class="text-oscar-muted text-xs mt-3">Films with <%= OscarHistoryCharts::HEARTBREAK_MIN_NOMS %>+ nominations. Gold won at least one. Red won none.</p>
+    </section>
+
+    <section class="card history-panel">
+      <h2 class="text-xl font-bold text-oscar-text mb-1">Did Picture take the board?</h2>
+      <p class="text-oscar-muted text-sm mb-4"><%= picture_kicker(@nights) %></p>
+      <%= render "history/chart", options: @picture_chart %>
+    </section>
+  </div>
+<% end %>
