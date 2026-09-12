@@ -48,35 +48,18 @@ Custom schemes can add penalty picks, multi-select types, and negative scores. S
 
 ## Rake Tasks
 
-### Import a season from YAML
-
-```bash
-rails "oscars:import[2026]"
-```
-
-Reads `db/data/2026.yml` and creates the season, categories, and nominees. Idempotent — safe to run multiple times.
-
 ### Scrape Wikipedia (admin UI or rake)
 
 Admin: **Admin → Seasons → Scrape Nominations**, or:
 
 ```bash
-rails "oscars:canary[2026]"   # fetch latest completed ceremony and assert shape
+rails "oscars:scrape[2026]"   # scrape + import one ceremony
+rails "oscars:canary[2026]"   # fetch and assert scrape shape
 ```
 
-The scraper reads MediaWiki **wikitext** (stable) via the Wikipedia API, validates category/nominee invariants, and falls back to HTML if needed. On failure it dumps raw wikitext to `db/data/<year>.wikitext` for manual repair. Review the preview in the UI, then import.
+The scraper reads MediaWiki **wikitext** via the Wikipedia API, validates category/nominee invariants, and falls back to HTML when wikitext is incomplete. On failure it can dump raw wikitext to `db/data/<year>.wikitext` for manual repair. Review the preview in the admin UI, then import.
 
-Note: the older `rails "oscars:scrape[YEAR]"` task still targets oscars.org and may 403; prefer the admin Wikipedia scrape.
-
-### List available data files
-
-```bash
-rails oscars:list
-```
-
-Shows all YAML files in `db/data/` with category and nominee counts.
-
-### YAML format
+### YAML format (legacy)
 
 ```yaml
 season:
