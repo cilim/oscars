@@ -74,7 +74,7 @@ class OscarsScraper
     end
 
     persist_wikitext_dump! if @persist_wikitext && @raw_wikitext.present?
-    fetch_posters(categories) if Rails.application.credentials.tmdb_access_token.present?
+    fetch_movie_metadata(categories) if Rails.application.credentials.tmdb_access_token.present?
 
     {
       "season"     => { "name" => "#{ceremony} Academy Awards (#{@year})", "year" => @year },
@@ -449,41 +449,30 @@ class OscarsScraper
     CATEGORY_MAPPINGS.keys.any? { |pat| name.match?(pat) }
   end
 
-  # ── TMDB poster fetch ─────────────────────────────────────────────────────
+  # ── TMDB movie metadata ───────────────────────────────────────────────────
 
-  def fetch_posters(categories)
+  def fetch_movie_metadata(categories)
     seen = {}
+    lookup = TmdbMovieLookup.new
+
     categories.each do |cat|
       (cat["nominees"] || []).each do |nom|
         movie = nom["movie"]
-        if seen.key?(movie)
-          nom["poster_url"] = seen[movie] if seen[movie]
+        meta = if seen.key?(movie)
+          seen[movie]
         else
-          url = tmdb_fetch_poster(movie)
-          seen[movie] = url
-          nom["poster_url"] = url if url
+          result = lookup.fetch(movie)
+          seen[movie] = result
           sleep 0.26
+          result
         end
+        next unless meta
+
+        nom["poster_url"]  = meta["poster_url"]  if meta["poster_url"]
+        nom["description"] = meta["description"] if meta["description"]
+        nom["imdb_url"]    = meta["imdb_url"]    if meta["imdb_url"]
       end
     end
-  end
-
-  def tmdb_fetch_poster(movie_name)
-    uri     = URI("https://api.themoviedb.org/3/search/movie?query=#{URI.encode_www_form_component(movie_name)}&language=en-US&page=1")
-    request = Net::HTTP::Get.new(uri)
-    request["Authorization"] = "Bearer #{Rails.application.credentials.tmdb_access_token}"
-    request["Accept"]        = "application/json"
-    request["User-Agent"]    = USER_AGENT
-
-    response = Net::HTTP.start(uri.host, uri.port, use_ssl: true, verify_mode: OpenSSL::SSL::VERIFY_NONE) { |h| h.request(request) }
-    return nil unless response.is_a?(Net::HTTPSuccess)
-
-    results = JSON.parse(response.body)["results"] || []
-    path    = results.first&.fetch("poster_path", nil)
-    path ? "https://image.tmdb.org/t/p/w500#{path}" : nil
-  rescue => e
-    Rails.logger.warn "TMDB lookup failed for '#{movie_name}': #{e.message}"
-    nil
   end
 
   # ── Name normalisation ────────────────────────────────────────────────────

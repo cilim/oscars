@@ -25,6 +25,30 @@ RSpec.describe "Picks", type: :request do
       expect(response).to have_http_status(:ok)
     end
 
+    it "does not N+1 movie queries when rendering nominees" do
+      extra = create(:season_category, season: season, category: create(:category, name: "Best Director"))
+      create_list(:nominee, 4, season_category: extra)
+
+      queries = capture_sql { get edit_season_picks_path(season) }
+      movie_queries = queries.select { |sql| sql.match?(/FROM ["']?movies["']?/i) }
+
+      expect(response).to have_http_status(:ok)
+      expect(movie_queries.size).to eq(1)
+    end
+
+    it "makes a poster and title open the movie modal when metadata is present" do
+      nominee1.movie.update!(poster_url: "https://img.example.com/a.jpg", description: "A plot.")
+
+      get edit_season_picks_path(season)
+
+      page = Nokogiri::HTML(response.body)
+      poster = page.at_css("[data-poster-wrap][data-nominee-id]") || page.at_css(%([data-action="click->movie-poster#show"]))
+      expect(poster).to be_present
+      expect(page.css(%([data-action="click->movie-poster#show"])).length).to be >= 2
+      expect(page.at_css(%([data-poster-url="https://img.example.com/a.jpg"]))).to be_present
+      expect(page.at_css(%([data-movie-description="A plot."]))).to be_present
+    end
+
     it "renders a pick pool for each pick type" do
       get edit_season_picks_path(season)
 

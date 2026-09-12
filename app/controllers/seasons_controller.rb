@@ -6,7 +6,7 @@ class SeasonsController < ApplicationController
   def show
     @season = Season.includes(scoring_scheme: :pick_types).find(params[:id])
     @player = Current.user.players.find_by(season: @season)
-    @season_categories = @season.season_categories.includes(:category, :nominees, winner: :nominee)
+    @season_categories = @season.season_categories.includes(:category, nominees: :movie, winner: { nominee: :movie })
     @pick_types = @season.scoring_scheme.pick_types.order(:display_order)
     @selections_by_category = build_selections_by_category
   end

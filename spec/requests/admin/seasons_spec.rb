@@ -17,6 +17,31 @@ RSpec.describe "Admin::Seasons", type: :request do
         get admin_season_path(season)
         expect(response).to have_http_status(:ok)
       end
+
+      it "renders categories, movies, and players as sibling columns" do
+        season = create(:season)
+        get admin_season_path(season)
+
+        expect(response.body).to include("admin-season-layout")
+        expect(response.body).to include("Movies")
+        expect(response.body).to include("Players")
+      end
+
+      it "does not N+1 movie queries when listing nominees" do
+        season = create(:season)
+        3.times do
+          sc = create(:season_category, season: season)
+          create_list(:nominee, 3, season_category: sc)
+        end
+
+        queries = capture_sql { get admin_season_path(season) }
+        movie_queries = queries.select { |sql| sql.match?(/FROM ["']?movies["']?/i) }
+        nominee_counts = queries.select { |sql| sql.match?(/COUNT.*nominees/i) }
+
+        expect(response).to have_http_status(:ok)
+        expect(movie_queries.size).to eq(1)
+        expect(nominee_counts).to be_empty
+      end
     end
 
     describe "GET /admin/seasons/new" do

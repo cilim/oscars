@@ -46,9 +46,11 @@ module Admin
       categories = (params[:categories]&.to_unsafe_h&.values || []).map do |cat|
         nominees = (cat[:nominees]&.values || []).map do |nom|
           {
-            "movie"      => nom[:movie].to_s.strip,
-            "person"     => nom[:person].to_s.strip.presence,
-            "poster_url" => nom[:poster_url].to_s.strip.presence
+            "movie"       => nom[:movie].to_s.strip,
+            "person"      => nom[:person].to_s.strip.presence,
+            "poster_url"  => nom[:poster_url].to_s.strip.presence,
+            "description" => nom[:description].to_s.strip.presence,
+            "imdb_url"    => nom[:imdb_url].to_s.strip.presence
           }
         end.reject { |n| n["movie"].blank? }
 

@@ -1,8 +1,8 @@
 <%= form_with model: [:admin, @season, @season_category, nominee], class: "space-y-5" do |f| %>
-  <% if nominee.errors.any? %>
+  <% if nominee.errors.any? || nominee.movie&.errors&.any? %>
     <div class="flash-alert">
       <ul class="list-disc list-inside space-y-1">
-        <% nominee.errors.full_messages.each do |msg| %>
+        <% (nominee.errors.full_messages + Array(nominee.movie&.errors&.full_messages)).uniq.each do |msg| %>
           <li><%= msg %></li>
         <% end %>
       </ul>
@@ -11,7 +11,7 @@
 
   <div>
     <%= f.label :movie_name, "Film", class: "label-text" %>
-    <%= f.text_field :movie_name, class: "input-field", placeholder: "e.g. The Brutalist" %>
+    <%= text_field_tag "nominee[movie_name]", nominee.movie_name, class: "input-field", placeholder: "e.g. The Brutalist" %>
   </div>
 
   <% if @season_category.has_person %>
@@ -23,11 +23,21 @@
 
   <div>
     <%= f.label :poster_url, "Poster URL", class: "label-text" %>
-    <%= f.url_field :poster_url, class: "input-field", placeholder: "https://image.tmdb.org/t/p/w500/..." %>
+    <%= url_field_tag "nominee[poster_url]", nominee.poster_url, class: "input-field", placeholder: "https://image.tmdb.org/t/p/w500/..." %>
     <% if nominee.poster_url.present? %>
       <img src="<%= nominee.poster_url %>" alt="Current poster" class="mt-2 rounded-lg w-20 border border-oscar-border">
     <% end %>
-    <p class="text-xs text-oscar-muted mt-1">Optional. Use <code>rails oscars:fetch_posters[YEAR]</code> to auto-populate from TMDB.</p>
+    <p class="text-xs text-oscar-muted mt-1">Optional. Shared with every nominee of this film in the season.</p>
+  </div>
+
+  <div>
+    <%= f.label :description, "Description", class: "label-text" %>
+    <%= text_area_tag "nominee[description]", nominee.description, class: "input-field min-h-24", rows: 4, placeholder: "Plot synopsis (optional)" %>
+  </div>
+
+  <div>
+    <%= f.label :imdb_url, "IMDb URL", class: "label-text" %>
+    <%= url_field_tag "nominee[imdb_url]", nominee.imdb_url, class: "input-field", placeholder: "https://www.imdb.com/title/tt..." %>
   </div>
 
   <div class="flex gap-3">

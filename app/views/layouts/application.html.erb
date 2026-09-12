@@ -77,9 +77,21 @@
                 class="absolute top-3 right-3 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/80 transition-colors text-lg leading-none">
           &times;
         </button>
-        <img data-movie-poster-target="poster" src="" alt="Movie poster">
-        <div class="px-5 py-4">
-          <p data-movie-poster-target="title" class="text-oscar-gold font-bold text-lg leading-snug"></p>
+        <img data-movie-poster-target="poster" alt="" hidden>
+        <div class="px-5 py-4 space-y-2">
+          <div class="flex items-center gap-2">
+            <p data-movie-poster-target="title" class="text-oscar-gold font-bold text-lg leading-snug min-w-0 flex-1"></p>
+            <a data-movie-poster-target="imdb"
+               href="#"
+               target="_blank"
+               rel="noopener noreferrer"
+               hidden
+               class="flex-shrink-0 inline-flex"
+               aria-label="View on IMDb">
+              <img src="/imdb-badge.svg" alt="IMDb" class="imdb-badge">
+            </a>
+          </div>
+          <p data-movie-poster-target="description" class="text-sm text-oscar-muted leading-relaxed" hidden></p>
         </div>
       </div>
     </dialog>

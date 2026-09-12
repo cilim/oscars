@@ -71,23 +71,35 @@
         <%# Nominee rows %>
         <div class="px-4 pt-3 pb-1 space-y-1.5" data-scrape-category-target="nomineeList">
           <% (cat['nominees'] || []).each_with_index do |nom, ni| %>
-            <div class="flex gap-2 items-center" data-nominee-row>
-              <input type="text"
-                     name="categories[<%= ci %>][nominees][<%= ni %>][movie]"
-                     value="<%= nom['movie'] %>" placeholder="Movie"
-                     class="input-field flex-1 text-xs py-1.5" required>
-              <input type="text"
-                     name="categories[<%= ci %>][nominees][<%= ni %>][person]"
-                     value="<%= nom['person'] %>" placeholder="Person"
-                     data-person-field
-                     class="input-field w-36 text-xs py-1.5 <%= 'hidden' unless cat['has_person'] %>">
-              <input type="text"
-                     name="categories[<%= ci %>][nominees][<%= ni %>][poster_url]"
-                     value="<%= nom['poster_url'] %>" placeholder="Poster URL (optional)"
-                     class="input-field w-52 text-xs py-1.5">
-              <button type="button"
-                      data-action="click->scrape-category#removeNominee"
-                      class="btn btn-danger btn-sm flex-shrink-0 px-2 leading-none">✕</button>
+            <div class="space-y-1.5 py-2 border-b border-oscar-border last:border-0" data-nominee-row>
+              <div class="flex gap-2 items-center">
+                <input type="text"
+                       name="categories[<%= ci %>][nominees][<%= ni %>][movie]"
+                       value="<%= nom['movie'] %>" placeholder="Movie"
+                       class="input-field flex-1 text-xs py-1.5" required>
+                <input type="text"
+                       name="categories[<%= ci %>][nominees][<%= ni %>][person]"
+                       value="<%= nom['person'] %>" placeholder="Person"
+                       data-person-field
+                       class="input-field w-36 text-xs py-1.5 <%= 'hidden' unless cat['has_person'] %>">
+                <button type="button"
+                        data-action="click->scrape-category#removeNominee"
+                        class="btn btn-danger btn-sm flex-shrink-0 px-2 leading-none">✕</button>
+              </div>
+              <div class="flex gap-2 items-start">
+                <input type="text"
+                       name="categories[<%= ci %>][nominees][<%= ni %>][poster_url]"
+                       value="<%= nom['poster_url'] %>" placeholder="Poster URL (optional)"
+                       class="input-field flex-1 text-xs py-1.5">
+                <input type="url"
+                       name="categories[<%= ci %>][nominees][<%= ni %>][imdb_url]"
+                       value="<%= nom['imdb_url'] %>" placeholder="IMDb URL (optional)"
+                       class="input-field flex-1 text-xs py-1.5">
+              </div>
+              <textarea name="categories[<%= ci %>][nominees][<%= ni %>][description]"
+                        placeholder="Description (optional)"
+                        rows="2"
+                        class="input-field w-full text-xs py-1.5"><%= nom['description'] %></textarea>
             </div>
           <% end %>
         </div>

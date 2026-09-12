@@ -1,7 +1,7 @@
 <% is_winner = is_announced && winner_nominee_id == nominee.id %>
 <% picked = selections.any? %>
 <% chip_points = is_announced && picked ? selections.sum { |s| s.score_for(winner_nominee_id) } : nil %>
-<% clickable = nominee.poster_url.present? %>
+<% clickable = nominee.movie&.modal_available? %>
 <% chip_classes = ["nominee-chip"] %>
 <% chip_classes << "is-winner" if is_winner %>
 <% chip_classes << "is-picked" if picked %>
@@ -16,9 +16,7 @@
   <% chip_classes << "text-oscar-muted" %>
 <% end %>
 <% chip_data = { nominee_id: nominee.id } %>
-<% if clickable %>
-  <% chip_data.merge!(action: "click->movie-poster#show", poster_url: nominee.poster_url, movie_title: nominee.movie_name) %>
-<% end %>
+<% chip_data.merge!(movie_poster_trigger_data(nominee.movie)) if clickable %>
 
 <%= content_tag clickable ? :button : :span,
       type: (clickable ? "button" : nil),

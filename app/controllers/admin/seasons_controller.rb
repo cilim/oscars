@@ -7,7 +7,8 @@ module Admin
     end
 
     def show
-      @season_categories = @season.season_categories.includes(:category, :nominees, :winner)
+      @season_categories = @season.season_categories.includes(:category, nominees: :movie, winner: { nominee: :movie })
+      @movies = @season_categories.flat_map { |sc| sc.nominees.filter_map(&:movie) }.uniq.sort_by { |movie| movie.name.downcase }
       @available_categories = Category.where.not(id: @season.category_ids).order(:name)
       @available_users = User.where.not(id: @season.user_ids).order(:display_name)
       @players = @season.players.includes(:user)

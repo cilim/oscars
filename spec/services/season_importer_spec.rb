@@ -56,12 +56,29 @@ RSpec.describe SeasonImporter do
 
     it "sets poster_url when provided" do
       importer.call
-      expect(Nominee.find_by(movie_name: "Anora").poster_url).to eq("https://img.example.com/anora.jpg")
+      expect(Movie.find_by(name: "Anora").poster_url).to eq("https://img.example.com/anora.jpg")
     end
 
     it "leaves poster_url nil when not provided" do
       importer.call
-      expect(Nominee.find_by(movie_name: "The Brutalist", person_name: nil).poster_url).to be_nil
+      expect(Movie.find_by(name: "The Brutalist").poster_url).to be_nil
+    end
+
+    it "creates one Movie per unique film name in the season" do
+      importer.call
+      expect(Movie.where(name: "The Brutalist").count).to eq(1)
+      picture = Nominee.joins(:movie).find_by(movies: { name: "The Brutalist" }, person_name: nil)
+      actor = Nominee.find_by(person_name: "Adrien Brody")
+      expect(picture.movie).to eq(actor.movie)
+    end
+
+    it "sets description and IMDb URL on the movie when provided" do
+      data["categories"].first["nominees"].first["description"] = "A sex worker's Cinderella story."
+      data["categories"].first["nominees"].first["imdb_url"] = "https://www.imdb.com/title/tt28607951/"
+      importer.call
+      movie = Movie.find_by(name: "Anora")
+      expect(movie.description).to eq("A sex worker's Cinderella story.")
+      expect(movie.imdb_url).to eq("https://www.imdb.com/title/tt28607951/")
     end
 
     it "sets person_name for person categories" do

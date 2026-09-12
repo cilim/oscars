@@ -6,7 +6,8 @@ RSpec.describe "Admin::TmdbSearch", type: :request do
           "title"        => "Anora",
           "release_date" => "2024-10-18",
           "poster_path"  => "/abc123.jpg",
-          "overview"     => "A young sex worker in New York marries the son of a Russian oligarch."
+          "overview"     => "A young sex worker in New York marries the son of a Russian oligarch.",
+          "id"           => 1067317
         },
         {
           "title"        => "Anora 2",
@@ -56,10 +57,10 @@ RSpec.describe "Admin::TmdbSearch", type: :request do
           expect(response.content_type).to include("application/json")
         end
 
-        it "includes title, year, poster_url, and overview in each result" do
+        it "includes title, year, poster_url, overview, and tmdb_id in each result" do
           get admin_tmdb_search_path, params: { query: "Anora" }
           result = JSON.parse(response.body).first
-          expect(result).to include("title", "year", "poster_url", "overview")
+          expect(result).to include("title", "year", "poster_url", "overview", "tmdb_id")
         end
 
         it "maps release_date to the year string" do
@@ -72,6 +73,11 @@ RSpec.describe "Admin::TmdbSearch", type: :request do
           get admin_tmdb_search_path, params: { query: "Anora" }
           result = JSON.parse(response.body).first
           expect(result["poster_url"]).to eq("https://image.tmdb.org/t/p/w500/abc123.jpg")
+        end
+
+        it "includes the TMDB id" do
+          get admin_tmdb_search_path, params: { query: "Anora" }
+          expect(JSON.parse(response.body).first["tmdb_id"]).to eq(1067317)
         end
 
         it "returns nil poster_url when poster_path is missing" do
@@ -102,6 +108,26 @@ RSpec.describe "Admin::TmdbSearch", type: :request do
           get admin_tmdb_search_path, params: { query: "Anora" }
           overview = JSON.parse(response.body).first["overview"]
           expect(overview).not_to end_with("…")
+        end
+      end
+
+      context "with a tmdb_id" do
+        before do
+          details = {
+            "title" => "Anora",
+            "overview" => "The full plot synopsis.",
+            "imdb_id" => "tt28607951",
+            "poster_path" => "/abc.jpg"
+          }.to_json
+          stub_tmdb(body: details)
+        end
+
+        it "returns poster, description, and IMDb URL" do
+          get admin_tmdb_search_path, params: { tmdb_id: 1067317 }
+          json = JSON.parse(response.body)
+          expect(json["poster_url"]).to eq("https://image.tmdb.org/t/p/w500/abc.jpg")
+          expect(json["description"]).to eq("The full plot synopsis.")
+          expect(json["imdb_url"]).to eq("https://www.imdb.com/title/tt28607951/")
         end
       end
 

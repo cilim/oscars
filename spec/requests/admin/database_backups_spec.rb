@@ -19,13 +19,16 @@ RSpec.describe "Admin::DatabaseBackups", type: :request do
       payload = JSON.parse(response.body)
 
       expect(payload["format_version"]).to eq(2)
-      expect(payload["tables"].keys).to include("users", "seasons", "categories", "season_categories", "nominees")
+      expect(payload["tables"].keys).to include("users", "seasons", "categories", "season_categories", "nominees", "movies")
       expect(payload["tables"].keys).not_to include("schema_migrations", "ar_internal_metadata")
       expect(payload.dig("tables", "seasons", "rows")).to include(
         a_hash_including("id" => season.id, "name" => "97th Academy Awards", "year" => 2025)
       )
+      expect(payload.dig("tables", "movies", "rows")).to include(
+        a_hash_including("id" => nominee.movie_id, "name" => "Anora")
+      )
       expect(payload.dig("tables", "nominees", "rows")).to include(
-        a_hash_including("id" => nominee.id, "movie_name" => "Anora")
+        a_hash_including("id" => nominee.id, "movie_id" => nominee.movie_id)
       )
     end
   end

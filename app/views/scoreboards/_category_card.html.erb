@@ -89,15 +89,11 @@ end %>
             <% else %>
               <span class="w-3.5 h-3.5 flex-shrink-0"></span>
             <% end %>
-            <% if nom.poster_url.present? %>
-              <button type="button"
-                      data-action="click->movie-poster#show"
-                      data-poster-url="<%= nom.poster_url %>"
-                      data-movie-title="<%= nom.movie_name %>"
-                      class="text-left text-xs hover:underline underline-offset-2 cursor-pointer bg-transparent border-0 p-0 font-semibold
-                             <%= is_winner ? 'text-oscar-gold' : is_announced ? 'text-oscar-muted' : 'text-oscar-text hover:text-oscar-gold' %> transition-colors">
-                <%= nom.display_name %>
-              </button>
+            <% if nom.movie&.modal_available? %>
+              <%= content_tag :button, nom.display_name,
+                    type: "button",
+                    class: "text-left text-xs hover:underline underline-offset-2 cursor-pointer bg-transparent border-0 p-0 font-semibold #{is_winner ? 'text-oscar-gold' : is_announced ? 'text-oscar-muted' : 'text-oscar-text hover:text-oscar-gold'} transition-colors",
+                    data: movie_poster_trigger_data(nom.movie) %>
             <% else %>
               <span class="text-xs font-semibold <%= is_winner ? 'text-oscar-gold' : is_announced ? 'text-oscar-muted' : 'text-oscar-text' %>">
                 <%= nom.display_name %>

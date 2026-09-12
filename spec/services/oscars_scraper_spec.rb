@@ -444,7 +444,7 @@ RSpec.describe OscarsScraper do
 
   # ── TMDB poster fetching ─────────────────────────────────────────────────────
 
-  describe "#fetch_posters (via call)" do
+  describe "#fetch_movie_metadata (via call)" do
     let(:categories) do
       [
         { "name" => "Best Picture", "has_person" => false,
@@ -454,69 +454,45 @@ RSpec.describe OscarsScraper do
       ]
     end
 
+    let(:lookup) { instance_double(TmdbMovieLookup) }
+
     before do
       allow(Rails.application.credentials).to receive(:tmdb_access_token).and_return("test_token")
-      allow(scraper).to receive(:tmdb_fetch_poster) { |movie| "https://img.tmdb.org/#{movie}.jpg" }
+      allow(TmdbMovieLookup).to receive(:new).and_return(lookup)
+      allow(lookup).to receive(:fetch) { |movie|
+        { "poster_url" => "https://img.tmdb.org/#{movie}.jpg", "description" => "#{movie} plot", "imdb_url" => "https://www.imdb.com/title/tt#{movie}/" }
+      }
+      allow(scraper).to receive(:sleep)
     end
 
-    it "sets poster_url on nominees" do
-      scraper.send(:fetch_posters, categories)
-      expect(categories.first["nominees"].first["poster_url"]).to eq("https://img.tmdb.org/Anora.jpg")
+    it "sets poster, description, and IMDb URL on nominees" do
+      scraper.send(:fetch_movie_metadata, categories)
+      nominee = categories.first["nominees"].first
+      expect(nominee["poster_url"]).to eq("https://img.tmdb.org/Anora.jpg")
+      expect(nominee["description"]).to eq("Anora plot")
+      expect(nominee["imdb_url"]).to eq("https://www.imdb.com/title/ttAnora/")
     end
 
     it "calls TMDB only once per unique movie" do
-      expect(scraper).to receive(:tmdb_fetch_poster).exactly(2).times.and_return("url")
-      scraper.send(:fetch_posters, categories)
+      expect(lookup).to receive(:fetch).exactly(2).times.and_return({ "poster_url" => "url" })
+      scraper.send(:fetch_movie_metadata, categories)
     end
 
-    it "applies the cached poster to the same movie appearing in another category" do
-      scraper.send(:fetch_posters, categories)
+    it "applies the cached metadata to the same movie appearing in another category" do
+      scraper.send(:fetch_movie_metadata, categories)
       bp_anora  = categories.first["nominees"].find { |n| n["movie"] == "Anora" }
       dir_anora = categories.last["nominees"].find  { |n| n["movie"] == "Anora" }
       expect(dir_anora["poster_url"]).to eq(bp_anora["poster_url"])
+      expect(dir_anora["description"]).to eq(bp_anora["description"])
+      expect(dir_anora["imdb_url"]).to eq(bp_anora["imdb_url"])
     end
 
-    it "skips poster_url when TMDB returns nil" do
-      allow(scraper).to receive(:tmdb_fetch_poster).and_return(nil)
-      scraper.send(:fetch_posters, categories)
+    it "skips metadata when TMDB returns nil" do
+      allow(lookup).to receive(:fetch).and_return(nil)
+      scraper.send(:fetch_movie_metadata, categories)
       expect(categories.first["nominees"].first["poster_url"]).to be_nil
-    end
-  end
-
-  # ── #tmdb_fetch_poster ───────────────────────────────────────────────────────
-
-  describe "#tmdb_fetch_poster" do
-    def stub_tmdb(body, success: true)
-      r = mock_response(body, success: success)
-      allow(Net::HTTP).to receive(:start).with("api.themoviedb.org", 443, anything).and_return(r)
-    end
-
-    before { allow(Rails.application.credentials).to receive(:tmdb_access_token).and_return("tok") }
-
-    it "returns the poster URL when TMDB returns a result" do
-      stub_tmdb('{"results":[{"poster_path":"/abc.jpg"}]}')
-      expect(scraper.send(:tmdb_fetch_poster, "Anora")).to eq("https://image.tmdb.org/t/p/w500/abc.jpg")
-    end
-
-    it "returns nil when the result has no poster_path" do
-      stub_tmdb('{"results":[{"poster_path":null}]}')
-      expect(scraper.send(:tmdb_fetch_poster, "Anora")).to be_nil
-    end
-
-    it "returns nil when results are empty" do
-      stub_tmdb('{"results":[]}')
-      expect(scraper.send(:tmdb_fetch_poster, "Anora")).to be_nil
-    end
-
-    it "returns nil when TMDB responds with a non-200 status" do
-      stub_tmdb("", success: false)
-      expect(scraper.send(:tmdb_fetch_poster, "Anora")).to be_nil
-    end
-
-    it "returns nil and logs a warning when an exception is raised" do
-      allow(Net::HTTP).to receive(:start).with("api.themoviedb.org", 443, anything).and_raise(SocketError, "connection failed")
-      expect(Rails.logger).to receive(:warn).with(/TMDB lookup failed/)
-      expect(scraper.send(:tmdb_fetch_poster, "Anora")).to be_nil
+      expect(categories.first["nominees"].first["description"]).to be_nil
+      expect(categories.first["nominees"].first["imdb_url"]).to be_nil
     end
   end
 
@@ -526,12 +502,13 @@ RSpec.describe OscarsScraper do
     before do
       stub_wikitext_api(fixture_wikitext("98th_awards.wikitext"))
       allow(Rails.application.credentials).to receive(:tmdb_access_token).and_return("tok")
-      allow(scraper).to receive(:tmdb_fetch_poster).and_return(nil)
+      lookup = instance_double(TmdbMovieLookup, fetch: nil)
+      allow(TmdbMovieLookup).to receive(:new).and_return(lookup)
       allow(scraper).to receive(:sleep)
     end
 
-    it "calls fetch_posters when a token is present" do
-      expect(scraper).to receive(:fetch_posters)
+    it "calls fetch_movie_metadata when a token is present" do
+      expect(scraper).to receive(:fetch_movie_metadata)
       scraper.call
     end
   end

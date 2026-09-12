@@ -1,0 +1,50 @@
+<h1 class="text-3xl font-bold text-oscar-gold mb-2">Edit Movie</h1>
+<p class="text-oscar-muted mb-8"><%= @season.name %></p>
+
+<div class="flex gap-8 items-start" data-controller="tmdb-search">
+  <div class="card max-w-lg flex-1">
+    <%= render "form", movie: @movie %>
+  </div>
+
+  <div class="w-80 flex-shrink-0">
+    <div class="sticky top-4 card space-y-4">
+      <h2 class="text-xs font-semibold text-oscar-muted uppercase tracking-wider">TMDB lookup</h2>
+
+      <div class="flex gap-2">
+        <input type="text"
+               value="<%= @movie.name %>"
+               data-tmdb-search-target="input"
+               placeholder="Movie title…"
+               class="input-field flex-1 text-sm py-2 px-3">
+        <button type="button"
+                data-tmdb-search-target="button"
+                data-action="click->tmdb-search#search"
+                class="btn btn-gold btn-sm flex-shrink-0">Search</button>
+      </div>
+
+      <% if @tmdb_suggestion %>
+        <div class="border border-oscar-border rounded-lg p-3 space-y-2 bg-white">
+          <% if @tmdb_suggestion["poster_url"].present? %>
+            <img src="<%= @tmdb_suggestion["poster_url"] %>" alt="" class="w-16 rounded border border-oscar-border">
+          <% end %>
+          <% if @tmdb_suggestion["description"].present? %>
+            <p class="text-xs text-oscar-text leading-relaxed"><%= @tmdb_suggestion["description"] %></p>
+          <% end %>
+          <% if @tmdb_suggestion["imdb_url"].present? %>
+            <p class="text-xs text-oscar-muted break-all"><%= @tmdb_suggestion["imdb_url"] %></p>
+          <% end %>
+          <button type="button"
+                  class="btn btn-gold btn-sm"
+                  data-action="click->tmdb-search#applySuggestion"
+                  data-poster-url="<%= @tmdb_suggestion["poster_url"] %>"
+                  data-description="<%= @tmdb_suggestion["description"] %>"
+                  data-imdb-url="<%= @tmdb_suggestion["imdb_url"] %>">
+            Apply to form
+          </button>
+        </div>
+      <% end %>
+
+      <div data-tmdb-search-target="results" class="space-y-2 text-xs"></div>
+    </div>
+  </div>
+</div>

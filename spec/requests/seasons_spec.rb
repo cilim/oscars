@@ -20,6 +20,7 @@ RSpec.describe "Seasons", type: :request do
       get season_path(season)
       expect(response).to have_http_status(:ok)
       expect(response.body).to include(season.name)
+      expect(response.body).to include("/imdb-badge.svg")
     end
 
     context "when the user is a player" do
@@ -96,7 +97,7 @@ RSpec.describe "Seasons", type: :request do
       end
 
       it "opens the poster modal from a nominee chip that has a poster" do
-        winner_nominee.update!(poster_url: "https://img.example.com/marty.jpg")
+        winner_nominee.movie.update!(poster_url: "https://img.example.com/marty.jpg")
 
         get season_path(season)
 
@@ -108,13 +109,60 @@ RSpec.describe "Seasons", type: :request do
         expect(chip["data-movie-title"]).to eq("Marty Supreme")
       end
 
-      it "does not make a nominee chip clickable when there is no poster" do
+      it "opens the modal when a description is present without a poster" do
+        unpicked_nominee.movie.update!(description: "A story of grief and creation.")
+
+        get season_path(season)
+
+        page = Nokogiri::HTML(response.body)
+        chip = page.at_css("[data-nominee-id='#{unpicked_nominee.id}']")
+        expect(chip.name).to eq("button")
+        expect(chip["data-movie-description"]).to eq("A story of grief and creation.")
+      end
+
+      it "includes the IMDb URL on a clickable chip" do
+        winner_nominee.movie.update!(
+          poster_url: "https://img.example.com/marty.jpg",
+          imdb_url: "https://www.imdb.com/title/tt0000001/"
+        )
+
+        get season_path(season)
+
+        page = Nokogiri::HTML(response.body)
+        chip = page.at_css("[data-nominee-id='#{winner_nominee.id}']")
+        expect(chip["data-imdb-url"]).to eq("https://www.imdb.com/title/tt0000001/")
+      end
+
+      it "places the IMDb badge next to the modal title instead of a text link" do
+        get season_path(season)
+
+        page = Nokogiri::HTML(response.body)
+        dialog = page.at_css("dialog.poster-dialog")
+        title_row = dialog.at_css("[data-movie-poster-target='title']").parent
+        badge = title_row.at_css("img.imdb-badge")
+
+        expect(badge["src"]).to eq("/imdb-badge.svg")
+        expect(dialog.text).not_to include("View on IMDb")
+      end
+
+      it "does not make a nominee chip clickable when there is no poster, description, or IMDb URL" do
         get season_path(season)
 
         page = Nokogiri::HTML(response.body)
         chip = page.at_css("[data-nominee-id='#{unpicked_nominee.id}']")
         expect(chip.name).to eq("span")
         expect(chip["data-action"]).to be_nil
+      end
+
+      it "does not N+1 movie queries when rendering nominee chips" do
+        extra = create(:season_category, season: season, category: create(:category, name: "Best Director"))
+        create_list(:nominee, 4, season_category: extra)
+
+        queries = capture_sql { get season_path(season) }
+        movie_queries = queries.select { |sql| sql.match?(/FROM ["']?movies["']?/i) }
+
+        expect(response).to have_http_status(:ok)
+        expect(movie_queries.size).to eq(1)
       end
     end
   end

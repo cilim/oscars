@@ -3,6 +3,7 @@ class Season < ApplicationRecord
 
   has_many :season_categories, -> { order(:position) }, dependent: :destroy
   has_many :categories, through: :season_categories
+  has_many :movies, dependent: :destroy
   has_many :players, dependent: :destroy
   has_many :users, through: :players
 

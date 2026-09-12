@@ -4,8 +4,8 @@ class ScoreboardsController < ApplicationController
   def show
     @season_categories = @season.season_categories.includes(
       :category,
-      :nominees,
-      winner: :nominee,
+      nominees: :movie,
+      winner: { nominee: :movie },
       pick_selections: { player: :user, pick_type: :scoring_scheme }
     )
     @scoreboard_data = ScoreboardCalculator.new(@season).call

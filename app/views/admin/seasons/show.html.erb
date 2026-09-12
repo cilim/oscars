@@ -14,9 +14,9 @@
   </div>
 </div>
 
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<div class="admin-season-layout">
   <%# Categories & Nominees %>
-  <div class="lg:col-span-2">
+  <div class="min-w-0">
     <div class="flex items-center justify-between mb-4">
       <h2 class="text-xl font-bold text-oscar-text">Categories</h2>
     </div>
@@ -48,7 +48,7 @@
               <h3 class="text-lg font-bold text-oscar-text"><%= sc.category_name %></h3>
               <p class="text-oscar-muted text-xs">
                 <%= sc.has_person ? "Person & Film" : "Film only" %>
-                &middot; <%= sc.nominees.count %> nominees
+                &middot; <%= sc.nominees.size %> nominees
               </p>
             </div>
             <div class="flex gap-2">
@@ -88,14 +88,42 @@
     </div>
   </div>
 
-  <%# Players sidebar %>
-  <div class="lg:col-span-1">
+  <%# Movies %>
+  <div class="min-w-0">
+    <h2 class="text-xl font-bold text-oscar-text mb-4">Movies</h2>
+    <% if @movies.any? %>
+      <div class="space-y-2">
+        <% @movies.each do |movie| %>
+          <div class="flex items-center gap-3 py-2 px-3 bg-oscar-surface rounded-lg">
+            <% if movie.poster_url.present? %>
+              <img src="<%= movie.poster_url %>" alt="" class="w-8 h-12 object-cover rounded flex-shrink-0 border border-oscar-border">
+            <% else %>
+              <div class="w-8 h-12 rounded flex-shrink-0 bg-oscar-gold/10 border border-oscar-border"></div>
+            <% end %>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm text-oscar-text font-medium truncate"><%= movie.name %></div>
+              <% missing = [ ("description" if movie.description.blank?), ("IMDb" if movie.imdb_url.blank?) ].compact %>
+              <% if missing.any? %>
+                <div class="text-[11px] text-oscar-muted">Missing <%= missing.join(" · ") %></div>
+              <% end %>
+            </div>
+            <%= link_to "Edit", edit_admin_season_movie_path(@season, movie), class: "btn btn-outline btn-sm no-underline flex-shrink-0" %>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="text-oscar-muted text-sm">No movies yet. Add nominees to create them.</p>
+    <% end %>
+  </div>
+
+  <%# Players %>
+  <div class="min-w-0">
     <h2 class="text-xl font-bold text-oscar-text mb-4">Players</h2>
 
     <div class="card mb-4">
       <% if @available_users.any? %>
         <%= form_with url: admin_season_players_path(@season), class: "flex gap-2 items-end" do |f| %>
-          <div class="flex-1">
+          <div class="flex-1 min-w-0">
             <label class="label-text">Add Player</label>
             <select name="player[user_id]" class="select-field" required>
               <option value="">— Select user —</option>
@@ -114,14 +142,14 @@
     <div class="space-y-2">
       <% @players.each do |player| %>
         <div class="flex items-center justify-between py-2 px-3 bg-oscar-surface rounded-lg">
-          <div>
-            <span class="text-sm text-oscar-text font-medium"><%= player.user.display_name %></span>
+          <div class="min-w-0">
+            <span class="text-sm text-oscar-text font-medium truncate"><%= player.user.display_name %></span>
             <% if player.user.admin? %>
               <span class="text-xs text-oscar-gold ml-1">admin</span>
             <% end %>
           </div>
           <%= button_to "Remove", admin_season_player_path(@season, player), method: :delete,
-              class: "btn btn-danger btn-sm",
+              class: "btn btn-danger btn-sm flex-shrink-0",
               data: { turbo_confirm: "Remove #{player.user.display_name}?" } %>
         </div>
       <% end %>

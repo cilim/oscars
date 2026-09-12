@@ -39,23 +39,28 @@ namespace :oscars do
     ceremony_number = doc.at_css("h1")&.text&.strip || "#{year} Academy Awards"
 
     if Rails.application.credentials.tmdb_access_token
-      puts "TMDB credentials found — fetching poster URLs..."
-      require "json"
+      puts "TMDB credentials found — fetching posters, descriptions, and IMDb links..."
+      lookup = TmdbMovieLookup.new
       seen = {}
       categories.each do |cat|
         (cat["nominees"] || []).each do |nom|
           movie = nom["movie"]
           next if seen.key?(movie)
           print "  #{movie}... "
-          url = tmdb_fetch_poster(movie)
-          seen[movie] = url
-          nom["poster_url"] = url if url
-          puts url ? "✓" : "not found"
+          meta = lookup.fetch(movie)
+          seen[movie] = meta
+          apply_tmdb_metadata(nom, meta)
+          puts meta ? "✓" : "not found"
           sleep 0.26
         end
       end
+      categories.each do |cat|
+        (cat["nominees"] || []).each do |nom|
+          apply_tmdb_metadata(nom, seen[nom["movie"]])
+        end
+      end
     else
-      puts "Tip: add tmdb_access_token to Rails credentials to also fetch poster URLs during scrape."
+      puts "Tip: add tmdb_access_token to Rails credentials to also fetch posters, descriptions, and IMDb links during scrape."
     end
 
     output = {
@@ -72,7 +77,7 @@ namespace :oscars do
     puts "Review the file, then import with: rails oscars:import[#{year}]"
   end
 
-  desc "Fetch movie poster URLs from TMDB and save into the YAML file. Usage: rails oscars:fetch_posters[2026]"
+  desc "Fetch movie posters, descriptions, and IMDb URLs from TMDB and save into the YAML file. Usage: rails oscars:fetch_posters[2026]"
   task :fetch_posters, [ :year ] => :environment do |_t, args|
     year = args[:year] || raise("Usage: rails oscars:fetch_posters[YEAR]")
 
@@ -83,48 +88,41 @@ namespace :oscars do
     file = Rails.root.join("db/data/#{year}.yml")
     abort "File not found: #{file}" unless File.exist?(file)
 
-    require "net/http"
-    require "json"
-
+    lookup = TmdbMovieLookup.new
     data = YAML.safe_load_file(file, permitted_classes: [ Symbol ])
     updated = 0
     skipped = 0
-    seen_movies = {}  # cache: avoid duplicate TMDB lookups for the same film
+    seen_movies = {}
 
     data["categories"].each do |cat|
       (cat["nominees"] || []).each do |nom|
         movie = nom["movie"]
 
-        if nom["poster_url"].present?
+        if nom["poster_url"].present? && nom["description"].present? && nom["imdb_url"].present?
           skipped += 1
           next
         end
 
-        if seen_movies.key?(movie)
-          nom["poster_url"] = seen_movies[movie]
-          updated += 1 if seen_movies[movie]
-          next
-        end
-
-        print "  #{movie}... "
-        url = tmdb_fetch_poster(movie)
-        seen_movies[movie] = url
-
-        if url
-          nom["poster_url"] = url
-          updated += 1
-          puts "✓"
+        meta = if seen_movies.key?(movie)
+          seen_movies[movie]
         else
-          puts "not found"
+          print "  #{movie}... "
+          result = lookup.fetch(movie)
+          seen_movies[movie] = result
+          puts result ? "✓" : "not found"
+          sleep 0.26
+          result
         end
 
-        sleep 0.26  # ~4 req/s — well within TMDB free tier limit
+        before = nom.slice("poster_url", "description", "imdb_url")
+        apply_tmdb_metadata(nom, meta)
+        updated += 1 if nom.slice("poster_url", "description", "imdb_url") != before
       end
     end
 
     File.write(file, data.to_yaml)
-    puts "\nDone. #{updated} posters added, #{skipped} already had a URL."
-    puts "Run `rails oscars:import[#{year}]` to push URLs into the database."
+    puts "\nDone. #{updated} nominees updated, #{skipped} already complete."
+    puts "Run `rails oscars:import[#{year}]` to push data into the database."
   end
 
   desc "List available YAML data files"
@@ -178,21 +176,12 @@ namespace :oscars do
     end
   end
 
-  def tmdb_fetch_poster(movie_name)
-    uri = URI("https://api.themoviedb.org/3/search/movie?query=#{URI.encode_www_form_component(movie_name)}&language=en-US&page=1")
-    request = Net::HTTP::Get.new(uri)
-    request["Authorization"] = "Bearer #{Rails.application.credentials.tmdb_access_token}"
-    request["Accept"] = "application/json"
+  def apply_tmdb_metadata(nom, meta)
+    return unless meta
 
-    response = Net::HTTP.start(uri.host, uri.port, use_ssl: true, verify_mode: OpenSSL::SSL::VERIFY_NONE) { |h| h.request(request) }
-    return nil unless response.is_a?(Net::HTTPSuccess)
-
-    results = JSON.parse(response.body)["results"] || []
-    path = results.first&.fetch("poster_path", nil)
-    path ? "https://image.tmdb.org/t/p/w500#{path}" : nil
-  rescue => e
-    puts "Warning: TMDB lookup failed for '#{movie_name}': #{e.message}"
-    nil
+    nom["poster_url"]  = meta["poster_url"]  if meta["poster_url"].present? && nom["poster_url"].blank?
+    nom["description"] = meta["description"] if meta["description"].present? && nom["description"].blank?
+    nom["imdb_url"]    = meta["imdb_url"]    if meta["imdb_url"].present? && nom["imdb_url"].blank?
   end
 
   def parse_oscars_page(doc)

@@ -5,7 +5,7 @@ class PicksController < ApplicationController
   before_action :set_pick_types
 
   def edit
-    @season_categories = @season.season_categories.includes(:category, :nominees)
+    @season_categories = @season.season_categories.includes(:category, nominees: :movie)
     @selections_by_category = build_selections_index
   end
 
@@ -22,7 +22,7 @@ class PicksController < ApplicationController
     respond_to do |format|
       format.html do
         flash.now[:alert] = "Error saving picks."
-        @season_categories = @season.season_categories.includes(:category, :nominees)
+        @season_categories = @season.season_categories.includes(:category, nominees: :movie)
         @selections_by_category = build_selections_index
         render :edit, status: :unprocessable_entity
       end

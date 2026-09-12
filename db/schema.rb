@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_10_140000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_12_080000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -22,13 +22,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_10_140000) do
     t.index ["name"], name: "index_categories_on_name", unique: true
   end
 
+  create_table "movies", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.string "imdb_url"
+    t.string "name", null: false
+    t.string "poster_url"
+    t.bigint "season_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["season_id", "name"], name: "index_movies_on_season_id_and_name", unique: true
+    t.index ["season_id"], name: "index_movies_on_season_id"
+  end
+
   create_table "nominees", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.string "movie_name", null: false
+    t.bigint "movie_id", null: false
     t.string "person_name"
-    t.string "poster_url"
     t.bigint "season_category_id", null: false
     t.datetime "updated_at", null: false
+    t.index ["movie_id"], name: "index_nominees_on_movie_id"
     t.index ["season_category_id"], name: "index_nominees_on_season_category_id"
   end
 
@@ -272,6 +284,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_10_140000) do
     t.index ["season_category_id"], name: "index_winners_on_season_category_id", unique: true
   end
 
+  add_foreign_key "movies", "seasons"
+  add_foreign_key "nominees", "movies"
   add_foreign_key "nominees", "season_categories"
   add_foreign_key "pick_selections", "nominees"
   add_foreign_key "pick_selections", "pick_types"

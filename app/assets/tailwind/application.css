@@ -160,6 +160,18 @@ a.btn-gold:hover {
   padding: 1.5rem;
 }
 
+.admin-season-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+@media (min-width: 1024px) {
+  .admin-season-layout {
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 0.9fr);
+    align-items: start;
+  }
+}
+
 .nominee-chips {
   display: flex;
   flex-wrap: wrap;
@@ -285,8 +297,10 @@ dialog.poster-dialog {
   border-radius: 1rem;
   padding: 0;
   max-width: min(420px, 92vw);
+  max-height: 90vh;
   width: 100%;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
   margin: auto;
 }
@@ -300,10 +314,24 @@ dialog.poster-dialog:focus {
   outline: none;
 }
 
-dialog.poster-dialog img {
+dialog.poster-dialog img[data-movie-poster-target="poster"] {
   display: block;
   width: 100%;
   height: auto;
+  max-height: 60vh;
+  object-fit: contain;
+  background: #111;
+}
+dialog.poster-dialog img[data-movie-poster-target="poster"][hidden] {
+  display: none;
+}
+
+dialog.poster-dialog img.imdb-badge {
+  display: block;
+  height: 20px;
+  width: auto;
+  max-height: none;
+  background: transparent;
 }
 
 /* ── Picks carousel ──────────────────────────────────── */

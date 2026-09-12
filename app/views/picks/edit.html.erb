@@ -102,15 +102,16 @@
              data-picks-carousel-target="track">
 
           <% sc.nominees.each do |nom| %>
+            <% clickable = nom.movie&.modal_available? %>
             <div class="flex-shrink-0 snap-center select-none flex flex-col items-center"
                  data-slide
                  data-nominee-id="<%= nom.id %>"
                  data-nominee-name="<%= nom.display_name %>">
 
-              <div class="relative rounded-lg bg-oscar-surface transition-all duration-150 flex-shrink-0"
-                   style="width: 120px; height: 180px; box-sizing: border-box; border: 2px solid transparent;"
-                   data-poster-wrap>
-                <div class="absolute inset-0 overflow-hidden rounded-lg">
+              <%= tag.div class: "relative rounded-lg bg-oscar-surface transition-all duration-150 flex-shrink-0 #{'cursor-pointer' if clickable}",
+                          style: "width: 120px; height: 180px; box-sizing: border-box; border: 2px solid transparent;",
+                          data: { poster_wrap: true }.merge(clickable ? movie_poster_trigger_data(nom.movie) : {}) do %>
+                <div class="absolute inset-0 overflow-hidden rounded-lg pointer-events-none">
                   <% if nom.poster_url.present? %>
                     <img src="<%= nom.poster_url %>"
                          alt="<%= nom.movie_name %>"
@@ -134,11 +135,18 @@
                           title="<%= pick_type.name %>"><%= pick_type.emoji %></span>
                   <% end %>
                 </div>
-              </div>
+              <% end %>
 
-              <p class="text-[12px] text-oscar-text font-medium text-center whitespace-nowrap mt-2 mb-2">
-                <%= nom.display_name %>
-              </p>
+              <% if clickable %>
+                <%= content_tag :button, nom.display_name,
+                      type: "button",
+                      class: "text-[12px] text-oscar-text font-medium text-center whitespace-nowrap mt-2 mb-2 bg-transparent border-0 p-0 cursor-pointer hover:underline underline-offset-2",
+                      data: movie_poster_trigger_data(nom.movie) %>
+              <% else %>
+                <p class="text-[12px] text-oscar-text font-medium text-center whitespace-nowrap mt-2 mb-2">
+                  <%= nom.display_name %>
+                </p>
+              <% end %>
 
               <div class="flex gap-1 w-full">
                 <% @pick_types.each do |pick_type| %>

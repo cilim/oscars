@@ -5,14 +5,18 @@ module Admin
     before_action :set_nominee, only: [ :edit, :update, :destroy ]
 
     def new
-      @nominee = @season_category.nominees.new
+      @nominee = @season_category.nominees.new(movie: @season.movies.new)
     end
 
     def create
-      @nominee = @season_category.nominees.new(nominee_params)
-      if @nominee.save
+      @nominee = @season_category.nominees.new(person_name: nominee_params[:person_name].presence)
+      previous_movie = nil
+      assign_movie(@nominee)
+
+      if save_nominee(@nominee, previous_movie)
         redirect_to admin_season_path(@season), notice: "Nominee added."
       else
+        @nominee.movie ||= @season.movies.new(name: nominee_params[:movie_name])
         render :new, status: :unprocessable_entity
       end
     end
@@ -21,7 +25,11 @@ module Admin
     end
 
     def update
-      if @nominee.update(nominee_params)
+      previous_movie = @nominee.movie
+      @nominee.person_name = nominee_params[:person_name].presence
+      assign_movie(@nominee)
+
+      if save_nominee(@nominee, previous_movie)
         redirect_to admin_season_path(@season), notice: "Nominee updated."
       else
         render :edit, status: :unprocessable_entity
@@ -48,7 +56,40 @@ module Admin
     end
 
     def nominee_params
-      params.require(:nominee).permit(:movie_name, :person_name, :poster_url)
+      params.require(:nominee).permit(:movie_name, :person_name, :poster_url, :description, :imdb_url)
+    end
+
+    def assign_movie(nominee)
+      name = nominee_params[:movie_name].to_s.strip
+      movie = @season.movies.find_or_initialize_by(name: name)
+      apply_movie_attributes(movie, allow_blank: movie.new_record? || movie == nominee.movie)
+      nominee.movie = movie
+    end
+
+    def apply_movie_attributes(movie, allow_blank:)
+      %i[poster_url description imdb_url].each do |attr|
+        next unless nominee_params.key?(attr)
+
+        value = nominee_params[attr]
+        if allow_blank
+          movie[attr] = value.presence
+        elsif value.present?
+          movie[attr] = value
+        end
+      end
+    end
+
+    def save_nominee(nominee, previous_movie)
+      ActiveRecord::Base.transaction do
+        nominee.movie.save!
+        nominee.save!
+        if previous_movie && previous_movie != nominee.movie && previous_movie.nominees.reload.none?
+          previous_movie.destroy!
+        end
+      end
+      true
+    rescue ActiveRecord::RecordInvalid
+      false
     end
   end
 end

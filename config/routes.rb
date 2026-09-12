@@ -21,6 +21,7 @@ Rails.application.routes.draw do
       resources :season_categories, only: [ :create, :destroy ] do
         resources :nominees, except: [ :index, :show ]
       end
+      resources :movies, only: [ :edit, :update ]
       resources :players, only: [ :create, :destroy ]
       resources :winners, only: [ :create, :destroy ]
     end

@@ -1,0 +1,39 @@
+<%= form_with model: [:admin, @season, movie], class: "space-y-5" do |f| %>
+  <% if movie.errors.any? %>
+    <div class="flash-alert">
+      <ul class="list-disc list-inside space-y-1">
+        <% movie.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= f.label :name, "Film", class: "label-text" %>
+    <%= f.text_field :name, class: "input-field" %>
+  </div>
+
+  <div>
+    <%= f.label :poster_url, "Poster URL", class: "label-text" %>
+    <%= f.url_field :poster_url, class: "input-field", data: { tmdb_search_target: "posterField" } %>
+    <% if movie.poster_url.present? %>
+      <img src="<%= movie.poster_url %>" alt="Current poster" class="mt-2 rounded-lg w-20 border border-oscar-border">
+    <% end %>
+  </div>
+
+  <div>
+    <%= f.label :description, "Description", class: "label-text" %>
+    <%= f.text_area :description, class: "input-field min-h-24", rows: 4, data: { tmdb_search_target: "descriptionField" } %>
+  </div>
+
+  <div>
+    <%= f.label :imdb_url, "IMDb URL", class: "label-text" %>
+    <%= f.url_field :imdb_url, class: "input-field", data: { tmdb_search_target: "imdbField" } %>
+  </div>
+
+  <div class="flex gap-3">
+    <%= f.submit "Update Movie", class: "btn btn-gold" %>
+    <%= link_to "Cancel", admin_season_path(@season), class: "btn btn-outline no-underline" %>
+  </div>
+<% end %>

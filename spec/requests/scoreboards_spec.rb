@@ -13,6 +13,19 @@ RSpec.describe "Scoreboards", type: :request do
         expect(response.body).to include("Live Scoreboard")
       end
 
+      it "does not N+1 movie queries when rendering nominees" do
+        2.times do
+          sc = create(:season_category, season: locked_season)
+          create_list(:nominee, 3, season_category: sc)
+        end
+
+        queries = capture_sql { get season_scoreboard_path(locked_season) }
+        movie_queries = queries.select { |sql| sql.match?(/FROM ["']?movies["']?/i) }
+
+        expect(response).to have_http_status(:ok)
+        expect(movie_queries.size).to eq(1)
+      end
+
       it "shows per-pick-type points on the winner row, not a total across players" do
         think_type = locked_season.scoring_scheme.pick_types.order(:display_order).first
         season_category = create(:season_category, season: locked_season)
