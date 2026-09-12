@@ -72,6 +72,24 @@ RSpec.describe SeasonImporter do
       expect(picture.movie).to eq(actor.movie)
     end
 
+    it "treats an international country suffix as the same movie" do
+      data["categories"] << {
+        "name" => "Best International Feature Film",
+        "has_person" => false,
+        "nominees" => [
+          { "movie" => "The Brutalist (Hungary)" },
+          { "movie" => "Birdman or (The Unexpected Virtue of Ignorance) (Mexico)" }
+        ]
+      }
+
+      importer.call
+
+      expect(Movie.where(name: "The Brutalist").count).to eq(1)
+      expect(Movie.find_by(name: "The Brutalist (Hungary)")).to be_nil
+      expect(Movie.find_by(name: "Birdman or (The Unexpected Virtue of Ignorance)")).to be_present
+      expect(Movie.find_by(name: "Birdman or (The Unexpected Virtue of Ignorance) (Mexico)")).to be_nil
+    end
+
     it "sets description and IMDb URL on the movie when provided" do
       data["categories"].first["nominees"].first["description"] = "A sex worker's Cinderella story."
       data["categories"].first["nominees"].first["imdb_url"] = "https://www.imdb.com/title/tt28607951/"

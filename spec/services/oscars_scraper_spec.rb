@@ -225,6 +225,13 @@ RSpec.describe OscarsScraper do
       short = cats.find { |c| c["name"] == "Best Live Action Short Film" }
       expect(short["nominees"].map { |n| n["movie"] }).to include("Butcher's Stain")
     end
+
+    it "keeps international feature titles without the submitting country" do
+      cats, = scraper.parse_and_validate_wikitext(fixture_wikitext("97th_awards.wikitext"))
+      international = cats.find { |c| c["name"] == "Best International Feature Film" }
+      expect(international["nominees"].map { |n| n["movie"] }).to include("Flow", "I'm Still Here")
+      expect(international["nominees"].map { |n| n["movie"] }).not_to include("Flow (Latvia)")
+    end
   end
 
   describe "#validate_categories" do
@@ -439,6 +446,31 @@ RSpec.describe OscarsScraper do
       cat = cats.find { |c| c["name"] == "Best Original Song" }
       expect(cat["nominees"].map { |n| n["person"] }).to contain_exactly("El Mal", "Like a Bird")
       expect(cat["nominees"].map { |n| n["movie"] }).to contain_exactly("Emilia Pérez", "Sing Sing")
+    end
+
+    it "strips a submitting-country suffix from international titles" do
+      html = <<~HTML
+        <html><body>
+        <table class="wikitable defaulttop">
+          <tr>
+            <td>
+              <div><b><a href="/wiki/Best_International_Feature_Film">Best International Feature Film</a></b></div>
+              <ul>
+                <li><i>The Secret Agent (Brazil)</i></li>
+                <li><i>Birdman or (The Unexpected Virtue of Ignorance) (Mexico)</i></li>
+              </ul>
+            </td>
+          </tr>
+        </table>
+        </body></html>
+      HTML
+      doc = Nokogiri::HTML(html)
+      cats = scraper.send(:parse_wikipedia_page, doc)
+      cat = cats.find { |c| c["name"] == "Best International Feature Film" }
+      expect(cat["nominees"].map { |n| n["movie"] }).to contain_exactly(
+        "The Secret Agent",
+        "Birdman or (The Unexpected Virtue of Ignorance)"
+      )
     end
   end
 

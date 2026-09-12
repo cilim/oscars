@@ -22,6 +22,18 @@ RSpec.describe "Admin::Nominees", type: :request do
       expect(response).to redirect_to(admin_season_path(season))
     end
 
+    it "reuses an existing movie when the new name only adds a country suffix" do
+      existing = create(:movie, season: season, name: "Flow",
+                                description: "A cat, a dog, and a bird.")
+      expect {
+        post admin_season_season_category_nominees_path(season, season_category),
+             params: { nominee: { movie_name: "Flow (Latvia)" } }
+      }.to change(Nominee, :count).by(1)
+       .and change(Movie, :count).by(0)
+      expect(Nominee.last.movie).to eq(existing)
+      expect(existing.reload.name).to eq("Flow")
+    end
+
     it "reuses an existing movie in the season without wiping its metadata" do
       existing = create(:movie, season: season, name: "Anora",
                                 poster_url: "https://img.example.com/a.jpg",

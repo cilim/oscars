@@ -30,7 +30,7 @@ class SeasonImporter
         (cat_data["nominees"] || []).each do |nom_data|
           next if nom_data["movie"].blank?
 
-          movie = season.movies.find_or_initialize_by(name: nom_data["movie"])
+          movie = Movie.find_or_initialize_for_season(season, nom_data["movie"])
           movie.poster_url  = nom_data["poster_url"]  if nom_data["poster_url"].present?
           movie.description = nom_data["description"] if nom_data["description"].present?
           movie.imdb_url    = nom_data["imdb_url"]    if nom_data["imdb_url"].present?

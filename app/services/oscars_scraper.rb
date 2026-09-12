@@ -273,7 +273,7 @@ class OscarsScraper
       body.each_line do |line|
         next unless line.match?(/^\*+\s+/)
 
-        movie = extract_movie_from_wikitext(line)
+        movie = Movie.normalized_name(extract_movie_from_wikitext(line))
         next if movie.blank?
 
         nom = { "movie" => movie }
@@ -397,7 +397,7 @@ class OscarsScraper
       nominees   = []
 
       td.css("ul > li").each do |li|
-        movie = clean(li.at_css("i")&.text.to_s).presence
+        movie = Movie.normalized_name(clean(li.at_css("i")&.text.to_s)).presence
         next unless movie
 
         nom = { "movie" => movie }

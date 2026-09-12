@@ -78,6 +78,36 @@ RSpec.describe "Admin::Movies", type: :request do
         patch admin_season_movie_path(season, movie), params: { movie: { name: "" } }
         expect(response).to have_http_status(:unprocessable_entity)
       end
+
+      it "merges into an existing movie when the name only adds a country suffix" do
+        duplicate = create(:movie, season: season, name: "Anora Placeholder")
+        duplicate.update_column(:name, "Anora (United States)")
+        other_category = create(:season_category, season: season)
+        dup_nominee = create(:nominee, season_category: other_category, movie: duplicate)
+
+        patch admin_season_movie_path(season, duplicate), params: {
+          movie: { name: "Anora (United States)", poster_url: "", description: "", imdb_url: "" }
+        }
+
+        expect(response).to redirect_to(admin_season_path(season))
+        expect(Movie.find_by(id: duplicate.id)).to be_nil
+        expect(dup_nominee.reload.movie).to eq(movie)
+        expect(Movie.where(season: season, name: "Anora").count).to eq(1)
+      end
+
+      it "does not merge when renaming to another movie's exact title" do
+        other = create(:movie, season: season, name: "Wicked")
+        create(:nominee, season_category: create(:season_category, season: season), movie: other)
+
+        patch admin_season_movie_path(season, movie), params: {
+          movie: { name: "Wicked", poster_url: movie.poster_url, description: "", imdb_url: "" }
+        }
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(Movie.find_by(id: movie.id)).to eq(movie)
+        expect(Movie.find_by(id: other.id)).to eq(other)
+        expect(movie.reload.name).to eq("Anora")
+      end
     end
   end
 

@@ -60,8 +60,7 @@ module Admin
     end
 
     def assign_movie(nominee)
-      name = nominee_params[:movie_name].to_s.strip
-      movie = @season.movies.find_or_initialize_by(name: name)
+      movie = Movie.find_or_initialize_for_season(@season, nominee_params[:movie_name])
       apply_movie_attributes(movie, allow_blank: movie.new_record? || movie == nominee.movie)
       nominee.movie = movie
     end
