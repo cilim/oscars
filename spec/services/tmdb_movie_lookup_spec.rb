@@ -13,9 +13,12 @@ RSpec.describe TmdbMovieLookup do
     r
   end
 
-  def stub_tmdb(search_body:, details_body: nil, search_success: true, details_success: true)
+  def stub_tmdb(search_body:, details_body: nil, details_by_id: nil, search_success: true, details_success: true)
     search_response = mock_response(search_body, success: search_success)
     details_response = details_body ? mock_response(details_body, success: details_success) : nil
+    details_responses = (details_by_id || {}).transform_values { |body|
+      mock_response(body.to_json, success: details_success)
+    }
 
     allow(Net::HTTP).to receive(:start).with("api.themoviedb.org", 443, anything) do |*_args, **_opts, &blk|
       http = double("net_http")
@@ -23,6 +26,8 @@ RSpec.describe TmdbMovieLookup do
         path = request.path
         if path.include?("/search/movie")
           search_response
+        elsif (id = path[%r{/movie/(\d+)}, 1]) && details_responses.key?(id.to_i)
+          details_responses[id.to_i]
         else
           details_response
         end
@@ -89,6 +94,74 @@ RSpec.describe TmdbMovieLookup do
       allow(Net::HTTP).to receive(:start).and_raise(SocketError, "connection failed")
       expect(Rails.logger).to receive(:warn).with(/TMDB lookup failed/)
       expect(lookup.fetch("Anora")).to be_nil
+    end
+
+    it "prefers a same-titled film from the ceremony year over a popular older hit" do
+      stub_tmdb(
+        search_body: { "results" => [
+          {
+            "id" => 941,
+            "title" => "The Living Daylights",
+            "release_date" => "1987-06-29",
+            "poster_path" => "/bond.jpg",
+            "overview" => "Bond."
+          },
+          {
+            "id" => 758611,
+            "title" => "Living",
+            "release_date" => "2022-11-04",
+            "poster_path" => "/living.jpg",
+            "overview" => "A bureaucrat in 1950s London."
+          }
+        ] }.to_json,
+        details_by_id: {
+          941 => {
+            "overview" => "Bond.",
+            "imdb_id" => "tt0093428",
+            "poster_path" => "/bond.jpg"
+          },
+          758611 => {
+            "overview" => "A bureaucrat in 1950s London.",
+            "imdb_id" => "tt9051908",
+            "poster_path" => "/living.jpg"
+          }
+        }
+      )
+
+      result = lookup.fetch("Living", year: 2023)
+
+      expect(result).to include(
+        "poster_url" => "https://image.tmdb.org/t/p/w500/living.jpg",
+        "imdb_url" => "https://www.imdb.com/title/tt9051908/"
+      )
+    end
+
+    it "prefers the remake from the ceremony window when titles match" do
+      stub_tmdb(
+        search_body: { "results" => [
+          {
+            "id" => 871,
+            "title" => "Dune",
+            "release_date" => "1984-12-14",
+            "poster_path" => "/dune84.jpg",
+            "overview" => "Lynch."
+          },
+          {
+            "id" => 438631,
+            "title" => "Dune",
+            "release_date" => "2021-09-15",
+            "poster_path" => "/dune21.jpg",
+            "overview" => "Villeneuve."
+          }
+        ] }.to_json,
+        details_by_id: {
+          871 => { "overview" => "Lynch.", "imdb_id" => "tt0087182", "poster_path" => "/dune84.jpg" },
+          438631 => { "overview" => "Villeneuve.", "imdb_id" => "tt1160419", "poster_path" => "/dune21.jpg" }
+        }
+      )
+
+      result = lookup.fetch("Dune", year: 2022)
+      expect(result["imdb_url"]).to eq("https://www.imdb.com/title/tt1160419/")
     end
   end
 

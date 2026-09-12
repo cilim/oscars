@@ -535,6 +535,12 @@ RSpec.describe OscarsScraper do
       scraper.send(:fetch_movie_metadata, categories)
     end
 
+    it "passes the ceremony year so TMDB can ignore older namesakes" do
+      expect(lookup).to receive(:fetch).with("Anora", year: 2026).and_return(nil)
+      expect(lookup).to receive(:fetch).with("The Brutalist", year: 2026).and_return(nil)
+      scraper.send(:fetch_movie_metadata, categories)
+    end
+
     it "applies the cached metadata to the same movie appearing in another category" do
       scraper.send(:fetch_movie_metadata, categories)
       bp_anora  = categories.first["nominees"].find { |n| n["movie"] == "Anora" }

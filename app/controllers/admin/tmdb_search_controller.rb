@@ -49,6 +49,8 @@ module Admin
       end
 
       results = JSON.parse(response.body)["results"] || []
+      year = params[:year].presence&.to_i
+      results = TmdbMovieLookup.new(access_token: token).ranked(results, query, year: year)
 
       render json: results.first(5).map { |m|
         {

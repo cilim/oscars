@@ -55,7 +55,7 @@ module Admin
     def load_tmdb_suggestion
       return if Rails.application.credentials.tmdb_access_token.blank?
 
-      @tmdb_suggestion = TmdbMovieLookup.new.fetch(@movie.name)
+      @tmdb_suggestion = TmdbMovieLookup.new.fetch(@movie.name, year: @season.year)
     end
   end
 end

@@ -36,7 +36,7 @@ RSpec.describe "Admin::Movies", type: :request do
         allow(Rails.application.credentials).to receive(:tmdb_access_token).and_return("tok")
         lookup = instance_double(TmdbMovieLookup)
         allow(TmdbMovieLookup).to receive(:new).and_return(lookup)
-        allow(lookup).to receive(:fetch).with("Anora").and_return(
+        allow(lookup).to receive(:fetch).with("Anora", year: season.year).and_return(
           "poster_url" => "https://image.tmdb.org/t/p/w500/abc.jpg",
           "description" => "A sex worker's Cinderella story.",
           "imdb_url" => "https://www.imdb.com/title/tt28607951/"

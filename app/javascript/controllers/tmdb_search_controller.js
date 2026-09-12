@@ -3,6 +3,7 @@ import { Controller } from "@hotwired/stimulus"
 // Movie form Apply-to-form + scrape JSON dump share this controller.
 export default class extends Controller {
   static targets = ["input", "results", "button", "posterField", "descriptionField", "imdbField"]
+  static values = { year: Number }
 
   connect() {
     if (!this.hasInputTarget) return
@@ -21,7 +22,9 @@ export default class extends Controller {
     this.clearResults()
 
     try {
-      const url = `/admin/tmdb_search?query=${encodeURIComponent(query)}`
+      const params = new URLSearchParams({ query })
+      if (this.hasYearValue && this.yearValue) params.set("year", String(this.yearValue))
+      const url = `/admin/tmdb_search?${params}`
       const res  = await fetch(url, { headers: { "Accept": "application/json" } })
       const data = await res.json()
       if (this.hasPosterFieldTarget) {

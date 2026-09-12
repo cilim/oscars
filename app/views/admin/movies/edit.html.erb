@@ -1,7 +1,7 @@
 <h1 class="text-3xl font-bold text-oscar-gold mb-2">Edit Movie</h1>
 <p class="text-oscar-muted mb-8"><%= @season.name %></p>
 
-<div class="flex gap-8 items-start" data-controller="tmdb-search">
+<div class="flex gap-8 items-start" data-controller="tmdb-search" data-tmdb-search-year-value="<%= @season.year %>">
   <div class="card max-w-lg flex-1">
     <%= render "form", movie: @movie %>
   </div>

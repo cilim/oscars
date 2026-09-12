@@ -91,6 +91,32 @@ RSpec.describe "Admin::TmdbSearch", type: :request do
           expect(JSON.parse(response.body).length).to be <= 5
         end
 
+        it "ranks a ceremony-year title ahead of a popular older namesake" do
+          stub_tmdb(body: {
+            "results" => [
+              {
+                "title" => "The Living Daylights",
+                "release_date" => "1987-06-29",
+                "poster_path" => "/bond.jpg",
+                "overview" => "Bond.",
+                "id" => 941
+              },
+              {
+                "title" => "Living",
+                "release_date" => "2022-11-04",
+                "poster_path" => "/living.jpg",
+                "overview" => "A bureaucrat in 1950s London.",
+                "id" => 758611
+              }
+            ]
+          }.to_json)
+
+          get admin_tmdb_search_path, params: { query: "Living", year: 2023 }
+
+          expect(JSON.parse(response.body).first["title"]).to eq("Living")
+          expect(JSON.parse(response.body).first["tmdb_id"]).to eq(758611)
+        end
+
         it "truncates overview to 120 characters with ellipsis" do
           long_overview = "x" * 200
           stub_tmdb(body: { "results" => [ {

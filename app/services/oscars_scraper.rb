@@ -461,7 +461,7 @@ class OscarsScraper
         meta = if seen.key?(movie)
           seen[movie]
         else
-          result = lookup.fetch(movie)
+          result = lookup.fetch(movie, year: @year)
           seen[movie] = result
           sleep 0.26
           result

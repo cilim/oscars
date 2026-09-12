@@ -11,8 +11,8 @@ class TmdbMovieLookup
     @access_token = access_token
   end
 
-  def fetch(movie_name)
-    search = search_movie(movie_name)
+  def fetch(movie_name, year: nil)
+    search = search_movie(movie_name, year: year)
     return nil unless search
 
     details = movie_details(search["id"]) if search["id"]
@@ -32,16 +32,54 @@ class TmdbMovieLookup
     nil
   end
 
+  def ranked(results, movie_name, year: nil)
+    query = normalize_title(movie_name)
+    Array(results).each_with_index.sort_by { |result, index|
+      [ -result_score(result, query, year), index ]
+    }.map(&:first)
+  end
+
   private
 
   attr_reader :access_token
 
-  def search_movie(movie_name)
+  def search_movie(movie_name, year: nil)
     uri = URI("https://api.themoviedb.org/3/search/movie?query=#{URI.encode_www_form_component(movie_name)}&language=en-US&page=1")
     response = tmdb_get(uri)
     return nil unless response
 
-    (JSON.parse(response.body)["results"] || []).first
+    pick_result(JSON.parse(response.body)["results"] || [], movie_name, year)
+  end
+
+  def pick_result(results, movie_name, year)
+    ranked(results, movie_name, year: year).first
+  end
+
+  def result_score(result, query, year)
+    title = normalize_title(result["title"])
+    original = normalize_title(result["original_title"])
+    release_year = result["release_date"].to_s[/\A(\d{4})/, 1]&.to_i
+    score = 0
+
+    score += 100 if title == query || original == query
+    score += 20 if query.present? && (title.include?(query) || original.include?(query))
+
+    if year && release_year
+      delta = release_year - year
+      score += case delta
+      when -1 then 80
+      when 0 then 70
+      when -2 then 40
+      else
+        (delta < -2 || delta > 0) ? -100 : 0
+      end
+    end
+
+    score
+  end
+
+  def normalize_title(name)
+    name.to_s.downcase.gsub(/[[:punct:]]+/, " ").squish
   end
 
   def movie_details(tmdb_id)
