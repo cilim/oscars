@@ -165,6 +165,16 @@ RSpec.describe OscarsScraper do
     File.read(Rails.root.join("spec/fixtures/wikipedia/#{name}"))
   end
 
+  def foreign_language_wikitext
+    <<~WIKI
+      ===Awards===
+      {{Award category|#F9EFAA|[[Academy Award for Best Foreign Language Film|Best Foreign Language Film]]}}
+      * '''''[[Roma (2018 film)|Roma]]'' (Mexico) – Directed by [[Alfonso Cuarón]]
+      ** ''[[Shoplifters]]'' (Japan) – Directed by [[Hirokazu Kore-eda]]
+      ===Governors Awards===
+    WIKI
+  end
+
   # ── Wikitext fixtures (primary path) ────────────────────────────────────────
 
   describe "#parse_and_validate_wikitext" do
@@ -231,6 +241,21 @@ RSpec.describe OscarsScraper do
       international = cats.find { |c| c["name"] == "Best International Feature Film" }
       expect(international["nominees"].map { |n| n["movie"] }).to include("Flow", "I'm Still Here")
       expect(international["nominees"].map { |n| n["movie"] }).not_to include("Flow (Latvia)")
+    end
+
+    it "maps 2019-style Foreign Language Film to Best International Feature Film" do
+      cats = scraper.send(:parse_wikitext, foreign_language_wikitext)
+      international = cats.find { |c| c["name"] == "Best International Feature Film" }
+      expect(international).to be_present
+      expect(international["nominees"].map { |n| n["movie"] }).to include("Roma", "Shoplifters")
+    end
+
+    it "keeps the admin category name when Wikipedia uses that heading" do
+      create(:category, :film_only, name: "Best Foreign Language Film")
+      cats = scraper.send(:parse_wikitext, foreign_language_wikitext)
+      expect(cats.map { |c| c["name"] }).to include("Best Foreign Language Film")
+      expect(cats.map { |c| c["name"] }).not_to include("Best International Feature Film")
+      expect(cats.first["nominees"].map { |n| n["movie"] }).to include("Roma", "Shoplifters")
     end
   end
 
@@ -596,6 +621,30 @@ RSpec.describe OscarsScraper do
 
     it "maps Short Film (Live Action) display names" do
       expect(scraper.send(:normalize_category_name, "Best Short Film (Live Action)")).to eq("Best Live Action Short Film")
+    end
+
+    it "maps Best Foreign Language Film to Best International Feature Film" do
+      expect(scraper.send(:normalize_category_name, "Best Foreign Language Film")).to eq("Best International Feature Film")
+    end
+
+    it "prefers an admin category name over a Wikipedia alias" do
+      create(:category, :film_only, name: "Best Foreign Language Film")
+      expect(scraper.send(:normalize_category_name, "Best Foreign Language Film")).to eq("Best Foreign Language Film")
+    end
+  end
+
+  describe "#oscar_category?" do
+    it "recognizes Best Foreign Language Film as a scrapeable Oscar category" do
+      expect(scraper.send(:oscar_category?, "Best Foreign Language Film")).to be true
+    end
+
+    it "recognizes an admin category that has no hardcoded Wikipedia mapping" do
+      create(:category, name: "Best Unique Award")
+      expect(scraper.send(:oscar_category?, "Best Unique Award")).to be true
+    end
+
+    it "rejects headings that are neither mapped nor in admin categories" do
+      expect(scraper.send(:oscar_category?, "Governors Award")).to be false
     end
   end
 end

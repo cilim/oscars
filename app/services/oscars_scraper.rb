@@ -20,7 +20,7 @@ class OscarsScraper
     /documentary \(feature\)|documentary feature/i  => "Best Documentary Feature Film",
     /documentary \(short|documentary short/i        => "Best Documentary Short Film",
     /film editing/i                                 => "Best Film Editing",
-    /international feature/i                        => "Best International Feature Film",
+    /international feature|foreign language film/i  => "Best International Feature Film",
     /short film \(live action\)|live action short/i => "Best Live Action Short Film",
     /makeup and hairstyling/i                       => "Best Makeup and Hairstyling",
     /original score|music \(original score\)/i      => "Best Original Score",
@@ -446,7 +446,7 @@ class OscarsScraper
   end
 
   def oscar_category?(name)
-    CATEGORY_MAPPINGS.keys.any? { |pat| name.match?(pat) }
+    canonical_category_name(name).present?
   end
 
   # ── TMDB movie metadata ───────────────────────────────────────────────────
@@ -478,8 +478,27 @@ class OscarsScraper
   # ── Name normalisation ────────────────────────────────────────────────────
 
   def normalize_category_name(name)
+    canonical_category_name(name) || name
+  end
+
+  def canonical_category_name(name)
+    matching_admin_category_name(name) || mapped_category_name(name)
+  end
+
+  def matching_admin_category_name(wiki_name)
+    needle = wiki_name.to_s.strip
+    return if needle.blank?
+
+    admin_category_names.find { |n| n.casecmp?(needle) }
+  end
+
+  def mapped_category_name(name)
     CATEGORY_MAPPINGS.each { |pattern, normalized| return normalized if name.match?(pattern) }
-    name
+    nil
+  end
+
+  def admin_category_names
+    @admin_category_names ||= Category.pluck(:name)
   end
 
   def person_category?(name)
