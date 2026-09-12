@@ -1,0 +1,18 @@
+<div id="add-category">
+  <% if available_categories.any? %>
+    <div class="card mb-6">
+      <%= form_with url: admin_season_season_categories_path(season), class: "flex gap-2 items-end" do |f| %>
+        <div class="flex-1">
+          <label class="label-text">Add Category</label>
+          <%= f.select :season_category, {}, {}, { name: "season_category[category_id]", class: "select-field" } do %>
+            <option value="">— Select category —</option>
+            <% available_categories.each do |cat| %>
+              <option value="<%= cat.id %>"><%= cat.name %></option>
+            <% end %>
+          <% end %>
+        </div>
+        <%= f.submit "Add", class: "btn btn-gold" %>
+      <% end %>
+    </div>
+  <% end %>
+</div>

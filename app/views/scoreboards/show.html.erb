@@ -1,4 +1,4 @@
-<% content_for(:title, "Scoreboard - #{@season.name}") %>
+<% content_for(:title, "#{@season.name} - Scoreboard") %>
 
 <% if @is_admin %>
   <%= turbo_stream_from "season_#{@season.id}_scoreboard_admin" %>
@@ -9,8 +9,14 @@
 <div class="mb-8">
   <div class="flex items-center justify-between flex-wrap gap-4">
     <div>
-      <h1 class="text-3xl font-bold text-oscar-gold">Live Scoreboard</h1>
-      <p class="text-oscar-muted mt-1"><%= @season.name %></p>
+      <h1 class="text-3xl font-bold text-oscar-gold"><%= @season.name %></h1>
+      <p class="text-oscar-muted mt-1">
+        <% if @is_admin %>
+          Scoreboard &middot; Announce winners
+        <% else %>
+          Scoreboard
+        <% end %>
+      </p>
     </div>
     <%= link_to "Back to Season", season_path(@season), class: "btn btn-outline no-underline" %>
   </div>

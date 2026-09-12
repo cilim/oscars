@@ -23,6 +23,9 @@ RSpec.describe "Picks", type: :request do
     it "renders the picks form" do
       get edit_season_picks_path(season)
       expect(response).to have_http_status(:ok)
+      expect(response.body).to include(season.name)
+      expect(response.body).to include("Make Your Picks")
+      expect(response.body).not_to include("Picks save automatically")
     end
 
     it "does not N+1 movie queries when rendering nominees" do

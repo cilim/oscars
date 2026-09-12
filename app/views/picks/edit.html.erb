@@ -1,10 +1,10 @@
-<% content_for(:title, "Make Picks - #{@season.name}") %>
+<% content_for(:title, "#{@season.name} - Picks") %>
 
 <div class="mb-8">
   <div class="flex items-center justify-between flex-wrap gap-4">
     <div>
-      <h1 class="text-3xl font-bold text-oscar-gold">Make Your Picks</h1>
-      <p class="text-oscar-muted mt-1"><%= @season.name %> &middot; Picks save automatically</p>
+      <h1 class="text-3xl font-bold text-oscar-gold"><%= @season.name %></h1>
+      <p class="text-oscar-muted mt-1">Make Your Picks</p>
     </div>
     <%= link_to "Back to Season", season_path(@season), class: "btn btn-outline no-underline" %>
   </div>

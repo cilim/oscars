@@ -1,0 +1,9 @@
+<%= turbo_stream.remove "season_category_#{@season_category.id}" %>
+
+<%= turbo_stream.replace "add-category" do %>
+  <%= render "admin/seasons/add_category", season: @season, available_categories: @available_categories %>
+<% end %>
+
+<%= turbo_stream.replace "season-movies" do %>
+  <%= render "admin/seasons/movies", season: @season, movies: @movies %>
+<% end %>

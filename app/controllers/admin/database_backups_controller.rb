@@ -1,6 +1,9 @@
 module Admin
   class DatabaseBackupsController < BaseController
     def show
+    end
+
+    def download
       backup = DatabaseBackupExporter.new.call
 
       send_data JSON.pretty_generate(backup),
@@ -13,20 +16,20 @@ module Admin
       file = params[:backup_file]
 
       if file.blank?
-        redirect_to admin_seasons_path, alert: "Choose a backup JSON file to import."
+        redirect_to admin_database_backup_path, alert: "Choose a backup JSON file to import."
         return
       end
 
       importer = DatabaseBackupImporter.new(JSON.parse(file.read))
 
       if importer.call
-        redirect_to admin_seasons_path,
+        redirect_to admin_database_backup_path,
                     notice: "Backup imported. Restored #{importer.imported_rows_count} rows across #{importer.imported_tables_count} tables."
       else
-        redirect_to admin_seasons_path, alert: importer.errors.join(" ")
+        redirect_to admin_database_backup_path, alert: importer.errors.join(" ")
       end
     rescue JSON::ParserError
-      redirect_to admin_seasons_path, alert: "Backup file is not valid JSON."
+      redirect_to admin_database_backup_path, alert: "Backup file is not valid JSON."
     end
   end
 end

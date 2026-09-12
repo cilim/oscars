@@ -1,0 +1,39 @@
+<div class="mb-8">
+  <p class="mb-2">
+    <%= link_to "← Seasons", admin_seasons_path, class: "text-sm text-oscar-muted hover:text-oscar-text no-underline transition-colors" %>
+  </p>
+  <h1 class="text-3xl font-bold text-oscar-gold">Database backup</h1>
+  <p class="text-oscar-muted mt-1">
+    Download a full JSON backup of the current database, or restore the app by importing a previously downloaded backup file.
+  </p>
+</div>
+
+<div class="card max-w-2xl space-y-8">
+  <div>
+    <h2 class="text-sm font-semibold text-oscar-text mb-2">Download</h2>
+    <p class="text-sm text-oscar-muted mb-4">
+      Exports every table, including movies, nominees, picks, and users.
+    </p>
+    <%= link_to "Download backup",
+        download_admin_database_backup_path,
+        class: "btn btn-outline no-underline" %>
+  </div>
+
+  <div class="border-t border-oscar-border pt-8">
+    <h2 class="text-sm font-semibold text-oscar-text mb-2">Restore</h2>
+    <p class="text-sm text-oscar-muted mb-4">
+      Replace the entire database with a previously downloaded backup. This deletes all current data and may sign you out.
+    </p>
+    <%= form_with url: import_admin_database_backup_path, multipart: true, class: "flex flex-col gap-3 sm:flex-row sm:items-end" do |form| %>
+      <div class="flex-1">
+        <%= form.label :backup_file, "Backup JSON", class: "block text-xs font-semibold uppercase tracking-wider text-oscar-muted mb-1" %>
+        <%= form.file_field :backup_file, accept: "application/json,.json", class: "block w-full text-sm text-oscar-text" %>
+      </div>
+      <%= form.submit "Restore backup",
+          class: "btn btn-gold",
+          data: {
+            turbo_confirm: "Replace the entire database with this backup? This deletes all current data and may sign you out."
+          } %>
+    <% end %>
+  </div>
+</div>

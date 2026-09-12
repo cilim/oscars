@@ -1,0 +1,9 @@
+<div class="world-switch" role="group" aria-label="Admin or pool">
+  <% if current == :admin %>
+    <span class="world-switch__option world-switch__option--active" aria-current="true">Admin</span>
+    <%= link_to "Pool", seasons_path, class: "world-switch__option" %>
+  <% else %>
+    <%= link_to "Admin", admin_seasons_path, class: "world-switch__option" %>
+    <span class="world-switch__option world-switch__option--active" aria-current="true">Pool</span>
+  <% end %>
+</div>

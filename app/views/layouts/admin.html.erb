@@ -20,7 +20,7 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16">
           <div class="flex items-center gap-6">
-            <%= link_to root_path, class: "flex items-center gap-2 text-oscar-gold hover:text-white no-underline" do %>
+            <%= link_to admin_seasons_path, class: "flex items-center gap-2 text-oscar-gold hover:text-white no-underline" do %>
               <svg class="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 2L9 9H2l6 4.5L5.5 21 12 16.5 18.5 21 16 13.5 22 9h-7z"/>
               </svg>
@@ -28,13 +28,11 @@
             <% end %>
 
             <div class="hidden sm:flex items-center gap-4">
-              <span class="text-xs font-semibold uppercase tracking-wider text-oscar-gold bg-oscar-gold/20 px-2 py-1 rounded">Admin</span>
+              <%= render "shared/world_switch", current: :admin %>
               <%= link_to "Seasons", admin_seasons_path, class: "text-sm no-underline #{request.path.start_with?(admin_seasons_path) ? 'nav-link-active' : 'nav-link'}" %>
               <%= link_to "Scoring Schemes", admin_scoring_schemes_path, class: "text-sm no-underline #{request.path.start_with?(admin_scoring_schemes_path) ? 'nav-link-active' : 'nav-link'}" %>
               <%= link_to "Categories", admin_categories_path, class: "text-sm no-underline #{request.path.start_with?(admin_categories_path) ? 'nav-link-active' : 'nav-link'}" %>
               <%= link_to "Users", admin_users_path, class: "text-sm no-underline #{request.path.start_with?(admin_users_path) ? 'nav-link-active' : 'nav-link'}" %>
-              <span class="text-white/30">|</span>
-              <%= link_to "Back to Site", root_path, class: "text-sm text-white/80 hover:text-white transition-colors no-underline" %>
             </div>
           </div>
 

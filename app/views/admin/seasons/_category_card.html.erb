@@ -1,0 +1,42 @@
+<div class="card" id="season_category_<%= sc.id %>">
+  <div class="flex items-start justify-between mb-4">
+    <div>
+      <h3 class="text-lg font-bold text-oscar-text"><%= sc.category_name %></h3>
+      <p class="text-oscar-muted text-xs">
+        <%= sc.has_person ? "Person & Film" : "Film only" %>
+        &middot; <%= sc.nominees.size %> nominees
+      </p>
+    </div>
+    <div class="flex gap-2">
+      <%= link_to "Add Nominee", new_admin_season_season_category_nominee_path(season, sc), class: "btn btn-outline btn-sm no-underline" %>
+      <%= button_to "Remove", admin_season_season_category_path(season, sc), method: :delete,
+          class: "btn btn-danger btn-sm",
+          form: { data: { turbo_stream: true, turbo_confirm: "Remove #{sc.category_name} from this season?" } } %>
+    </div>
+  </div>
+
+  <% if sc.nominees.any? %>
+    <div class="space-y-2">
+      <% sc.nominees.each do |nom| %>
+        <div class="flex items-center justify-between py-2 px-3 bg-oscar-surface rounded-lg">
+          <span class="text-sm text-oscar-text"><%= nom.display_name %></span>
+          <div class="flex gap-1">
+            <%= link_to "Edit", edit_admin_season_season_category_nominee_path(season, sc, nom), class: "btn btn-outline btn-sm no-underline" %>
+            <%= button_to "Delete", admin_season_season_category_nominee_path(season, sc, nom), method: :delete,
+                class: "btn btn-danger btn-sm",
+                data: { turbo_confirm: "Remove #{nom.display_name}?" } %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="text-oscar-muted text-sm">No nominees yet</p>
+  <% end %>
+
+  <% if sc.winner %>
+    <div class="mt-3 p-2 bg-oscar-gold/10 border border-oscar-gold/20 rounded-lg flex items-center gap-2">
+      <svg class="w-4 h-4 text-oscar-gold" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L9 9H2l6 4.5L5.5 21 12 16.5 18.5 21 16 13.5 22 9h-7z"/></svg>
+      <span class="text-oscar-gold text-sm font-semibold">Winner: <%= sc.winner.nominee.display_name %></span>
+    </div>
+  <% end %>
+</div>

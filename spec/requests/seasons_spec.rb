@@ -11,6 +11,23 @@ RSpec.describe "Seasons", type: :request do
       get seasons_path
       expect(response).to have_http_status(:ok)
       expect(response.body).to include(season.name)
+      expect(response.body).not_to include("world-switch")
+    end
+
+    context "as an admin" do
+      let(:user) { create(:user, :admin) }
+
+      it "shows an Admin/Pool switch with Pool selected before Seasons" do
+        get seasons_path
+        nav = response.body[/<nav[\s\S]*?<\/nav>/]
+        switch = nav[/world-switch[\s\S]*?<\/div>/]
+        expect(switch).to include("Admin")
+        expect(switch).to include("Pool")
+        expect(switch.index("Admin")).to be < switch.index("Pool")
+        expect(nav.index("world-switch")).to be < nav.index(">Seasons<")
+        expect(switch).to match(/world-switch__option--active[^>]*>Pool</)
+        expect(switch).not_to match(/world-switch__option--active[^>]*>Admin</)
+      end
     end
   end
 

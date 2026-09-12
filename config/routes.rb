@@ -10,14 +10,14 @@ Rails.application.routes.draw do
 
   namespace :admin do
     get  "tmdb_search", to: "tmdb_search#search"
-    post "import/:year", to: "imports#create", as: :import
     resource :database_backup, only: [ :show ] do
+      get :download, on: :collection
       post :import, on: :collection
     end
     resources :scrapes, only: [ :new, :create ] do
       post :import, on: :collection
     end
-    resources :seasons do
+    resources :seasons, except: [ :edit ] do
       resources :season_categories, only: [ :create, :destroy ] do
         resources :nominees, except: [ :index, :show ]
       end

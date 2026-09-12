@@ -1,0 +1,26 @@
+<div class="min-w-0" id="season-movies">
+  <h2 class="text-xl font-bold text-oscar-text mb-4">Movies</h2>
+  <% if movies.any? %>
+    <div class="space-y-2">
+      <% movies.each do |movie| %>
+        <div class="flex items-center gap-3 py-2 px-3 bg-oscar-surface rounded-lg">
+          <% if movie.poster_url.present? %>
+            <img src="<%= movie.poster_url %>" alt="" class="w-8 h-12 object-cover rounded flex-shrink-0 border border-oscar-border">
+          <% else %>
+            <div class="w-8 h-12 rounded flex-shrink-0 bg-oscar-gold/10 border border-oscar-border"></div>
+          <% end %>
+          <div class="flex-1 min-w-0">
+            <div class="text-sm text-oscar-text font-medium truncate"><%= movie.name %></div>
+            <% missing = [ ("description" if movie.description.blank?), ("IMDb" if movie.imdb_url.blank?) ].compact %>
+            <% if missing.any? %>
+              <div class="text-[11px] text-oscar-muted">Missing <%= missing.join(" · ") %></div>
+            <% end %>
+          </div>
+          <%= link_to "Edit", edit_admin_season_movie_path(season, movie), class: "btn btn-outline btn-sm no-underline flex-shrink-0" %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="text-oscar-muted text-sm">No movies yet. Add nominees to create them.</p>
+  <% end %>
+</div>

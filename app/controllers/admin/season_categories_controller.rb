@@ -15,7 +15,16 @@ module Admin
     def destroy
       @season_category = @season.season_categories.find(params[:id])
       @season_category.destroy!
-      redirect_to admin_season_path(@season), notice: "Category removed from season."
+      @season.reload
+
+      season_categories = @season.season_categories.includes(:category, nominees: :movie, winner: { nominee: :movie })
+      @movies = season_categories.flat_map { |sc| sc.nominees.filter_map(&:movie) }.uniq.sort_by { |movie| movie.name.downcase }
+      @available_categories = Category.where.not(id: @season.category_ids).order(:name)
+
+      respond_to do |format|
+        format.turbo_stream
+        format.html { redirect_to admin_season_path(@season), notice: "Category removed from season." }
+      end
     end
 
     private

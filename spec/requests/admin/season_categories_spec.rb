@@ -32,12 +32,19 @@ RSpec.describe "Admin::SeasonCategories", type: :request do
   end
 
   describe "DELETE /admin/seasons/:season_id/season_categories/:id" do
-    it "removes the season_category and redirects" do
+    it "removes the season_category without a full page redirect" do
       sc = create(:season_category, season: season, category: category)
       expect {
-        delete admin_season_season_category_path(season, sc)
+        delete admin_season_season_category_path(season, sc), as: :turbo_stream
       }.to change(SeasonCategory, :count).by(-1)
-      expect(response).to redirect_to(admin_season_path(season))
+      expect(response.media_type).to eq(Mime[:turbo_stream])
+      expect(response.body).to include("season_category_#{sc.id}")
+    end
+
+    it "returns the removed category to the add dropdown" do
+      sc = create(:season_category, season: season, category: category)
+      delete admin_season_season_category_path(season, sc), as: :turbo_stream
+      expect(response.body).to include(category.name)
     end
   end
 end

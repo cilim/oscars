@@ -10,7 +10,9 @@ RSpec.describe "Scoreboards", type: :request do
       it "renders the scoreboard" do
         get season_scoreboard_path(locked_season)
         expect(response).to have_http_status(:ok)
-        expect(response.body).to include("Live Scoreboard")
+        expect(response.body).to include(locked_season.name)
+        expect(response.body).to include("Scoreboard")
+        expect(response.body).not_to include("Live Scoreboard")
       end
 
       it "does not N+1 movie queries when rendering nominees" do
