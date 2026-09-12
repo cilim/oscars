@@ -5,7 +5,7 @@ class HistoryController < ApplicationController
     @films = payload[:films]
     charts = OscarHistoryCharts.new(nights: @nights, films: @films)
     @hog_chart = charts.hog
-    @heartbreak_chart = charts.heartbreak
+    @heartbreak_decades = charts.heartbreak_by_decade
     @picture_chart = charts.picture
   end
 end

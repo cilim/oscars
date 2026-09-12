@@ -45,12 +45,24 @@ RSpec.describe OscarHistoryCharts do
     end
   end
 
-  describe "#heartbreak" do
-    it "plots well-nominated films as nomination/win pairs" do
-      points = charts.heartbreak.dig(:series).flat_map { |series| series[:data] }
+  describe "#heartbreak_by_decade" do
+    it "builds one jittered scatter per ceremony decade with shared axis maxima" do
+      panels = charts.heartbreak_by_decade
+      labels = panels.map { |panel| panel[:label] }
+      expect(labels.first).to eq(OscarHistoryCharts::HEARTBREAK_ALL_LABEL)
+      expect(labels).to include("2020s")
+      scatter = panels.find { |panel| panel[:label] == "2020s" }[:chart].dig(:plotOptions, :scatter)
+      expect(scatter.dig(:jitter, :x)).to be_positive
+      expect(scatter[:opacity]).to eq(0.85)
+      expect(panels.map { |panel| panel[:chart][:xAxis][:max] }.uniq.size).to eq(1)
+    end
+
+    it "plots films in the decade they belong to" do
+      points = charts.heartbreak_by_decade
+        .find { |panel| panel[:label] == "2020s" }[:chart]
+        .dig(:series).flat_map { |series| series[:data] }
       names = points.map { |point| point[:name] }
-      expect(names).to include("Anora (2025)", "The Irishman (2020)", "Dune (2022)")
-      expect(names).not_to include("Minari (2021)")
+      expect(names).to include("Anora (2025)", "The Irishman (2020)", "Dune (2022)", "Minari (2021)")
       irishman = points.find { |point| point[:name].start_with?("The Irishman") }
       expect(irishman).to include(x: 10, y: 0)
     end

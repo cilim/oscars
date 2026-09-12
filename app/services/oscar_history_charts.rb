@@ -5,7 +5,8 @@ class OscarHistoryCharts
   TEXT = "#1A1A1A"
   MUTED = "#55565A"
   GRID = "#E5E3DD"
-  HEARTBREAK_MIN_NOMS = 5
+  HEARTBREAK_MIN_NOMS = 1
+  HEARTBREAK_ALL_LABEL = "All"
 
   def initialize(nights:, films:)
     @nights = nights
@@ -40,32 +41,31 @@ class OscarHistoryCharts
     )
   end
 
-  def heartbreak
-    notable = @films.select { |film| film[:nominations] >= HEARTBREAK_MIN_NOMS }
-    closers = notable.select { |film| film[:wins].positive? }
-    snubs = notable.select { |film| film[:wins].zero? }
+  def heartbreak_by_decade
+    notable = notable_films
+    return [] if notable.empty?
 
-    base_chart.merge(
-      chart: { type: "scatter", backgroundColor: "transparent", height: 400, zooming: { type: "xy" } },
-      xAxis: value_axis("Nominations", min: 0),
-      yAxis: value_axis("Wins", min: 0),
-      tooltip: {
-        headerFormat: "",
-        pointFormat: "<b>{point.name}</b><br/>{point.x} nominations → {point.y} wins"
-      },
-      series: [
+    x_max = notable.map { |film| film[:nominations] }.max
+    y_max = notable.map { |film| film[:wins] }.max
+
+    by_decade = notable
+      .group_by { |film| decade_for(film[:year]) }
+      .sort_by { |decade, _| decade }
+      .map do |decade, films|
         {
-          name: "Won something",
-          color: GOLD_DARK,
-          data: scatter_points(closers)
-        },
-        {
-          name: "Nominated into oblivion",
-          color: RED,
-          data: scatter_points(snubs)
+          decade: decade,
+          label: "#{decade}s",
+          chart: heartbreak_chart(films, x_max: x_max, y_max: y_max)
         }
-      ]
-    )
+      end
+
+    [
+      {
+        decade: nil,
+        label: HEARTBREAK_ALL_LABEL,
+        chart: heartbreak_chart(notable, x_max: x_max, y_max: y_max)
+      }
+    ] + by_decade
   end
 
   def picture
@@ -96,6 +96,51 @@ class OscarHistoryCharts
   end
 
   private
+
+  def notable_films
+    @films.select { |film| film[:nominations] >= HEARTBREAK_MIN_NOMS }
+  end
+
+  def decade_for(year)
+    (year.to_i / 10) * 10
+  end
+
+  def heartbreak_chart(films, x_max:, y_max:)
+    closers = films.select { |film| film[:wins].positive? }
+    snubs = films.select { |film| film[:wins].zero? }
+
+    base_chart.merge(
+      chart: { type: "scatter", backgroundColor: "transparent", height: 320, zooming: { type: "xy" } },
+      xAxis: value_axis("Nominations", min: 0, max: x_max),
+      yAxis: value_axis("Wins", min: 0, max: y_max),
+      plotOptions: {
+        column: base_chart.dig(:plotOptions, :column),
+        scatter: {
+          marker: { radius: 4, symbol: "circle" },
+          opacity: 0.85,
+          jitter: { x: 0.12, y: 0.12 }
+        }
+      },
+      tooltip: {
+        headerFormat: "",
+        pointFormat: "<b>{point.name}</b><br/>{point.x:.0f} nominations → {point.y:.0f} wins"
+      },
+      series: [
+        {
+          name: "Won something",
+          color: GOLD_DARK,
+          turboThreshold: 5_000,
+          data: scatter_points(closers)
+        },
+        {
+          name: "Nominated into oblivion",
+          color: RED,
+          turboThreshold: 5_000,
+          data: scatter_points(snubs)
+        }
+      ]
+    )
+  end
 
   def named_column_points(role)
     @nights.map do |night|
@@ -144,7 +189,7 @@ class OscarHistoryCharts
           maxPointWidth: 48
         },
         scatter: {
-          marker: { radius: 7, symbol: "circle" }
+          marker: { radius: 5, symbol: "circle" }
         }
       }
     }
@@ -160,13 +205,14 @@ class OscarHistoryCharts
     }
   end
 
-  def value_axis(title, min: 0)
+  def value_axis(title, min: 0, max: nil)
     {
       min: min,
+      max: max,
       title: { text: title, style: { color: MUTED } },
       labels: { style: { color: MUTED } },
       gridLineColor: GRID,
       allowDecimals: false
-    }
+    }.compact
   end
 end

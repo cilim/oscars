@@ -19,21 +19,39 @@
 <% else %>
   <div class="space-y-8">
     <section class="card history-panel">
-      <h2 class="text-xl font-bold text-oscar-text mb-1">Who hogged the night?</h2>
-      <p class="text-oscar-muted text-sm mb-4"><%= hog_kicker(@nights) %></p>
+      <h2 class="text-xl font-bold text-oscar-text mb-4">Who hogged the night?</h2>
       <%= render "history/chart", options: @hog_chart %>
     </section>
 
     <section class="card history-panel">
-      <h2 class="text-xl font-bold text-oscar-text mb-1">Glory and heartbreak</h2>
-      <p class="text-oscar-muted text-sm mb-4"><%= heartbreak_kicker(@films) %></p>
-      <%= render "history/chart", options: @heartbreak_chart %>
-      <p class="text-oscar-muted text-xs mt-3">Films with <%= OscarHistoryCharts::HEARTBREAK_MIN_NOMS %>+ nominations. Gold won at least one. Red won none.</p>
+      <h2 class="text-xl font-bold text-oscar-text mb-4">Glory and heartbreak</h2>
+      <% if @heartbreak_decades.any? %>
+        <%= tag.div class: "history-chart",
+          data: {
+            controller: "heartbreak-chart",
+            heartbreak_chart_panels_value: heartbreak_panels_json(@heartbreak_decades)
+          } do %>
+          <div class="flex flex-wrap items-center gap-3 mb-4">
+            <label for="heartbreak-decade" class="text-sm font-medium text-oscar-text">Ceremony decade</label>
+            <select id="heartbreak-decade"
+              class="rounded-lg border border-oscar-border bg-oscar-surface px-3 py-2 text-sm text-oscar-text focus:outline-none focus:ring-2 focus:ring-oscar-gold/40"
+              data-heartbreak-chart-target="select"
+              data-action="heartbreak-chart#change">
+              <% @heartbreak_decades.each do |panel| %>
+                <option value="<%= panel[:label] %>" <%= "selected" if panel[:label] == OscarHistoryCharts::HEARTBREAK_ALL_LABEL %>>
+                  <%= panel[:label] %>
+                </option>
+              <% end %>
+            </select>
+          </div>
+          <%= tag.div class: "history-chart__plot", data: { heartbreak_chart_target: "container" } %>
+        <% end %>
+      <% end %>
+      <p class="text-oscar-muted text-xs mt-3">Gold won at least one Oscar; red won none. Axes match across decades.</p>
     </section>
 
     <section class="card history-panel">
-      <h2 class="text-xl font-bold text-oscar-text mb-1">Did Picture take the board?</h2>
-      <p class="text-oscar-muted text-sm mb-4"><%= picture_kicker(@nights) %></p>
+      <h2 class="text-xl font-bold text-oscar-text mb-4">Did Picture take the board?</h2>
       <%= render "history/chart", options: @picture_chart %>
     </section>
   </div>

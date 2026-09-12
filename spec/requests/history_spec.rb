@@ -36,9 +36,10 @@ RSpec.describe "History", type: :request do
         expect(html).to include("Glory and heartbreak")
         expect(html).to include("Did Picture take the board?")
         expect(html).to include("data-controller=\"highchart\"")
+        expect(html).to include("data-controller=\"heartbreak-chart\"")
+        expect(html).to include("Ceremony decade")
         expect(html).to include("Dune")
         expect(html).to include("CODA")
-        expect(html).to include("won Picture with 1")
       end
 
       it "links History in the pool nav" do
