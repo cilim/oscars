@@ -55,7 +55,7 @@ RSpec.describe "Admin::Scrapes", type: :request do
 
       context "when the scraper returns an error" do
         before do
-          scraper = instance_double(OscarsScraper, call: nil, errors: ["Wikipedia page not found"])
+          scraper = instance_double(OscarsScraper, call: nil, errors: ["Wikipedia page not found"], raw_wikitext: nil)
           allow(OscarsScraper).to receive(:new).with(2026).and_return(scraper)
         end
 

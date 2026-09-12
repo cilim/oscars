@@ -56,15 +56,17 @@ rails "oscars:import[2026]"
 
 Reads `db/data/2026.yml` and creates the season, categories, and nominees. Idempotent — safe to run multiple times.
 
-### Scrape oscars.org (for future years)
+### Scrape Wikipedia (admin UI or rake)
+
+Admin: **Admin → Seasons → Scrape Nominations**, or:
 
 ```bash
-rails "oscars:scrape[2027]"
+rails "oscars:canary[2026]"   # fetch latest completed ceremony and assert shape
 ```
 
-Fetches the nominations page from oscars.org, parses categories and nominees, and saves to `db/data/2027.yml`. Review the generated file, then import it.
+The scraper reads MediaWiki **wikitext** (stable) via the Wikipedia API, validates category/nominee invariants, and falls back to HTML if needed. On failure it dumps raw wikitext to `db/data/<year>.wikitext` for manual repair. Review the preview in the UI, then import.
 
-Note: oscars.org may block automated requests (403). If so, create the YAML manually following the format in `db/data/2026.yml`.
+Note: the older `rails "oscars:scrape[YEAR]"` task still targets oscars.org and may 403; prefer the admin Wikipedia scrape.
 
 ### List available data files
 

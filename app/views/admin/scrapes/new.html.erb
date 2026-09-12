@@ -5,7 +5,7 @@
     <%= link_to "← Seasons", admin_seasons_path, class: "text-sm text-oscar-muted hover:text-oscar-text no-underline transition-colors" %>
   </div>
   <h1 class="text-3xl font-bold text-oscar-gold">Scrape Nominations</h1>
-  <p class="text-oscar-muted mt-1">Fetches nominees directly from oscars.org and shows an editable preview before importing.</p>
+  <p class="text-oscar-muted mt-1">Fetches nominees from Wikipedia and shows an editable preview before importing.</p>
 </div>
 
 <div class="card max-w-md"
@@ -23,7 +23,7 @@
     </div>
 
     <div class="bg-oscar-surface border border-oscar-border rounded-lg p-3 mb-5 text-xs text-oscar-muted space-y-1">
-      <p>Nominations are fetched from <strong class="text-oscar-text">Wikipedia</strong>. Poster images are then fetched from TMDB (if credentials are configured). This may take 20–40 seconds for a full ceremony.</p>
+      <p>Nominations are fetched from <strong class="text-oscar-text">Wikipedia wikitext</strong> (with an HTML fallback). Poster images are then fetched from TMDB (if credentials are configured). This may take 20–40 seconds for a full ceremony.</p>
     </div>
 
     <input type="submit" value="Scrape Nominations →"
@@ -31,3 +31,11 @@
            class="btn btn-gold w-full cursor-pointer">
   <% end %>
 </div>
+
+<% if @raw_wikitext.present? %>
+  <div class="card max-w-3xl mt-6">
+    <h2 class="text-sm font-semibold text-oscar-gold mb-2">Raw Wikipedia wikitext (for manual repair)</h2>
+    <p class="text-xs text-oscar-muted mb-3">Paste into an editor or Cursor if the automatic parse failed. Also written to <code class="text-oscar-text">db/data/&lt;year&gt;.wikitext</code> when possible.</p>
+    <textarea readonly rows="16" class="input-field font-mono text-xs w-full"><%= @raw_wikitext %></textarea>
+  </div>
+<% end %>

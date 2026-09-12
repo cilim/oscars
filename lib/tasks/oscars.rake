@@ -144,6 +144,26 @@ namespace :oscars do
     end
   end
 
+  desc "Canary: fetch the latest completed ceremony from Wikipedia and assert scrape invariants. Usage: rails oscars:canary[2026]"
+  task :canary, [ :year ] => :environment do |_t, args|
+    year = (args[:year] || (Time.current.month >= 3 ? Time.current.year : Time.current.year - 1)).to_i
+    puts "Running Wikipedia scrape canary for #{year}..."
+
+    scraper = OscarsScraper.new(year, persist_wikitext: false)
+    data = scraper.call
+
+    if data.nil?
+      abort "Canary FAILED for #{year}:\n  - #{scraper.errors.join("\n  - ")}"
+    end
+
+    cats = data["categories"]
+    noms = cats.sum { |c| c["nominees"].length }
+    puts "Canary OK — #{cats.length} categories, #{noms} nominees (source: #{scraper.parse_source})"
+    cats.each do |cat|
+      puts "  #{cat['name']}: #{cat['nominees'].length}"
+    end
+  end
+
   private
 
   def import_season(data)
@@ -218,7 +238,7 @@ namespace :oscars do
       /actor in a supporting role/i => "Best Supporting Actor",
       /actress in a supporting role/i => "Best Supporting Actress",
       /animated feature/i => "Best Animated Feature Film",
-      /animated short/i => "Best Animated Short Film",
+      /short film \(animated\)|animated short/i => "Best Animated Short Film",
       /cinematography/i => "Best Cinematography",
       /costume design/i => "Best Costume Design",
       /directing/i => "Best Director",
@@ -226,7 +246,7 @@ namespace :oscars do
       /documentary short/i => "Best Documentary Short Film",
       /film editing/i => "Best Film Editing",
       /international feature/i => "Best International Feature Film",
-      /live action short/i => "Best Live Action Short Film",
+      /short film \(live action\)|live action short/i => "Best Live Action Short Film",
       /makeup and hairstyling/i => "Best Makeup and Hairstyling",
       /original score|music \(original score\)/i => "Best Original Score",
       /original song|music \(original song\)/i => "Best Original Song",

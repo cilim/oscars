@@ -19,6 +19,7 @@ module Admin
         render :preview
       else
         flash.now[:alert] = scraper.errors.join(" ")
+        @raw_wikitext = scraper.raw_wikitext
         render :new, status: :unprocessable_entity
       end
     end
