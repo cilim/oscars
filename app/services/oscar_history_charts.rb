@@ -21,7 +21,8 @@ class OscarHistoryCharts
         y: leader[:wins],
         film: leader[:movie],
         year: night[:year],
-        name: category_label(night)
+        name: category_label(night),
+        seasonPath: season_movies_path(night[:season_id])
       }
     end
 
@@ -116,7 +117,7 @@ class OscarHistoryCharts
       plotOptions: {
         column: base_chart.dig(:plotOptions, :column),
         scatter: {
-          marker: { radius: 4, symbol: "circle" },
+          marker: { enabled: true, radius: 4, symbol: "circle" },
           opacity: 0.85,
           jitter: { x: 0.12, y: 0.12 }
         }
@@ -170,9 +171,16 @@ class OscarHistoryCharts
       {
         x: film[:nominations],
         y: film[:wins],
-        name: "#{film[:movie]} (#{film[:year]})"
+        name: "#{film[:movie]} (#{film[:year]})",
+        seasonPath: season_movies_path(film[:season_id])
       }
     end
+  end
+
+  def season_movies_path(season_id)
+    return if season_id.blank?
+
+    Rails.application.routes.url_helpers.season_path(season_id, view: "movies")
   end
 
   def base_chart

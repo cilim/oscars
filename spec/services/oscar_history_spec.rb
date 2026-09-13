@@ -39,6 +39,7 @@ RSpec.describe OscarHistory do
       announce(season, "Best Actor", "The Whale")
 
       night = described_class.new.call[:nights].sole
+      expect(night[:season_id]).to eq(season.id)
       expect(night[:year]).to eq(2023)
       expect(night[:award_count]).to eq(4)
       expect(night[:unique_winning_films]).to eq(2)
@@ -101,8 +102,8 @@ RSpec.describe OscarHistory do
       anora = films.find { |f| f[:movie] == "Anora" }
       brutalist = films.find { |f| f[:movie] == "The Brutalist" }
 
-      expect(anora).to include(year: 2025, nominations: 3, wins: 2)
-      expect(brutalist).to include(year: 2025, nominations: 3, wins: 0)
+      expect(anora).to include(season_id: season.id, year: 2025, nominations: 3, wins: 2)
+      expect(brutalist).to include(season_id: season.id, year: 2025, nominations: 3, wins: 0)
     end
   end
 end

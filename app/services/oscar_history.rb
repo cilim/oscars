@@ -45,7 +45,7 @@ class OscarHistory
     end
 
     films = tallies.values
-      .map { |tally| tally.merge(year: season.year) }
+      .map { |tally| tally.merge(year: season.year, season_id: season.id) }
       .sort_by { |tally| [ -tally[:wins], -tally[:nominations], tally[:movie] ] }
 
     winning_films = films.select { |film| film[:wins].positive? }
@@ -53,6 +53,7 @@ class OscarHistory
     picture_wins = picture_movie && tallies[picture_movie] ? tallies[picture_movie][:wins] : 0
 
     {
+      season_id: season.id,
       year: season.year,
       season_name: season.name,
       award_count: winning_films.sum { |film| film[:wins] },

@@ -1,5 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 import HighchartsModule from "highcharts"
+import { withChartPointNavigation } from "chart_point_navigation"
 
 const Highcharts = [ HighchartsModule, HighchartsModule?.highcharts, HighchartsModule?.default ]
   .find((candidate) => candidate && typeof candidate.chart === "function")
@@ -21,7 +22,10 @@ export default class extends Controller {
   static values = { options: Object }
 
   connect() {
-    this.chart = Highcharts.chart(this.containerTarget, this.optionsValue)
+    this.chart = Highcharts.chart(
+      this.containerTarget,
+      withChartPointNavigation(this.optionsValue)
+    )
   }
 
   disconnect() {

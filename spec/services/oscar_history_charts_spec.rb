@@ -2,6 +2,7 @@ RSpec.describe OscarHistoryCharts do
   let(:nights) do
     [
       {
+        season_id: 101,
         year: 2021,
         season_name: "93rd",
         award_count: 19,
@@ -13,6 +14,7 @@ RSpec.describe OscarHistoryCharts do
         picture_director_split: false
       },
       {
+        season_id: 102,
         year: 2022,
         season_name: "94th",
         award_count: 19,
@@ -28,10 +30,10 @@ RSpec.describe OscarHistoryCharts do
 
   let(:films) do
     [
-      { year: 2025, movie: "Anora", nominations: 6, wins: 5 },
-      { year: 2020, movie: "The Irishman", nominations: 10, wins: 0 },
-      { year: 2022, movie: "Dune", nominations: 10, wins: 6 },
-      { year: 2021, movie: "Minari", nominations: 4, wins: 1 }
+      { season_id: 201, year: 2025, movie: "Anora", nominations: 6, wins: 5 },
+      { season_id: 202, year: 2020, movie: "The Irishman", nominations: 10, wins: 0 },
+      { season_id: 102, year: 2022, movie: "Dune", nominations: 10, wins: 6 },
+      { season_id: 101, year: 2021, movie: "Minari", nominations: 4, wins: 1 }
     ]
   end
 
@@ -42,6 +44,7 @@ RSpec.describe OscarHistoryCharts do
       points = charts.hog.dig(:series, 0, :data)
       expect(points.map { |point| point[:y] }).to eq([ 3, 6 ])
       expect(points.map { |point| point[:film] }).to eq([ "Nomadland", "Dune" ])
+      expect(points.map { |point| point[:seasonPath] }).to all(include("view=movies"))
     end
   end
 
@@ -65,6 +68,7 @@ RSpec.describe OscarHistoryCharts do
       expect(names).to include("Anora (2025)", "The Irishman (2020)", "Dune (2022)", "Minari (2021)")
       irishman = points.find { |point| point[:name].start_with?("The Irishman") }
       expect(irishman).to include(x: 10, y: 0)
+      expect(points.map { |point| point[:seasonPath] }).to all(include("view=movies"))
     end
   end
 

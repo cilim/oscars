@@ -1,5 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 import HighchartsModule from "highcharts"
+import { withChartPointNavigation } from "chart_point_navigation"
 
 const Highcharts = [ HighchartsModule, HighchartsModule?.highcharts, HighchartsModule?.default ]
   .find((candidate) => candidate && typeof candidate.chart === "function")
@@ -37,7 +38,10 @@ export default class extends Controller {
     const options = this.panelsValue[this.selectTarget.value]
     if (!options) return
 
-    this.chart = Highcharts.chart(this.containerTarget, options)
+    this.chart = Highcharts.chart(
+      this.containerTarget,
+      withChartPointNavigation(options)
+    )
   }
 
   destroyChart() {
